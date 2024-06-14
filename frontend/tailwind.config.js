@@ -8,9 +8,11 @@ export default {
     extend: {
       boxShadow: {
         'equel': '0 0 15px -4px rgba(0, 0, 0, 0.2)',
-      }
-    },
+      },
+      fontSize: {
+        'placeholder': '14px',
+    }
   },
   plugins: [],
 }
-
+}
