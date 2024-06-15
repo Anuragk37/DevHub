@@ -1,11 +1,20 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import  {useForm} from 'react-hook-form'
 import * as yup from 'yup'
 import {yupResolver} from '@hookform/resolvers/yup'
 import axios from 'axios'
-
+import { useNavigate } from 'react-router-dom'
+import { useDispatch } from 'react-redux'
+import { userSignIn } from '../../features/authSlice'
 
 const SignUp = () => {
+
+  const navigate = useNavigate()
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    console.log('here')
+  }, [])
 
   const schema = yup.object().shape({
     fullname: yup.string().required("Fullname is required"),
@@ -32,6 +41,9 @@ const SignUp = () => {
       }
 
       const response = await axios.post('http://127.0.0.1:8000/api/account/user/',formDatatoSend)
+
+      dispatch(userSignIn(response.data))
+      navigate('/')
 
       console.log(response.data)
       

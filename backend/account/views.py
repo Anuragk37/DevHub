@@ -5,7 +5,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
 from .models import MyUser
-from .serializers import UserSerializer
+from .serializers import UserLoginSerializer, UserSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 # Create your views here.
 
@@ -41,8 +41,8 @@ class UserView(APIView):
             refresh = RefreshToken.for_user(user)
             return Response({
                   "message": "User created successfully",
-                  "refresh": str(refresh),
-                  "access": str(refresh.access_token)}, 
+                  "refreshToken": str(refresh),
+                  "accessToken": str(refresh.access_token)}, 
                   status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
@@ -58,3 +58,17 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UserLoginView(APIView):
+    def post(self, request):
+        serializer = UserLoginSerializer(data=request.data)
+        if  serializer.is_valid():
+            user=serializer.validated_data['user']
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                  "message": "User logged in successfully",
+                  "refreshToken": str(refresh),
+                  "accessToken": str(refresh.access_token)}, 
+                  status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        

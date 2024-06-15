@@ -7,6 +7,10 @@ import HomePage from './pages/User/HomePage'
 import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import AdminLogin from './pages/Admin/AdminLogin'
 
+import {Provider} from 'react-redux'
+import {store,persistor} from './app/store'
+import { PersistGate } from 'redux-persist/integration/react'
+import AdminHome from './pages/Admin/AdminHome'
 function App() {
 
   const router = createBrowserRouter([
@@ -25,12 +29,22 @@ function App() {
     {
       path:'/admin-login',
       element:<AdminLogin />
+    },
+    {
+      path:'/dashboard',
+      element:<AdminHome />
     }
   ])
 
   return (
     <>
-      <RouterProvider router={router} />
+    <Provider store={store}>
+        <PersistGate loading={null} persistor={persistor}>
+          <RouterProvider router={router} />
+        </PersistGate>
+        
+    </Provider>
+      
     </>
   )
 }

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'corsheaders',
 
     'account',
+    'admin_panel',
 ]
 
 
@@ -152,6 +153,9 @@ DATABASES = {
     }
 }
 
+AUTH_USER_MODEL = 'account.MyUser'
+
+AUTHENTICATION_BACKENDS = ['account.authentication.AuthBackend']
 
 # Password validation
 # https://docs.djangoproject.com/en/5.0/ref/settings/#auth-password-validators
