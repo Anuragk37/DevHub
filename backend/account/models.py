@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from admin_panel.models import Skill,Tag
 
 class MyUserManager(BaseUserManager):
    def create_user(self,username, email, password=None,**extra_fields):
@@ -56,3 +57,18 @@ class MyUser(AbstractBaseUser):
 
    def has_module_perms(self, app_label):
       return True
+
+
+class MyUserSkill(models.Model):
+   user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+   skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+
+   def __str__(self):
+      return self.user.username
+
+class MyUserTag(models.Model):
+   user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+   tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
+
+   def __str__(self):
+      return self.user.username

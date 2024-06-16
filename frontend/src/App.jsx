@@ -11,6 +11,11 @@ import {Provider} from 'react-redux'
 import {store,persistor} from './app/store'
 import { PersistGate } from 'redux-persist/integration/react'
 import AdminHome from './pages/Admin/AdminHome'
+import UserManagemment from './pages/Admin/User Management/UserManagemment'
+import Skills from './pages/Admin/Skills'
+import Tags from './pages/Admin/Tags'
+import SkillsSelector from './components/User/SkillSelector'
+import TagSelector from './components/User/TagSelector'
 function App() {
 
   const router = createBrowserRouter([
@@ -27,12 +32,32 @@ function App() {
       element: <Authentication><SignIn /></Authentication>
     },
     {
+      path: '/skill-selection',
+      element: <Authentication><SkillsSelector /></Authentication>
+    },
+    {
+      path: '/tag-selection',
+      element: <Authentication><TagSelector /></Authentication>
+    },
+    {
       path:'/admin-login',
       element:<AdminLogin />
     },
     {
-      path:'/dashboard',
+      path:'/admin/dashboard',
       element:<AdminHome />
+    },
+    {
+      path: '/admin/user-management',
+      element:<UserManagemment />
+    },
+    {
+      path: '/admin/skills',
+      element: <Skills />
+    },
+    {
+      path: '/admin/tags',
+      element: <Tags />
     }
   ])
 

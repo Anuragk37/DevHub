@@ -21,7 +21,7 @@ const AdminLogin = () => {
         password:password
       })
       dispatch(adminSignIn(response.data))
-      navigate('/dashboard')
+      navigate('/admin/dashboard')
     }catch(error){
       console.log(error)
     }

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect,useState } from 'react'
 import  {useForm} from 'react-hook-form'
 import * as yup from 'yup'
 import {yupResolver} from '@hookform/resolvers/yup'
@@ -11,11 +11,7 @@ const SignUp = () => {
 
   const navigate = useNavigate()
   const dispatch = useDispatch()
-
-  useEffect(() => {
-    console.log('here')
-  }, [])
-
+  
   const schema = yup.object().shape({
     fullname: yup.string().required("Fullname is required"),
     username: yup.string().required("Username is required"),
@@ -24,7 +20,9 @@ const SignUp = () => {
     password: yup.string().required("Password is required"),
     confirm_password: yup.string().required("Confirm password is required").oneOf([yup.ref('password')],'Passwords must match')
   })
-  const {register,handleSubmit,formState:{errors}} = useForm({resolver:yupResolver(schema)})
+
+  const {register,handleSubmit,formState:{errors},setError} = useForm({resolver:yupResolver(schema)})
+  
 
   const onSubmit = async (data) => {
     try{
@@ -43,17 +41,25 @@ const SignUp = () => {
       const response = await axios.post('http://127.0.0.1:8000/api/account/user/',formDatatoSend)
 
       dispatch(userSignIn(response.data))
-      navigate('/')
+      navigate('/skill-selection')
 
-      console.log(response.data)
       
-    }catch(err){
-      console.log(err)
+      
+    }catch (err) {
+      if (err.response && err.response.data) {
+        const serverErrors = err.response.data;
+        for (const [field, messages] of Object.entries(serverErrors)) {
+          setError(field, { type: 'server', message: messages.join(' ') });
+        }
+      } else {
+        setError('form', { type: 'server', message: 'An unexpected error occurred' });
+      }
+      console.log(err);
     }
   }
 
   return (
-   <div className="w-full max-w-sm mx-auto  bg-white shadow-equel rounded-2xl shadow-purple-300 p-3">
+   <div className="w-full max-w-md mx-auto  bg-white shadow-equel rounded-2xl shadow-purple-300 p-3">
    <form onSubmit={handleSubmit(onSubmit)} className="bg-white shadow-equal rounded-lg px-8 pt-6 pb-8 mb-4">
      <div className="mb-4">
        <input
@@ -124,6 +130,7 @@ const SignUp = () => {
        </button>
      </div>
    </form>
+   {errors.form && <div className="error-messages"><p>{errors.form.message}</p></div>}
  </div>
   )
 }

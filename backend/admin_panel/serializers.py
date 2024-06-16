@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from account.models import MyUser
+from .models import Skill,Tag
 from django.contrib.auth import authenticate
 
 class AdminLoginSerializer(serializers.Serializer):
@@ -23,3 +24,15 @@ class AdminLoginSerializer(serializers.Serializer):
          raise serializers.ValidationError('creadientials required')
       
       return data
+
+
+class SkillSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = Skill
+      fields = '__all__'
+
+
+class TagSerializer(serializers.ModelSerializer):
+   class Meta:
+      model = Tag
+      fields = '__all__'
