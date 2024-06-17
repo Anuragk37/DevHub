@@ -12,7 +12,6 @@ function Header() {
   const dispatch = useDispatch();
 
   const isAuthenticated = useSelector((state) => state.auth.isUserAuthenticated);
-  console.log(isAuthenticated);
 
   const toggleSearch = () => {
     setShowSearch(!showSearch);

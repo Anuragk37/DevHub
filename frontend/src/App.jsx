@@ -16,6 +16,8 @@ import Skills from './pages/Admin/Skills'
 import Tags from './pages/Admin/Tags'
 import SkillsSelector from './components/User/SkillSelector'
 import TagSelector from './components/User/TagSelector'
+import CreateArticle from './pages/User/Article/CreateArticle'
+import ArticleView from './pages/User/Article/ArticleView'
 function App() {
 
   const router = createBrowserRouter([
@@ -38,6 +40,14 @@ function App() {
     {
       path: '/tag-selection',
       element: <Authentication><TagSelector /></Authentication>
+    },
+    {
+      path:'/user/create-article',
+      element:<CreateArticle />
+    },
+    {
+      path:'/user/view-article',
+      element:<ArticleView />
     },
     {
       path:'/admin-login',

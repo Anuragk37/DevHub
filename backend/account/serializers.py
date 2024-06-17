@@ -13,7 +13,6 @@ class UserSerializer(serializers.ModelSerializer):
       fields = ['id','username','fullname','email','phone_number','bio','date_joined','password','profile_pic']
 
    def create(self, validated_data):
-      print("from this")
       user = MyUser.objects.create_user(**validated_data)
       return user
 

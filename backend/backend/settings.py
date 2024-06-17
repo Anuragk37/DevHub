@@ -48,9 +48,12 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'corsheaders',
+    'django_quill',
 
     'account',
     'admin_panel',
+    'article'
+    
 ]
 
 
@@ -59,7 +62,6 @@ REST_FRAMEWORK = {
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
-
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
