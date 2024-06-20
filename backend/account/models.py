@@ -28,6 +28,7 @@ class MyUserManager(BaseUserManager):
       user.is_admin = True
       user.is_staff = True
       user.is_superuser = True
+      user.is_verified = True
       user.save(using=self._db)
       return user
 
@@ -37,12 +38,13 @@ class MyUser(AbstractBaseUser):
    email = models.EmailField(verbose_name='email', max_length=60, unique=True)
    phone_number = models.CharField(max_length=15, unique=True)
    bio=models.TextField(blank=True)
-   profile_pic=models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+   profile_pic=models.ImageField(upload_to='profile_pics/', default='default.jpg', blank=True, null=True)
    date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
    is_admin = models.BooleanField(default=False)
    is_active = models.BooleanField(default=True)
    is_staff = models.BooleanField(default=False)
    is_superuser = models.BooleanField(default=False)
+   is_verified = models.BooleanField(default=False)
 
    USERNAME_FIELD = 'username'
    REQUIRED_FIELDS = ['email']

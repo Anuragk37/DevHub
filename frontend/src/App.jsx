@@ -3,6 +3,7 @@ import SignUp from './components/User/SignUp'
 import SignIn from './components/User/SignIn'
 import Authentication from './pages/User/Authentication'
 import HomePage from './pages/User/HomePage'
+import OtpVerify from './components/User/OtpVerify'
 
 import { createBrowserRouter,RouterProvider } from 'react-router-dom'
 import AdminLogin from './pages/Admin/AdminLogin'
@@ -18,6 +19,11 @@ import SkillsSelector from './components/User/SkillSelector'
 import TagSelector from './components/User/TagSelector'
 import CreateArticle from './pages/User/Article/CreateArticle'
 import ArticleView from './pages/User/Article/ArticleView'
+import UserProtecredRoute from './utils/ProtectedRoutes/UserProtecredRoute'
+import AdminProtectedRoute from './utils/ProtectedRoutes/AdminProtectedRoute'
+import UserReverseRoute from './utils/ProtectedRoutes/UserReverseRoute'
+
+import { Toaster } from 'react-hot-toast'
 function App() {
 
   const router = createBrowserRouter([
@@ -27,11 +33,15 @@ function App() {
     },
     {
       path: '/signup',
-      element: <Authentication><SignUp /></Authentication>
+      element: <UserReverseRoute><Authentication><SignUp /></Authentication></UserReverseRoute>
     },
     {
       path: '/signin',
-      element: <Authentication><SignIn /></Authentication>
+      element: <UserReverseRoute><Authentication><SignIn /></Authentication></UserReverseRoute>
+    },
+    {
+      path: '/verify-otp',
+      element:<Authentication><OtpVerify /></Authentication>
     },
     {
       path: '/skill-selection',
@@ -43,10 +53,10 @@ function App() {
     },
     {
       path:'/user/create-article',
-      element:<CreateArticle />
+      element:<UserProtecredRoute><CreateArticle /></UserProtecredRoute>
     },
     {
-      path:'/user/view-article',
+      path:'/user/view-article/:id',
       element:<ArticleView />
     },
     {
@@ -55,19 +65,19 @@ function App() {
     },
     {
       path:'/admin/dashboard',
-      element:<AdminHome />
+      element:<AdminProtectedRoute><AdminHome /></AdminProtectedRoute>
     },
     {
       path: '/admin/user-management',
-      element:<UserManagemment />
+      element:<AdminProtectedRoute><UserManagemment /></AdminProtectedRoute>
     },
     {
       path: '/admin/skills',
-      element: <Skills />
+      element: <AdminProtectedRoute><Skills /></AdminProtectedRoute>
     },
     {
       path: '/admin/tags',
-      element: <Tags />
+      element: <AdminProtectedRoute><Tags /></AdminProtectedRoute>
     }
   ])
 
@@ -76,6 +86,10 @@ function App() {
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <RouterProvider router={router} />
+          <Toaster
+            position="bottom-center"
+            reverseOrder={false}
+          />
         </PersistGate>
         
     </Provider>

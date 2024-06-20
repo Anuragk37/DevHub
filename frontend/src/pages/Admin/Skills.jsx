@@ -33,6 +33,15 @@ const Skills = () => {
 
    }
 
+   const deleteSkill = async (id) => {
+      try{
+         await axios.delete(`http://127.0.0.1:8000/api/admin/skills/${id}/`)
+         setSkills(skills.filter(skill => skill.id !== id))
+      }catch(error){
+         console.log(error)
+      }
+   }
+
   return (
    <div className="w-screen min-h-screen max-h-full flex bg-gray-100">
       <div className="w-64">
@@ -48,10 +57,10 @@ const Skills = () => {
         {/* Main Content */}
         <div className="flex overflow-y-auto  py-10 px-16">
           <div className='w-3/5 h-full'>
-            <Tables list={skills}/>
+            <Tables list={skills} onDelete={deleteSkill}/>
           </div>
           <div className='w-2/5 h-64 '>
-            <Add add={addSkill}/>
+            <Add add={addSkill} />
           </div>
         </div>
       </div>

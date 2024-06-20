@@ -1,9 +1,8 @@
 import axios from 'axios';
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import {jwtDecode} from "jwt-decode";
+import {jwtDecode} from 'jwt-decode';
 
 const SkillsSelector = () => {
   const [skills, setSkills] = useState([]);
@@ -11,8 +10,7 @@ const SkillsSelector = () => {
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const accessToken = useSelector((state) => state.auth.userAccessToken)
-
+  const accessToken = useSelector((state) => state.auth.userAccessToken);
   const navigate = useNavigate();
 
   const getSkills = async () => {
@@ -49,21 +47,19 @@ const SkillsSelector = () => {
   const handleSubmit = async () => {
     const decodedToken = jwtDecode(accessToken);
     const user_id = decodedToken.user_id;
-    const response = await axios.post('http://127.0.0.1:8000/api/account/user-skill/', {
+    await axios.post('http://127.0.0.1:8000/api/account/user-skill/', {
       user_id,
       selectedSkills,
-    
-    })
-
+    });
     navigate('/tag-selection');
   };
 
   return (
-    <div className="w-full max-w-md mx-auto bg-white shadow-equel rounded-2xl shadow-purple-300 p-3">
-      <Link to={"/tag-selection"}><h1 className='text-end'>skip now</h1></Link>
+    <div className="w-4/6 max-w-lg mx-auto bg-white shadow-equel rounded-2xl shadow-purple-300 p-3">
+      <Link to={"/tag-selection"}>
+      <h1 className='text-end'>Skip Now</h1></Link>
       <div className="container mx-auto p-4 max-w-xl">
-
-
+        <h1 className="text-2xl text-center font-bold text-purple-900 mb-4">Select Your Skills</h1>
         <div className="mb-4">
           <input
             type="text"
@@ -74,27 +70,27 @@ const SkillsSelector = () => {
           />
         </div>
         {selectedSkills.length > 0 && (
-           <div className="mb-4">
-           <h3 className="text-sm font-semibold mb-2">Selected Skills:</h3>
-           <div className="flex flex-wrap gap-2">
-             {selectedSkills.map(skill => (
-               <div
-                 key={skill.id}
-                 className="bg-purple-800 text-sm text-white p-1 px-2 m-1 rounded-full flex items-center space-x-2"
-               >
-                 <span>{skill.name}</span>
-                 <button
-                   className=" text-white text-md "
-                   onClick={() => handleSkillRemove(skill)}
-                 >
-                   ×
-                 </button>
-               </div>
-             ))}
-           </div>
-         </div>
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold mb-2">Selected Skills:</h3>
+            <div className="flex flex-wrap gap-2">
+              {selectedSkills.map(skill => (
+                <div
+                  key={skill.id}
+                  className="bg-purple-800 text-sm text-white p-1 px-2 m-1 rounded-full flex items-center space-x-2"
+                >
+                  <span>{skill.name}</span>
+                  <button
+                    className="text-white text-md"
+                    onClick={() => handleSkillRemove(skill)}
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
         )}
-        <div className="mb-4 max-h-60 overflow-y-auto  rounded">
+        <div className="mb-4 max-h-60 overflow-y-auto rounded">
           <div className="p-2 flex flex-wrap gap-2">
             {filteredSkills.map(skill => (
               <div
@@ -107,7 +103,6 @@ const SkillsSelector = () => {
             ))}
           </div>
         </div>
-        
         <button
           className="bg-purple-900 text-white p-1 rounded w-1/4 hover:bg-purple-950 transition duration-200"
           onClick={handleSubmit}

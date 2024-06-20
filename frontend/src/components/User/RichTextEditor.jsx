@@ -1,14 +1,18 @@
 import React, { useRef, useEffect } from 'react';
-import ReactQuill from 'react-quill';
+import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
+import '../../assets/css/Quill/CustomQuill.css';
+
+// Register custom size formats with Quill
+const Size = Quill.import('attributors/style/size');
+Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
+Quill.register(Size, true);
 
 const RichTextEditor = ({ value, onChange }) => {
   const editorRef = useRef(null);
 
   useEffect(() => {
-    // If ReactQuill uses findDOMNode internally, you might need to access its editor reference this way
     if (editorRef.current) {
-      // Accessing Quill instance using editorRef.current.getEditor()
       const quill = editorRef.current.getEditor();
       if (quill) {
         quill.on('text-change', () => {
@@ -23,22 +27,21 @@ const RichTextEditor = ({ value, onChange }) => {
       ref={editorRef}
       value={value}
       onChange={(content, delta, source, editor) => {
-        // onChange method provided by parent component
         onChange(content);
       }}
       modules={{
         toolbar: [
-          [{ 'header': '1'}, {'header': '2'}, { 'font': [] }],
-          [{ 'size': ['small', false, 'large', 'huge'] }],
-          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
+          [{ 'size': Size.whitelist }], // Use the custom size array
+          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
           ['bold', 'italic', 'underline', 'strike'],
           [{ 'color': [] }, { 'background': [] }],
-          [{ 'script': 'sub'}, { 'script': 'super' }],
+          [{ 'script': 'sub' }, { 'script': 'super' }],
           [{ 'align': [] }],
           ['blockquote', 'code-block'],
           ['link', 'image', 'video'],
-          ['clean']
-        ]
+          ['clean'],
+        ],
       }}
       className="bg-white rounded-lg shadow"
     />

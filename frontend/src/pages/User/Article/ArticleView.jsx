@@ -1,18 +1,35 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { useParams } from "react-router-dom";
+import { FaComment, FaThumbsUp, FaBookmark } from "react-icons/fa";
+import BaseUrl from "../../../utils/BaseUrls";
 
 const ArticleView = () => {
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState(null);
-  const [date, setDate] = useState(null);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [created_at, setCreate_at] = useState("");
+  const [auther, setAuther] = useState({});
+  const [comment_count, setComment_count] = useState(0);
+  const [thumbnail, setThumbnail] = useState(null);
+
+  const { id } = useParams();
 
   const getArticle = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/article/3/');
-      console.log(response.data);
-      setTitle(response.data.title);
-      setContent(response.data.content);
-      setDate(response.data.created_at);
+      const response = await axios.get(`${BaseUrl}/article/${id}/`);
+      const articleData = response.data;
+
+      const auther = await axios.get(
+        `${BaseUrl}/account/user/${response.data.auther}/`
+      );
+      console.log(auther.data);
+
+      setTitle(articleData.title);
+      setContent(articleData.content);
+      setCreate_at(articleData.create_at);
+      setAuther(auther.data);
+      setComment_count(articleData.comment_count);
+      setThumbnail(articleData.thumbnail);
     } catch (error) {
       console.log(error);
     }
@@ -20,21 +37,59 @@ const ArticleView = () => {
 
   useEffect(() => {
     getArticle();
-  }, []);
+  }, [id]);
 
   return (
-    <div className="article-container bg-gray-100 rounded-lg shadow-md px-4 py-8 md:px-24 lg:px-44 md:py-12">
-      <div className="article-header bg-white rounded-t-lg px-4 py-6 flex flex-col md:flex-row justify-between items-center">
-        <h1 className="text-5xl font-bold text-gray-800">{title}</h1>
-        <p className="text-gray-500 text-sm">{date}</p>
-      </div>
-      <img
-        src=""
-        alt="Thumbnail Image"
-        className="article-image w-full mt-4 md:mt-8 object-cover"
-      />
-      <div className="article-content px-4 py-8">
-        <div className="prose" dangerouslySetInnerHTML={{ __html: content }} />
+    <div className="w-screen h-full bg-purple-50 py-8">
+      <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6 px-10">
+        {/* Thumbnail Image */}
+        {thumbnail && (
+          <div className="mb-6">
+            <img
+              src={thumbnail}
+              alt="Thumbnail Image"
+              className="rounded-lg object-cover w-full"
+            />
+          </div>
+        )}
+
+        {/* Article Title */}
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">{title}</h1>
+
+        {/* Action Buttons */}
+        <div className="flex items-center justify-between mb-4 border-b border-gray-200 pb-4">
+          <div className="flex items-center space-x-4">
+            <button className="flex items-center space-x-2 focus:outline-none">
+              <FaThumbsUp className="text-gray-600 hover:text-gray-800" />
+              <span>Like</span>
+            </button>
+            <button className="flex items-center space-x-2 focus:outline-none">
+              <FaBookmark className="text-gray-600 hover:text-gray-800" />
+              <span>Save</span>
+            </button>
+            <button className="flex items-center space-x-2 focus:outline-none">
+              <FaComment className="text-gray-600 hover:text-gray-800" />
+              <span>Comment</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Article Metadata */}
+        <div className="flex items-center text-gray-500 text-sm mb-6">
+          <span className="mr-4">Author: {auther.fullname || "Unknown"}</span>
+          <span className="mr-4">
+            Created at: {new Date(created_at).toLocaleDateString()}
+          </span>
+          <span>Comments: {comment_count || 0}</span>
+        </div>
+
+        {/* Article Content */}
+        <div className="text-gray-800 leading-relaxed mb-6">
+          <div
+            className="prose"
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        </div>
       </div>
     </div>
   );

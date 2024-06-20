@@ -8,6 +8,9 @@ from rest_framework import generics
 from .models import Skill,Tag
 from .serializers import SkillSerializer,TagSerializer
 from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import get_object_or_404
+from account.models import MyUser
+from rest_framework.decorators import api_view
 
 # Create your views here.
 
@@ -28,8 +31,29 @@ class SkillView(generics.ListCreateAPIView):
    queryset = Skill.objects.all()
    serializer_class = SkillSerializer
 
+class SkillRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+   queryset = Skill.objects.all()
+   serializer_class = SkillSerializer
    
 
 class TagView(generics.ListCreateAPIView):
    queryset = Tag.objects.all()
    serializer_class = TagSerializer
+
+class TagRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+   queryset = Tag.objects.all()
+   serializer_class = TagSerializer
+
+@api_view(['POST'])
+def blockUser(request,pk):
+   user = get_object_or_404(MyUser, pk=pk)
+   user.is_active = False
+   user.save()
+   return Response(status=status.HTTP_204_NO_CONTENT)
+
+@api_view(['POST'])
+def unblockUser(request,pk):
+   user = get_object_or_404(MyUser, pk=pk)
+   user.is_active = True
+   user.save()
+   return Response(status=status.HTTP_204_NO_CONTENT)

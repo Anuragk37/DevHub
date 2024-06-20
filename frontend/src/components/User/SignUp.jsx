@@ -6,6 +6,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { userSignIn } from '../../features/authSlice'
+import toast, { Toaster } from 'react-hot-toast'
 
 const SignUp = () => {
 
@@ -39,11 +40,8 @@ const SignUp = () => {
       }
 
       const response = await axios.post('http://127.0.0.1:8000/api/account/user/',formDatatoSend)
-
-      dispatch(userSignIn(response.data))
-      navigate('/skill-selection')
-
-      
+      toast.success(response.data.message)
+      navigate('/verify-otp', { state: { isSignup: true } })
       
     }catch (err) {
       if (err.response && err.response.data) {
@@ -126,7 +124,7 @@ const SignUp = () => {
          className="bg-purple-800 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline"
          type="submit"
        >
-         Sign In
+         Sign Up
        </button>
      </div>
    </form>

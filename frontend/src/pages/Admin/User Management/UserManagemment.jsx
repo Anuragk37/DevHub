@@ -21,6 +21,23 @@ const UserManagemment = () => {
       getUsers()
    },[])
 
+   const handleBlock = async (id) =>{
+      try{
+         const response = await axios.post(`http://127.0.0.1:8000/api/admin/block-user/${id}/`)
+         getUsers()
+      }catch(error){
+         console.log(error);
+      }
+   }
+   const handleUnblock = async (id) =>{
+    try{
+       const response = await axios.post(`http://127.0.0.1:8000/api/admin/unblock-user/${id}/`)
+       getUsers()
+    }catch(error){
+       console.log(error);
+    }
+ }
+
   return (
    <div>
       <Header />
@@ -49,7 +66,11 @@ const UserManagemment = () => {
                   <td className="px-6 py-4">{user.phone_number}</td>
                   <td className="px-6 py-4">{user.date_joined}</td>
                   <td className="px-6 py-4">
-                    <a href="#" className="font-medium text-blue-600 hover:underline">Edit</a>
+                    {user.is_active ? (
+                      <a onClick={() => handleBlock(user.id)} className="font-medium text-blue-600 hover:underline cursor-pointer">Block</a>
+                    ): (
+                      <a onClick={() => handleUnblock(user.id)} className="font-medium text-blue-600 hover:underline cursor-pointer">Unblock</a>
+                    )}
                   </td>
                 </tr>
               ))}
