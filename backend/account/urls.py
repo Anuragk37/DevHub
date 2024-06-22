@@ -8,5 +8,7 @@ urlpatterns = [
    path('signin/', views.UserLoginView.as_view()),
    path('verify-otp/', views.verify_otp),
    path('user-skill/', views.UserSkillView.as_view()),
+   path('user-skill/<int:user_id>/', views.UserSkillView.as_view()),
    path('user-tag/', views.UserTagView.as_view()),
+   path('user-tag/<int:user_id>/', views.UserTagView.as_view()),
 ]

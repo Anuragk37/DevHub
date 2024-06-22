@@ -10,11 +10,15 @@ from rest_framework import status
 from .models import *
 from .serializers import *
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.core.mail import send_mail
+from .utils import send_email
 from django.conf import settings
 import random
 import redis
 from django.core.cache import cache
+from admin_panel.serializers import SkillSerializer
+
+import smtplib
+from email.mime.text import MIMEText
 # Create your views here.
 
 # class UserListCreateView(generics.ListCreateAPIView):   
@@ -63,6 +67,15 @@ class UserView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    
+    def patch(self, request, pk):
+        user = get_object_or_404(MyUser, pk=pk)
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 def send_otp(email, is_signup=False):
     try:
@@ -70,9 +83,10 @@ def send_otp(email, is_signup=False):
         otp = random.randint(1000, 9999)
         subject = "DevHub OTP"
         message = f"Your OTP is {otp}"
-        send_mail(subject, message, settings.EMAIL_HOST_USER, [email], fail_silently=False)
+        to_email = email
+        send_email(to_email,subject, message)
         cache.set("email", email,timeout=3000) 
-        cache.set("otp", otp,timeout=3000) # Use 'ex' instead of positional argument for expiry
+        cache.set("otp", otp,timeout=3000) 
         if is_signup:
             return Response({"message": "Your account is created successfully. Verify your email"}, status=status.HTTP_200_OK)
         else:
@@ -144,6 +158,19 @@ class UserSkillView(generics.ListCreateAPIView):
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED)
+
+    def get_queryset(self):
+        user_id = self.kwargs['user_id'] 
+        user = MyUser.objects.get(id=user_id)
+        user_skills = MyUserSkill.objects.filter(user=user).select_related('skill')
+        skills = [user_skill.skill for user_skill in user_skills]
+        return skills
+    
+    def list(self, request, *args, **kwargs):
+        skills = self.get_queryset()
+        serializer = SkillSerializer(skills, many=True)
+        return Response(serializer.data)
+
     
 class  UserTagView(generics.ListCreateAPIView):
     queryset = MyUserTag.objects.all()
@@ -161,3 +188,15 @@ class  UserTagView(generics.ListCreateAPIView):
             else:
                 return Response(serializers.error,status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_201_CREATED)
+    
+    def get_queryset(self):
+        user = self.kwargs['user_id']
+        user_tags = MyUserTag.objects.filter(user=user).select_related('tag')
+        tags = [user_tag.tag for user_tag in user_tags]
+        return tags
+
+    def list(self, request, *args, **kwargs):
+        tags = self.get_queryset()
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data)
+

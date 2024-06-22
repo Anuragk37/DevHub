@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
    date_joined = serializers.SerializerMethodField()
    class Meta:
       model = MyUser
-      fields = ['id','username','fullname','email','phone_number','bio','date_joined','password','profile_pic','is_active','is_verified']
+      fields = ['id','username','fullname','email','phone_number','bio','about','date_joined','password','profile_pic','is_active','is_verified']
 
    def create(self, validated_data):
       user = MyUser.objects.create_user(**validated_data)

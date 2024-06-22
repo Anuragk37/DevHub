@@ -24,6 +24,8 @@ import AdminProtectedRoute from './utils/ProtectedRoutes/AdminProtectedRoute'
 import UserReverseRoute from './utils/ProtectedRoutes/UserReverseRoute'
 
 import { Toaster } from 'react-hot-toast'
+import Profile from './pages/User/Profile/Profile'
+import { AddBio } from './components/User/Profile/AddBio'
 function App() {
 
   const router = createBrowserRouter([
@@ -58,6 +60,14 @@ function App() {
     {
       path:'/user/view-article/:id',
       element:<ArticleView />
+    },
+    {
+      path:'/user/profile',
+      element:<UserProtecredRoute><Profile /></UserProtecredRoute>
+    },
+    {
+      path:'/user/add-bio',
+      element:<UserProtecredRoute><AddBio /></UserProtecredRoute>
     },
     {
       path:'/admin-login',

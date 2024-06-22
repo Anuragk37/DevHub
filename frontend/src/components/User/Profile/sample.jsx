@@ -61,7 +61,7 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
   return (
     <div className={`${fromProfile ? 'fixed inset-0 flex items-center justify-center z-50' : ''}`}>
       {fromProfile && <div className="fixed inset-0 bg-black opacity-50 z-40" onClick={onClose}></div>}
-      <div className={`${fromProfile ? 'relative z-50 bg-white p-4 rounded-xl' :  ' max-w-lg mx-auto bg-white shadow-equel rounded-2xl p-3'}`}>
+      <div className={`${fromProfile ? 'relative z-50 bg-white p-4 rounded-xl' : 'max-w-lg mx-auto bg-white shadow-equel rounded-2xl p-3'}`}>
         {fromProfile && (
           <h1 className="text-end cursor-pointer" onClick={onClose}>Close</h1>
         )}
@@ -78,7 +78,7 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
             <input
               type="text"
               placeholder="Search for skills..."
-              className="shadow shadow-purple-200 min-w-96 appearance-none border rounded-3xl w-full py-2 px-3 text-placeholder text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow shadow-purple-200 appearance-none border rounded-3xl w-full py-2 px-3 text-placeholder text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />

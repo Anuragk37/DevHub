@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
 
-const TagSelector = () => {
+const TagSelector = ({fromProfile = false}) => {
    const[tags,setTags] = useState([])
    const[filteredTags,setFilteredTags] = useState([])
    const[selectedTags,setSelectedTags] = useState([])
@@ -58,7 +58,11 @@ const TagSelector = () => {
             selectedTags
          })
 
-         navigate("/")
+         if(fromProfile){
+            navigate('/user/profile') 
+         }else{
+            navigate('/')
+         }
 
       }catch(error){
          console.log(error);
@@ -66,7 +70,7 @@ const TagSelector = () => {
    }
 
   return (
-   <div className="w-full max-w-md mx-auto bg-white shadow-equel rounded-2xl shadow-purple-300 p-3">
+   <div className="w-full max-w-md mx-auto bg-white shadow-equel rounded-2xl shadow-purple-100 p-3">
       <Link to={"/"}><h1 className='text-end'>skip now</h1></Link>
    <div className="container mx-auto p-4 max-w-xl">
    <h1 className="text-2xl text-center font-bold text-purple-900 mb-4">Select Your Intrests</h1>

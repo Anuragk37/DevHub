@@ -28,7 +28,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex flex-col lg:flex-row w-screen px-6 mt-16 lg:px-24 bg-purple-50 py-6">
+      <div className="flex flex-col lg:flex-row w-screen px-6 mt-16 lg:px-24 bg-background py-6">
         <div className="hidden md:block md:w-1/5 mr-6">
           <SideBar />
         </div>
