@@ -96,10 +96,9 @@ const ArticleView = () => {
                 dangerouslySetInnerHTML={{ __html: content }}
               />
             </div>
-
-            {/* Comment Section */}
-            {/* <CommentSection /> */}
           </div>
+          {/* Comment Section */}
+          <CommentSection id={id}/>
         </div>
 
         {/* Sidebar */}
