@@ -57,8 +57,7 @@ class CommentView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
       def get(self,request,article_id):
-          print("this is article isssssssssssssssssssss",article_id)
-          comments = Comment.objects.filter(article_id=article_id)
+          comments = Comment.objects.filter(article_id=article_id,parent_id=None)
           serializer = CommentSerilaizer(comments,many=True)
           return Response(serializer.data ,status=status.HTTP_200_OK)
 

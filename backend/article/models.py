@@ -36,6 +36,9 @@ class Comment(models.Model):
 
    def __str__(self) -> str:
       return self.comment
+   @property
+   def children(self):
+      return self.replies.all()
 
 @receiver(post_save, sender=Comment)
 def update_comment_count(sender, instance, created, **kwargs):

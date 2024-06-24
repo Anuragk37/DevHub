@@ -27,17 +27,12 @@ const SignUp = () => {
 
   const onSubmit = async (data) => {
     try{
-      console.log(data)
       const formDatatoSend = new FormData()
       formDatatoSend.append('fullname',data.fullname)
       formDatatoSend.append('username',data.username)
       formDatatoSend.append('email',data.email)
       formDatatoSend.append('phone_number',data.phone_number)
       formDatatoSend.append('password',data.password)
-
-      for (let [key, value] of formDatatoSend.entries()) {
-        console.log(key, value);
-      }
 
       const response = await axios.post('http://127.0.0.1:8000/api/account/user/',formDatatoSend)
       toast.success(response.data.message)
