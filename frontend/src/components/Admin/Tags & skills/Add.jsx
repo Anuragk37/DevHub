@@ -1,7 +1,7 @@
 import axios from 'axios'
 import React, { useState } from 'react'
 
-const Add = ({add,tag}) => {
+const Add = ({add,tag,error}) => {
    const[name ,setName ] = useState('')
 
    const handleSubmit = async (e) => {
@@ -24,9 +24,11 @@ const Add = ({add,tag}) => {
                placeholder="enter "
                onChange={(e) => setName(e.target.value)}
             />
+            {error&&<p className='text-red-800 text-center'>{error}</p>}
             </div>
             
-            <button className='w-1/4 bg-sky-950 text-white 50 font-bold py-2 px-1  rounded-3xl focus:outline-none focus:shadow-outline' type="submit">
+            
+            <button className='w-1/4 bg-sky-950 text-white 50 font-bold py-2 px-1 bg-blue-900  rounded-3xl focus:outline-none focus:shadow-outline' type="submit">
             Add
             </button>
          </form>

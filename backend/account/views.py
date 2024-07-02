@@ -16,6 +16,8 @@ import random
 import redis
 from django.core.cache import cache
 from admin_panel.serializers import SkillSerializer
+from django.contrib.auth import authenticate
+
 
 import smtplib
 from email.mime.text import MIMEText
@@ -70,12 +72,15 @@ class UserView(APIView):
         
     
     def patch(self, request, pk):
-        user = get_object_or_404(MyUser, pk=pk)
-        serializer = UserSerializer(user, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = get_object_or_404(MyUser, pk=pk)
+            serializer = UserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 def send_otp(email, is_signup=False):
     try:
@@ -84,9 +89,9 @@ def send_otp(email, is_signup=False):
         subject = "DevHub OTP"
         message = f"Your OTP is {otp}"
         to_email = email
+        
         send_email(to_email,subject, message)
-        cache.set("email", email,timeout=3000) 
-        cache.set("otp", otp,timeout=3000) 
+        cache.set(email, otp,timeout=3000) 
         if is_signup:
             return Response({"message": "Your account is created successfully. Verify your email"}, status=status.HTTP_200_OK)
         else:
@@ -96,25 +101,26 @@ def send_otp(email, is_signup=False):
 
 @api_view(['POST'])
 def verify_otp(request):
-    email=cache.get("email")
+    email=request.data.get('email')
     otp = request.data.get('otp')
-    print(email,otp)
     is_signup = request.data.get('is_signup', False)  
-    stored_otp = cache.get("otp")
+    stored_otp = cache.get(email)
     if stored_otp is None or stored_otp != int(otp):
         return Response({"message": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 
     try:
-        print('entereed')
         user = MyUser.objects.get(email=email)
         user.is_verified = True
+        id=user.id
         user.save()
         cache.delete(email)
 
         if is_signup:
+
             refresh = RefreshToken.for_user(user)
             return Response({
                 "message": "User logged in successfully",
+                "user_id": id,
                 "refreshToken": str(refresh),
                 "accessToken": str(refresh.access_token)
             }, status=status.HTTP_200_OK)
@@ -122,10 +128,8 @@ def verify_otp(request):
         return Response({"message": "OTP verified"}, status=status.HTTP_200_OK)
     
     except MyUser.DoesNotExist:
-        print("User not found")
         return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
     except Exception as e:
-        print("errrrrrrrr",e)
         return Response({"message": f"Failed to verify OTP: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
     
 class UserLoginView(APIView):

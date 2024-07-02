@@ -30,8 +30,8 @@ const AdminLogin = () => {
   }
 
   return (
-   <div className='w-screen h-screen bg-blue-100 flex justify-center items-center'>
-  <div className='w-full max-w-md bg-blue-950 rounded-lg shadow-lg shadow-blue-600 p-12'>
+   <div className='w-screen h-screen bg-white flex justify-center items-center'>
+  <div className='w-full max-w-md bg-blue-900 rounded-lg shadow-equel shadow-blue-200 p-12'>
     <form className='w-full flex flex-col justify-center items-center space-y-4' onSubmit={handleSubmit}>
       <div className="w-full">
         <input
@@ -51,7 +51,7 @@ const AdminLogin = () => {
           onChange={(e) => setPassword(e.target.value)}
         />
       </div>
-      <button className='w-1/4 bg-white hover:bg-blue-300 text-blue-950 font-bold py-2 px-4 rounded-3xl focus:outline-none focus:shadow-outline' type="submit">
+      <button className='w-1/4 bg-white hover:bg-blue-500 text-blue-900 font-bold py-2 px-4 rounded-3xl focus:outline-none focus:shadow-outline' type="submit">
         Sign In
       </button>
     </form>

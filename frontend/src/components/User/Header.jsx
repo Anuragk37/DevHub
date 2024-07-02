@@ -7,11 +7,12 @@ import {jwtDecode} from 'jwt-decode'; // Import without destructuring
 import axios from 'axios';
 import defaultPic from '../../assets/default.jpg';
 import toast ,{Toaster} from 'react-hot-toast';
+import axiosInstance from '../../utils/axiosInstance';
 
 function Header() {
   const [showSearch, setShowSearch] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
-  const [profilePic, setProfilePic] = useState(null);
+  const [profilePic, setProfilePic] = useState('');
 
   const dispatch = useDispatch();
 
@@ -31,7 +32,8 @@ function Header() {
       const decodedToken = jwtDecode(accessToken);
       const userId = decodedToken.user_id;
       const response = await axios.get(`http://127.0.0.1:8000/api/account/user/${userId}/`);
-      setProfilePic(response.data.profile_pic);
+      
+      setProfilePic(`http://127.0.0.1:8000${response.data.profile_pic}`);
     }
   };
 
@@ -43,7 +45,7 @@ function Header() {
     <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md'>
       <div className='max-w-screen h-16 px-4 md:px-20 flex items-center justify-between relative'>
         <div>
-          <h1 className='text-2xl md:text-3xl font-bold text-purple-900'>DevHub</h1>
+          <Link to={'/'}><h1 className='text-2xl md:text-3xl font-bold text-purple-900'>DevHub</h1></Link>
         </div>
         <div className='flex items-center'>
           <div className={`${showSearch ? 'block' : 'hidden'} md:block relative`}>
@@ -71,12 +73,12 @@ function Header() {
         {!isAuthenticated ? (
           <div className='flex items-center space-x-4'>
             <Link to={'/signin'}>
-              <button className='hover:bg-purple-950 text-purple-900 hover:text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
+              <button className='hover:bg-purple-900 text-purple-900 hover:text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
                 Sign In
               </button>
             </Link>
             <Link to={'/signup'}>
-              <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
+              <button className='bg-purple-800 hover:bg-purple-900 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
                 Sign Up
               </button>
             </Link>

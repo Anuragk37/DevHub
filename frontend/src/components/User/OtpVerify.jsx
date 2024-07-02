@@ -14,18 +14,20 @@ const OtpVerify = () => {
 
   const location = useLocation()
   const isSignup = location.state?.isSignup || false
+  const email = location.state?.email || false
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     try{
       const response = await axios.post('http://127.0.0.1:8000/api/account/verify-otp/', {
         otp,
-        is_signup: isSignup
+        is_signup: isSignup,
+        email:email
       })
       dispatch(userSignIn(response.data))
-      console.log(response.data.message)
+      
       toast.success(response.data.message)
-      navigate('/')
+      navigate('/skill-selection')
     }catch(error){
       console.log(error)
     }

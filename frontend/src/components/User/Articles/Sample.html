@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevHub - Search Results</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #7c3aed;
+            --secondary-color: #8b5cf6;
+            --background-color: #f5f3ff;
+            --text-color: #1f2937;
+            --card-bg: #ffffff;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        header {
+            background-color: var(--primary-color);
+            padding: 1rem 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+        }
+        .search-bar input {
+            flex-grow: 1;
+            padding: 0.75rem 1rem;
+            border: none;
+            border-radius: 4px 0 0 4px;
+            font-size: 1rem;
+        }
+        .search-bar button {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0 4px 4px 0;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .search-bar button:hover {
+            background-color: #6d28d9;
+        }
+        h1 {
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+        }
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        .section {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        h2 {
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 0.5rem;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        li:last-child {
+            border-bottom: none;
+        }
+        a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+        a:hover {
+            color: var(--secondary-color);
+        }
+        .person {
+            display: flex;
+            align-items: center;
+        }
+        .person img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 1rem;
+            object-fit: cover;
+        }
+        .badge {
+            background-color: var(--secondary-color);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            margin-left: 0.5rem;
+        }
+        .meta {
+            font-size: 0.875rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="search-bar">
+            <input type="text" placeholder="Search DevHub..." value="javascript">
+            <button>Search</button>
+        </div>
+    </header>
+    <div class="container">
+        <h1>Search Results for "javascript"</h1>
+        
+        <div class="results-grid">
+            <div class="section">
+                <h2>Articles</h2>
+                <ul>
+                    <li>
+                        <a href="#">Advanced JavaScript Techniques for 2024</a>
+                        <span class="badge">New</span>
+                        <p>Discover cutting-edge JS practices to elevate your coding skills.</p>
+                        <div class="meta">By John Doe • 5 days ago • 4 min read</div>
+                    </li>
+                    <li>
+                        <a href="#">Building Scalable Apps with JavaScript</a>
+                        <p>Learn architectural patterns for large-scale JavaScript applications.</p>
+                        <div class="meta">By Jane Smith • 2 weeks ago • 8 min read</div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>People</h2>
+                <ul>
+                    <li class="person">
+                        <img src="https://i.pravatar.cc/150?img=68" alt="Alex Johnson">
+                        <div>
+                            <a href="#">Alex Johnson</a>
+                            <p>Senior JavaScript Developer at TechCorp</p>
+                            <div class="meta">500+ contributions this year</div>
+                        </div>
+                    </li>
+                    <li class="person">
+                        <img src="https://i.pravatar.cc/150?img=47" alt="Samantha Lee">
+                        <div>
+                            <a href="#">Samantha Lee</a>
+                            <p>JavaScript Instructor & Open Source Contributor</p>
+                            <div class="meta">1000+ students taught</div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="section">
+                <h2>Communities</h2>
+                <ul>
+                    <li>
+                        <a href="#">JavaScript Masterminds</a>
+                        <p>Advanced discussions on JS patterns and performance.</p>
+                        <div class="meta">8,750 members • Very active</div>
+                    </li>
+                    <li>
+                        <a href="#">Front-End Innovators</a>
+                        <p>Exploring the cutting edge of web development.</p>
+                        <div class="meta">12,300 members • Moderately active</div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

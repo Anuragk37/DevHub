@@ -9,7 +9,7 @@ const Authentication = ({children}) => {
         <h1 className="text-5xl font-bold mb-4">Get Into</h1>
         <h1 className="text-7xl font-bold mb-4">DevHub</h1>
       </div>
-      <div className='sm:w-full md:w-4/6 h-full flex justify-center items-center'>
+      <div className='sm:w-full md:w-4/6 h-full flex flex-col justify-center items-center'>
         {children}
       </div>
     </div>

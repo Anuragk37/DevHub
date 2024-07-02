@@ -16,6 +16,7 @@ module.exports = withMT({
       },
       colors: {
         'background': '#faf5ff',
+        'admin-sideBar':'#0B304D'
       }
    } ,  
   plugins: [],

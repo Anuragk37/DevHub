@@ -5,6 +5,7 @@ import axios from 'axios';
 import BaseUrl from '../../utils/BaseUrls';
 import Articles from '../../components/User/Articles';
 import RightSidebar from '../../components/User/RightSidebar';
+import axiosInstance from '../../utils/axiosInstance';
 
 const HomePage = () => {
   const [articles, setArticles] = useState([]);
@@ -12,7 +13,7 @@ const HomePage = () => {
 
   const getArticles = async () => {
     try {
-      const response = await axios.get(`${BaseUrl}/article/`);
+      const response = await axiosInstance.get(`${BaseUrl}/article/`);
       setArticles(response.data);
     } catch (error) {
       setError('Failed to load articles. Please try again later.');
@@ -28,7 +29,7 @@ const HomePage = () => {
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
-      <div className="flex flex-col lg:flex-row w-screen px-6 mt-16 lg:px-24 bg-background py-6">
+      <div className="flex flex-col lg:flex-row w-screen px-6 mt-16 lg:px-20 bg-background py-6">
         <div className="hidden md:block md:w-1/5 mr-6">
           <SideBar />
         </div>

@@ -5,8 +5,7 @@ const initialState = {
    userAccessToken: null,
    userRefreshToken: null,
    isAdminAuthenticated: false,
-   adminAccessToken: null,
-   adminRefreshToken: null,
+   
 };
 
 const authSlice = createSlice({
@@ -25,12 +24,12 @@ const authSlice = createSlice({
       },
       adminSignIn(state,action){
          state.isAdminAuthenticated = true;
-         state.adminAccessToken = action.payload.accessToken;
+         state.userAccessToken = action.payload.accessToken;
          state.adminRefreshToken = action.payload.refreshToken;
       },
       adminSignOut(state){
          state.isAdminAuthenticated = false;
-         state.adminAccessToken = null;
+         state.userAccessToken = null;
          state.adminRefreshToken = null;
       },
    }  

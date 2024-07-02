@@ -4,9 +4,10 @@ import { Link } from 'react-router-dom'
 import { jwtDecode } from 'jwt-decode'
 import { useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+import toast from 'react-hot-toast'
 
 
-const TagSelector = ({fromProfile = false}) => {
+const TagSelector = ({onClose,fromProfile = false}) => {
    const[tags,setTags] = useState([])
    const[filteredTags,setFilteredTags] = useState([])
    const[selectedTags,setSelectedTags] = useState([])
@@ -59,8 +60,10 @@ const TagSelector = ({fromProfile = false}) => {
          })
 
          if(fromProfile){
+            onClose();
             navigate('/user/profile') 
          }else{
+            toast.success("Account create suscessfully, you can login")
             navigate('/')
          }
 

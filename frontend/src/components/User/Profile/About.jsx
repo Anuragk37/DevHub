@@ -121,7 +121,8 @@ const About = () => {
         <h3 className="text-lg font-medium">Email</h3>
         <p className="text-gray-700">{email}</p>
       </div>
-      <div className="mb-6">
+      <hr />
+      <div className="mb-6 mt-2">
          <h3 className="text-lg font-medium">Skills</h3>
          {skills?.length > 0 ? (
             <div className="flex flex-wrap">
@@ -166,7 +167,7 @@ const About = () => {
       </div>
       {isAboutModalOpen && <AddAbout onClose={handleCloseModal} />}
       {isSkillModalOpen && <SkillsSelector onClose={handleCloseSkillModal} fromProfile={true} />}
-      {isTagModalOpen && <TagModal onClose={handleCloseTagModal}><TagSelector fromProfile={true}/></TagModal> }
+      {isTagModalOpen && <TagModal onClose={handleCloseTagModal}><TagSelector onClose={handleCloseTagModal} fromProfile={true}/></TagModal> }
     </div>
   );
 };

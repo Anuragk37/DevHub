@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import Header from '../../../components/User/Header'
 import ProfileDetails from '../../../components/User/Profile/ProfileDetails'
 import About from '../../../components/User/Profile/About'
+import MyArticle from '../../../components/User/Profile/MyArticle'
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('about')
@@ -29,9 +30,17 @@ const Profile = () => {
             >
               Posts
             </button>
+            <button
+              className={`mr-4 py-2 px-6 ${activeTab === 'saved_articles' ? 'font-bold bg-purple-800 text-white' : ''}`}
+              onClick={() => handleTabClick('saved_articles')}
+            >
+              Saved
+            </button>
+            
           </nav>
           {activeTab === 'about' && <About />}
-          {/* {activeTab === 'posts' && <Posts />} */}
+          {activeTab === 'posts' && <MyArticle />}
+          {activeTab === 'saved_articles' && <MyArticle fromSaved={true}/>}
         </div>
       </div>
     </div>

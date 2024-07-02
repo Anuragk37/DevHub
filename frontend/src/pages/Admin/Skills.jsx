@@ -7,6 +7,7 @@ import axios from 'axios'
 
 const Skills = () => {
    const[skills,setSkills] = useState([])
+   const[error,setError] = useState('')
 
    const getSkills = async () => {
       try{
@@ -26,9 +27,14 @@ const Skills = () => {
          const response = await axios.post('http://127.0.0.1:8000/api/admin/skills/',{
             name:name
          })
+         setError('')
          setSkills([...skills,response.data])
       }catch(error){
-         console.log(error)
+         if(error.response){
+            setError(error.response.data.message)
+         }else{
+            console.log("some thing happended");
+         }
       }
 
    }
@@ -60,7 +66,7 @@ const Skills = () => {
             <Tables list={skills} onDelete={deleteSkill}/>
           </div>
           <div className='w-2/5 h-64 '>
-            <Add add={addSkill} />
+            <Add add={addSkill} error={error}/>
           </div>
         </div>
       </div>

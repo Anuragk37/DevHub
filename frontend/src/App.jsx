@@ -26,6 +26,10 @@ import UserReverseRoute from './utils/ProtectedRoutes/UserReverseRoute'
 import { Toaster } from 'react-hot-toast'
 import Profile from './pages/User/Profile/Profile'
 import { AddBio } from './components/User/Profile/AddBio'
+import ArticleManagement from './pages/Admin/Article/ArticleManagemment.jsx'
+import ViewArticle from './pages/Admin/Article/ViewArticle.jsx'
+import ReportedArticleList from './pages/Admin/Article/ReportedArticleList.jsx'
+import ReportedArticle from './pages/Admin/Article/ReportedArticle.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -88,6 +92,22 @@ function App() {
     {
       path: '/admin/tags',
       element: <AdminProtectedRoute><Tags /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/articles',
+      element: <AdminProtectedRoute><ArticleManagement /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/reported-articles',
+      element: <AdminProtectedRoute><ReportedArticleList /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/reported-article',
+      element: <AdminProtectedRoute><ReportedArticle /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/view-article/:id',
+      element: <AdminProtectedRoute><ViewArticle /></AdminProtectedRoute>
     }
   ])
 
@@ -97,7 +117,8 @@ function App() {
         <PersistGate loading={null} persistor={persistor}>
           <RouterProvider router={router} />
           <Toaster
-            position="bottom-center"
+            position="top-center"
+            height="20px"
             reverseOrder={false}
           />
         </PersistGate>

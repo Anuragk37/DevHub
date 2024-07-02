@@ -13,8 +13,9 @@ class Article(models.Model):
    thumbnail = models.ImageField(upload_to='article_thumbnail/')
    create_at=models.DateTimeField(auto_now_add=True)
    auther = models.ForeignKey(MyUser,on_delete=models.CASCADE)
-   like_count=models.IntegerField(default=0)
+   likes=models.ManyToManyField(MyUser,related_name='likes',blank=True)
    comment_count=models.IntegerField(default=0)
+   needs_review = models.BooleanField(default=False)
    
    def __str__(self) -> str:
       return self.title
@@ -26,6 +27,26 @@ class ArticleTag(models.Model):
    def __str__(self) -> str:
       return self.article.title
 
+
+class SavedArticle(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    saved_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('user', 'article')
+
+    def __str__(self):
+        return f"{self.user.username} saved {self.article.title}"
+    
+class ReportedArticle(models.Model):
+    user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    article = models.ForeignKey(Article, on_delete=models.CASCADE)
+    reason = models.TextField()
+    reported_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} reported {self.article.title}"
 
 class Comment(models.Model):
    article = models.ForeignKey(Article,on_delete=models.CASCADE,related_name='comments')
@@ -40,9 +61,12 @@ class Comment(models.Model):
    def children(self):
       return self.replies.all()
 
+
 @receiver(post_save, sender=Comment)
 def update_comment_count(sender, instance, created, **kwargs):
    if created:
       instance.article.comment_count += 1
       instance.article.save()
+
+
    

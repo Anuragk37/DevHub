@@ -36,7 +36,7 @@ const SignUp = () => {
 
       const response = await axios.post('http://127.0.0.1:8000/api/account/user/',formDatatoSend)
       toast.success(response.data.message)
-      navigate('/verify-otp', { state: { isSignup: true } })
+      navigate('/verify-otp', { state: { isSignup: true , email: data.email } })
       
     }catch (err) {
       if (err.response && err.response.data) {

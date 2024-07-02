@@ -8,10 +8,12 @@ import axios from 'axios'
 
 const Tags = () => {
    const[tags,setTags] = useState([])
+   const[error,setError] = useState('')
 
    const getTags = async () => {
       try{
          const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/')
+         console.log(response.data);
          setTags(response.data)
       }catch(error){
          console.log(error)
@@ -28,8 +30,13 @@ const Tags = () => {
             name:name
          })
          setTags([...tags,response.data])
+         setError('')
       }catch(error){
-         console.log(error)
+         if(error.response){
+            setError(error.response.data.message)
+         }else{
+            console.log("some thing happended");
+         }
       }
 
    }
@@ -61,7 +68,7 @@ const Tags = () => {
             <Tables list={tags} onDelete={deleteTag}/>
           </div>
           <div className='w-2/5 h-64 '>
-            <Add add={addTag} tag={true}/>
+            <Add add={addTag} tag={true} error={error}/>
           </div>
         </div>
       </div>

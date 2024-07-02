@@ -13,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
       fields = ['id','username','fullname','email','phone_number','bio','about','date_joined','password','profile_pic','is_active','is_verified']
 
    def create(self, validated_data):
+      print("validateeeeeeeeeeeeee",validated_data)
       user = MyUser.objects.create_user(**validated_data)
       return user
 
@@ -30,7 +31,7 @@ class UserLoginSerializer(serializers.Serializer):
       if identifier and password:
          user=authenticate(identifier=identifier, password=password)
          if user:
-            if user.is_active:
+            if user.is_active:    
                data['user'] = user
             else:
                raise serializers.ValidationError('user not active')
