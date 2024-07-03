@@ -8,6 +8,8 @@ from rest_framework.exceptions import PermissionDenied
 import json
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
+
 
 
 
@@ -199,6 +201,13 @@ class ReportedArticleListView(APIView):
         reported_articles = ReportedArticle.objects.all()
         article_ids = reported_articles.values_list('article_id', flat=True)
         articles = Article.objects.filter(id__in=article_ids)
+        serializer = ArticleSerializer(articles, many=True,context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class SearchView(APIView):
+    def get(self, request):
+        keyword = request.GET.get('keyword')
+        articles = Article.objects.filter(Q(title__icontains=keyword) | Q(content__icontains=keyword))
         serializer = ArticleSerializer(articles, many=True,context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

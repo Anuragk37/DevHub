@@ -30,6 +30,7 @@ import ArticleManagement from './pages/Admin/Article/ArticleManagemment.jsx'
 import ViewArticle from './pages/Admin/Article/ViewArticle.jsx'
 import ReportedArticleList from './pages/Admin/Article/ReportedArticleList.jsx'
 import ReportedArticle from './pages/Admin/Article/ReportedArticle.jsx'
+import SearchResult from './pages/User/SearchResult/SearchResult.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -64,6 +65,10 @@ function App() {
     {
       path:'/user/view-article/:id',
       element:<ArticleView />
+    },
+    {
+      path:'/user/search-results',
+      element:<UserProtecredRoute><SearchResult /></UserProtecredRoute>
     },
     {
       path:'/user/profile',

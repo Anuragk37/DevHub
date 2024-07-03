@@ -19,7 +19,7 @@ const ReportedArticleList = () => {
 
   useEffect(() => {
     getArticles();
-  }, []);
+  }, [reportedArticles]);
 
   const handleDelete = (id) => {
     try {

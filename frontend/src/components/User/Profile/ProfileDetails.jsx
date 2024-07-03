@@ -4,13 +4,21 @@ import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 import BaseUrl from '../../../utils/BaseUrls';
 import EditProfileModal from './EditProfileModal';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaMapMarkerAlt, FaLink, FaCalendarAlt, FaEnvelope } from 'react-icons/fa';
 
 const ProfileDetails = () => {
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
-  const [bio, setBio] = useState('');
-  const [profilePic, setProfilePic] = useState('');
+  const [userData, setUserData] = useState({
+    name: '',
+    username: '',
+    email: '',
+    bio: '',
+    location: '',
+    profilePic: '',
+    website: '',
+    joinDate: '',
+    followers: 0,
+    following: 0
+  });
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const accessToken = useSelector((state) => state.auth.userAccessToken);
 
@@ -19,16 +27,23 @@ const ProfileDetails = () => {
     const userId = decodedToken.user_id;
     
     try {
-      const response = await axios.get(`${BaseUrl}/account/user/${userId}/`,{
+      const response = await axios.get(`${BaseUrl}/account/user/${userId}/`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
       });
-      console.log(response.data);
-      setBio(response.data.bio);
-      setName(response.data.fullname);
-      setUsername(response.data.username);
-      setProfilePic(`http://127.0.0.1:8000${response.data.profile_pic}`) 
+      setUserData({
+        name: response.data.fullname,
+        username: response.data.username,
+        email: response.data.email,
+        bio: response.data.bio,
+        location: response.data.location || '',
+        profilePic: `http://127.0.0.1:8000${response.data.profile_pic}`,
+        website: response.data.website || '',
+        joinDate: response.data.date_joined || '',
+        followers: response.data.followers_count || 0,
+        following: response.data.following_count || 0
+      });
     } catch (error) {
       console.error('Error fetching user:', error);
     }
@@ -44,29 +59,62 @@ const ProfileDetails = () => {
 
   const handleCloseEditModal = () => {
     setIsEditModalOpen(false);
-    getUser()
+    getUser();
   };
 
   return (
-    <div className='h-full sm:full md:w-1/4 lg:w-4/12 shadow-equel rounded-xl p-2'>
-      <div className='bio w-full flex-col p-6'>
-        <div className="flex items-center justify-end">
-          <FaEdit className='text-xl text-purple-950 cursor-pointer' onClick={handleEditProfile} />
+    <div className="relative bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="h-48 bg-gradient-to-r from-purple-600 to-indigo-600 relative">
+        <button
+          onClick={handleEditProfile}
+          className="absolute top-4 right-4 p-2 bg-white bg-opacity-20 rounded-full hover:bg-opacity-30 transition-all duration-300"
+        >
+          <FaEdit className="text-white text-xl" />
+        </button>
+      </div>
+      <div className="relative px-4 sm:px-6 pb-8">
+        <div className="flex flex-col items-center -mt-20">
+          <img
+            className="h-40 w-40 rounded-full ring-4 ring-white bg-white object-cover"
+            src={userData.profilePic}
+            alt={userData.name}
+          />
+          <h1 className="mt-4 text-3xl font-bold text-gray-900">{userData.name}</h1>
+          <p className="text-lg font-medium text-gray-500">@{userData.username}</p>
         </div>
-        <div className="profile-pic w-1/4 rounded-full overflow-hidden">
-          <img src={profilePic} alt="Profile Picture" className="w-full h-full object-cover" />
+        <div className="mt-6 text-center">
+          <p className="text-gray-700 max-w-2xl mx-auto">{userData.bio}</p>
         </div>
-        <div>
-          <h2 className="text-2xl font-semibold mb-2 ml-8">{name}</h2>
-          <p className="text-gray-600 mb-3">@{username}</p>
-          {bio ? (
-            <p className="text-gray-600">{bio}</p>
-          ) : (
-            <p className="text-gray-600 cursor-pointer" onClick={handleEditProfile}>Add Bio</p>
+        <div className="mt-6 flex flex-wrap justify-center items-center text-sm text-gray-500 space-x-4">
+          <span className="flex items-center mb-2">
+            <FaEnvelope className="mr-2 text-gray-400" />
+            {userData.email}
+          </span>
+          {userData.location && (
+            <span className="flex items-center mb-2">
+              <FaMapMarkerAlt className="mr-2 text-gray-400" />
+              {userData.location}
+            </span>
           )}
-          <div className='flex mt-3'>
-            <p>30k followers</p>
-            <p className='ml-4'>100 following</p>
+          {userData.website && (
+            <span className="flex items-center mb-2">
+              <FaLink className="mr-2 text-gray-400" />
+              <a href={userData.website} className="text-purple-600 hover:text-purple-500">{userData.website}</a>
+            </span>
+          )}
+          <span className="flex items-center mb-2">
+            <FaCalendarAlt className="mr-2 text-gray-400" />
+            Joined {new Date(userData.joinDate).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+          </span>
+        </div>
+        <div className="mt-6 flex items-center justify-center space-x-8 text-sm">
+          <div>
+            <span className="font-medium text-gray-900 block text-center text-2xl">{userData.followers}</span>
+            <span className="text-gray-500">Followers</span>
+          </div>
+          <div>
+            <span className="font-medium text-gray-900 block text-center text-2xl">{userData.following}</span>
+            <span className="text-gray-500">Following</span>
           </div>
         </div>
       </div>
@@ -74,7 +122,7 @@ const ProfileDetails = () => {
         <EditProfileModal
           isOpen={isEditModalOpen}
           onClose={handleCloseEditModal}
-          initialData={{ name, username, bio }}
+          initialData={userData}
         />
       )}
     </div>

@@ -84,20 +84,23 @@ class UserView(APIView):
 
 def send_otp(email, is_signup=False):
     try:
-        print("request reached here")
         otp = random.randint(1000, 9999)
         subject = "DevHub OTP"
         message = f"Your OTP is {otp}"
         to_email = email
         
         send_email(to_email,subject, message)
-        cache.set(email, otp,timeout=3000) 
+        cache.set(email,otp,timeout=120) 
         if is_signup:
             return Response({"message": "Your account is created successfully. Verify your email"}, status=status.HTTP_200_OK)
         else:
             return Response({"message": "OTP sent successfully"}, status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"message": f"Failed to send OTP: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+def resend_otp(request):
+    email = request.data.get('email')
+    return send_otp(email)
 
 @api_view(['POST'])
 def verify_otp(request):
@@ -105,6 +108,7 @@ def verify_otp(request):
     otp = request.data.get('otp')
     is_signup = request.data.get('is_signup', False)  
     stored_otp = cache.get(email)
+    print("stored_otp",stored_otp,otp,email)
     if stored_otp is None or stored_otp != int(otp):
         return Response({"message": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 

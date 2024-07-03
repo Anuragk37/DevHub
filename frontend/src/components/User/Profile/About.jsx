@@ -1,24 +1,22 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { useSelector } from "react-redux";
-import {jwtDecode} from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 import BaseUrl from "../../../utils/BaseUrls";
 import { AddAbout } from "./AddAbout";
 import SkillsSelector from "../SkillSelector";
 import TagModal from "./TagModal";
 import TagSelector from "../TagSelector";
+import { FaPen, FaPlus, FaLightbulb, FaCode } from "react-icons/fa";
 
 const About = () => {
   const [about, setAbout] = useState("");
-  const [email, setEmail] = useState("");
   const [skills, setSkills] = useState([]);
   const [interests, setInterests] = useState([]);
-  const [isEditing, setIsEditing] = useState(false);
-  const [newAbout, setNewAbout] = useState("");
   const [isAboutModalOpen, setIsAboutModalOpen] = useState(false);
   const [isSkillModalOpen, setIsSkillModalOpen] = useState(false);
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(true); // Loading state
+  const [isLoading, setIsLoading] = useState(true);
 
   const accessToken = useSelector((state) => state.auth.userAccessToken);
 
@@ -28,19 +26,16 @@ const About = () => {
       const userId = decodedToken.user_id;
       const response = await axios.get(`${BaseUrl}/account/user/${userId}/`);
       setAbout(response.data.about);
-      setEmail(response.data.email);
 
       const skills = await axios.get(`${BaseUrl}/account/user-skill/${userId}/`);
-      console.log(skills.data);
-       setSkills(skills.data)
+      setSkills(skills.data);
       
-       const interests = await axios.get(`${BaseUrl}/account/user-tag/${userId}/`);
-       console.log("nooooooooooo",interests.data)
-       setInterests(interests.data)
+      const interests = await axios.get(`${BaseUrl}/account/user-tag/${userId}/`);
+      setInterests(interests.data);
     } catch (error) {
       console.error("Error fetching user details:", error);
     } finally {
-      setIsLoading(false); // Set loading to false once data is fetched
+      setIsLoading(false);
     }
   };
 
@@ -48,126 +43,73 @@ const About = () => {
     getUserDetails();
   }, []);
 
-  const handleEditClick = () => {
-    setIsEditing(true);
-    setNewAbout(about);
-  };
-
-  const handleSaveClick = async () => {
-    try {
-      const decodedToken = jwtDecode(accessToken);
-      const userId = decodedToken.user_id;
-      await axios.put(`${BaseUrl}/account/user/${userId}/`, { about: newAbout });
-      setAbout(newAbout);
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Error saving about info:", error);
-    }
-  };
-
-  const handleAddAboutClick = () => {
-    setIsAboutModalOpen(true);
-  };
-
-  const handleAddSkillClick = () => {
-    setIsSkillModalOpen(true);
-  }
+  const handleAddAboutClick = () => setIsAboutModalOpen(true);
+  const handleAddSkillClick = () => setIsSkillModalOpen(true);
+  const handleAddTagClick = () => setIsTagModalOpen(true);
 
   const handleCloseModal = () => {
     setIsAboutModalOpen(false);
-  };
-
-  const handleCloseSkillModal = () => {
     setIsSkillModalOpen(false);
-  };
-
-  const handleCloseTagModal = () => {
     setIsTagModalOpen(false);
-  };
-
-  const handleAddTagClick = () => {
-    setIsTagModalOpen(true);
+    getUserDetails();
   };
 
   if (isLoading) {
     return (
-      <div className="px-8">
-        <p>Loading...</p>
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-purple-500"></div>
       </div>
     );
   }
 
-  return (
-    <div className="px-8">
-      <div className="mb-6">
-        <h3 className="text-lg font-medium">About Me</h3>
-        {about ? (
-          <p className="text-gray-700">{about}</p>
-        ) : (
-          <div className="text-center">
-            <p className="text-gray-700 italic">
-              No about info. Click below to add.
-            </p>
-            <button
-              onClick={handleAddAboutClick}
-              className="bg-purple-800 text-white px-4 py-1 rounded-xl mt-2"
-            >
-              Add
-            </button>
-          </div>
-        )}
+  const renderSection = (title, content, addAction, icon) => (
+    <div className="mb-8 bg-white rounded-lg shadow-md p-6">
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-xl font-semibold text-gray-800 flex items-center">
+          {icon}
+          <span className="ml-2">{title}</span>
+        </h3>
+        <button
+          onClick={addAction}
+          className="text-purple-600 hover:text-purple-800 transition-colors duration-300"
+        >
+          {content ? <FaPen size={14} /> : <FaPlus size={14} />}
+        </button>
       </div>
-      <div className="mb-6">
-        <h3 className="text-lg font-medium">Email</h3>
-        <p className="text-gray-700">{email}</p>
-      </div>
-      <hr />
-      <div className="mb-6 mt-2">
-         <h3 className="text-lg font-medium">Skills</h3>
-         {skills?.length > 0 ? (
-            <div className="flex flex-wrap">
-               {skills.map((skill, index) => (
-               <p
-                  key={index}
-                  className="bg-purple-700 text-sm text-white p-1 px-6 m-1 rounded-full space-x-2"
-                  style={{ whiteSpace: 'nowrap' }}
-               >
-                  {skill.name}
-               </p>
-               ))}
-            </div>
-         ) : (
-            <div className="text-center">
-               <p className="text-gray-700 italic">No skills. Click below to add.</p>
-               <button className="bg-purple-800 text-white px-4 py-1 rounded-xl mt-2" onClick={handleAddSkillClick}>Add</button>
-            </div>
-         )}
-         </div>
+      {content ? (
+        <div className="text-gray-700">{content}</div>
+      ) : (
+        <p className="text-gray-500 italic">No information available</p>
+      )}
+    </div>
+  );
 
-      <div>
-        <h3 className="text-lg font-medium">Interests</h3>
-        {interests?.length > 0 ? (
-            <div className="flex flex-wrap">
-               {interests.map((interest, index) => (
-               <p
-                  key={index}
-                  className="bg-purple-700 text-sm text-white p-1 px-6 m-1 rounded-full space-x-2"
-                  style={{ whiteSpace: 'nowrap' }}
-               >
-                  {interest.name}
-               </p>
-               ))}
-            </div>
-         ) : (
-            <div className="text-center">
-               <p className="text-gray-700 italic">No interests. Click below to add.</p>
-               <button className="bg-purple-800 text-white px-4 py-1 rounded-xl mt-2" onClick={handleAddTagClick}>Add</button>
-            </div>
-         )}
-      </div>
+  const renderTags = (tags, bgColor) => (
+    <div className="flex flex-wrap gap-2">
+      {tags.map((tag, index) => (
+        <span
+          key={index}
+          className={`${bgColor} text-white text-sm px-3 py-1 rounded-full`}
+        >
+          {tag.name}
+        </span>
+      ))}
+    </div>
+  );
+
+  return (
+    <div className="space-y-6">
+      {renderSection("About Me", about, handleAddAboutClick, <FaPen className="text-purple-500" />)}
+      {renderSection("Skills", skills.length > 0 && renderTags(skills, "bg-blue-500"), handleAddSkillClick, <FaCode className="text-blue-500" />)}
+      {renderSection("Interests", interests.length > 0 && renderTags(interests, "bg-green-500"), handleAddTagClick, <FaLightbulb className="text-green-500" />)}
+
       {isAboutModalOpen && <AddAbout onClose={handleCloseModal} />}
-      {isSkillModalOpen && <SkillsSelector onClose={handleCloseSkillModal} fromProfile={true} />}
-      {isTagModalOpen && <TagModal onClose={handleCloseTagModal}><TagSelector onClose={handleCloseTagModal} fromProfile={true}/></TagModal> }
+      {isSkillModalOpen && <SkillsSelector onClose={handleCloseModal} fromProfile={true} />}
+      {isTagModalOpen && (
+        <TagModal onClose={handleCloseModal}>
+          <TagSelector onClose={handleCloseModal} fromProfile={true} />
+        </TagModal>
+      )}
     </div>
   );
 };

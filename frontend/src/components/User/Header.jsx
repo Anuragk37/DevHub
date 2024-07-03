@@ -1,26 +1,40 @@
 import React, { useEffect, useState } from 'react';
-import { FaSearch } from 'react-icons/fa'; // You need to install react-icons package
-import { Link } from 'react-router-dom';
+import { FaSearch } from 'react-icons/fa';
+import { Link, useNavigate, useLocation } from 'react-router-dom'; // Add useLocation
 import { useSelector, useDispatch } from 'react-redux';
 import { userSignOut } from '../../features/authSlice';
-import {jwtDecode} from 'jwt-decode'; // Import without destructuring
+import { jwtDecode } from 'jwt-decode';
 import axios from 'axios';
 import defaultPic from '../../assets/default.jpg';
-import toast ,{Toaster} from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
 
 function Header() {
-  const [showSearch, setShowSearch] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
   const [profilePic, setProfilePic] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState([]);
+  const navigate = useNavigate();
+  const location = useLocation(); // Add useLocation
 
   const dispatch = useDispatch();
 
   const isAuthenticated = useSelector((state) => state.auth.isUserAuthenticated);
   const accessToken = useSelector((state) => state.auth.userAccessToken);
 
-  const toggleSearch = () => {
-    setShowSearch(!showSearch);
+  const handleSearch = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axiosInstance.get(`/article/search/`, {
+        params: {
+          keyword: searchQuery
+        }
+      });
+      console.log(response.data);
+      navigate('/user/search-results', { state: { results: response.data } }); // Change to absolute path
+    } catch (error) {
+      console.error('Error fetching search results:', error);
+    }
   };
 
   const handleLogout = () => {
@@ -47,38 +61,32 @@ function Header() {
         <div>
           <Link to={'/'}><h1 className='text-2xl md:text-3xl font-bold text-purple-900'>DevHub</h1></Link>
         </div>
-        <div className='flex items-center'>
-          <div className={`${showSearch ? 'block' : 'hidden'} md:block relative`}>
+        <form onSubmit={handleSearch} className='flex-grow mx-4 max-w-2xl'>
+          <div className='relative'>
             <input 
               type="text" 
-              className='shadow shadow-purple-200 appearance-none border rounded-3xl w-full py-2 px-7 text-placeholder text-gray-700 leading-tight focus:outline-none focus:shadow-outline md:w-96' 
-              placeholder='Search'
+              className='w-full py-2 px-4 pr-10 text-sm bg-gray-100 border border-transparent rounded-full focus:outline-none focus:bg-white focus:border-purple-500 transition-colors duration-300'
+              placeholder='Search DevHub...'
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            {showSearch && (
-              <button 
-                className='absolute right-0 top-0 mt-2 mr-2' 
-                onClick={toggleSearch}
-              >
-                <FaSearch className='text-purple-900 text-2xl' />
-              </button>
-            )}
+            <button 
+              type="submit"
+              className='absolute right-0 top-0 mt-2 mr-3 text-purple-900 hover:text-purple-700 focus:outline-none'
+            >
+              <FaSearch className='text-xl' />
+            </button>
           </div>
-          <button 
-            className='md:hidden ml-4 p-2' 
-            onClick={toggleSearch}
-          >
-            <FaSearch className='text-purple-900 text-2xl' />
-          </button>
-        </div>
+        </form>
         {!isAuthenticated ? (
           <div className='flex items-center space-x-4'>
             <Link to={'/signin'}>
-              <button className='hover:bg-purple-900 text-purple-900 hover:text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
+              <button className='hover:bg-purple-900 text-purple-900 hover:text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
                 Sign In
               </button>
             </Link>
             <Link to={'/signup'}>
-              <button className='bg-purple-800 hover:bg-purple-900 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
+              <button className='bg-purple-800 hover:bg-purple-900 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
                 Sign Up
               </button>
             </Link>
@@ -87,32 +95,31 @@ function Header() {
           <div className='relative'>
             <div className='flex items-center space-x-4'>
               <Link to={'/user/create-article/'}>
-                <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline'>
+                <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
                   Create post
                 </button>
               </Link>
               <img
                 src={profilePic ? profilePic : defaultPic}
-                className="w-7 h-7 rounded-full border cursor-pointer"
+                className="w-8 h-8 rounded-full border-2 border-purple-500 cursor-pointer object-cover"
                 onClick={() => setShowMenu(!showMenu)}
-                alt=""
+                alt="Profile"
               />
             </div>
             {showMenu && (
               <div className='absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
                 <div className='flex flex-col p-2'>
-                  <Link to={'/user/profile'}><h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Profile</h4></Link>
-                  <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer'>Settings</h4>
-                  <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer' onClick={handleLogout}>Logout</h4>
+                  <Link to={'/user/profile'}><h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Profile</h4></Link>
+                  <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Settings</h4>
+                  <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200' onClick={handleLogout}>Logout</h4>
                 </div>
               </div>
             )}
           </div>
         )}
       </div>
-      
+      <Toaster />
     </div>
-    
   );
 }
 

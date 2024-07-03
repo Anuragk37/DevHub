@@ -6,6 +6,7 @@ urlpatterns = [
    path('user/', views.UserView.as_view()),
    path('user/<int:pk>/', views.UserView.as_view()),
    path('signin/', views.UserLoginView.as_view()),
+   path('resend-otp/', views.resend_otp),
    path('verify-otp/', views.verify_otp),
    path('user-skill/', views.UserSkillView.as_view()),
    path('user-skill/<int:user_id>/', views.UserSkillView.as_view()),
