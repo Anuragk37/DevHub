@@ -24,7 +24,7 @@ const ReportedArticle = (props) => {
 
   useEffect(() => {
     getReports();
-  }, []);
+  },[]);
 
 
   return (
@@ -37,11 +37,11 @@ const ReportedArticle = (props) => {
             <div className="text-center md:text-left">
               <h2 className="text-3xl font-bold text-[#0B304D]"><Link to={`/admin/view-article/${article.id}`}>{article.title}</Link></h2>
               <p className="text-gray-600 mt-2"><span className="font-semibold">Author:</span> {article.auther.fullname}</p>
-              <p className="text-gray-600"><span className="font-semibold">Created Date:</span> {article.createdDate}</p>
+              <p className="text-gray-600"><span className="font-semibold">Created Date:</span> {article.create_at}</p>
             </div>
-            <div className="text-center md:text-right mt-4 md:mt-0">
+            {/* <div className="text-center md:text-right mt-4 md:mt-0">
               <p className="text-gray-600 text-lg"><span className="font-semibold">Reports:</span> {article.reports}</p>
-            </div>
+            </div> */}
           </div>
 
           <div className="overflow-x-auto">

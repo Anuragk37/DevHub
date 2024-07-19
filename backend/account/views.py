@@ -41,18 +41,18 @@ class UserView(APIView):
     def get(self, request, pk=None):
         if pk:
             user = get_object_or_404(MyUser, pk=pk)
-            serializer = UserSerializer(user)
+            serializer = UserSerializer(user, context={'request': request})
             return Response(serializer.data)
         users = MyUser.objects.filter(is_superuser=False)
-        serializer = UserSerializer(users, many=True)
+        serializer = UserSerializer(users, many=True, context={'request': request})
         return Response(serializer.data)
 
     def post(self, request):
         try:
-            serializer = UserSerializer(data=request.data)
+            serializer = UserSerializer(data=request.data, context={'request': request})
             if serializer.is_valid():
                 user = serializer.save()
-                return send_otp(user.email,is_signup=True)
+                return send_otp(user.email, is_signup=True)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -64,11 +64,22 @@ class UserView(APIView):
     
     def put(self, request, pk):
         user = get_object_or_404(MyUser, pk=pk)
-        serializer = UserSerializer(user, data=request.data)
+        serializer = UserSerializer(user, data=request.data, context={'request': request})
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        
+    def patch(self, request, pk):
+        try:
+            user = get_object_or_404(MyUser, pk=pk)
+            serializer = UserSerializer(user, data=request.data, partial=True, context={'request': request})
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
         
     
     def patch(self, request, pk):
@@ -81,6 +92,9 @@ class UserView(APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get_serializer_context(self):
+        return {'request': self.request}
 
 def send_otp(email, is_signup=False):
     try:
@@ -207,4 +221,50 @@ class  UserTagView(generics.ListCreateAPIView):
         tags = self.get_queryset()
         serializer = TagSerializer(tags, many=True)
         return Response(serializer.data)
+
+class RelationshipView(APIView):
+    def post(self, request):
+        follower = request.user
+        following_id = request.data.get('following_id')
+        following = MyUser.objects.get(id=following_id)
+
+        if follower == following:
+            return Response({"message": "You can't follow yourself"}, status=status.HTTP_400_BAD_REQUEST)
+
+        relationship = Relationship.objects.filter(follower=follower, following=following).first()
+        if relationship:
+            relationship.delete()
+            return Response({"detail": "Successfully unfollowed."}, status=status.HTTP_204_NO_CONTENT)
+        else:
+            relationship = Relationship.objects.create(follower=follower, following=following)
+            serializer = RelationshipSerializer(relationship)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class UserFollowersView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        followers = Relationship.objects.filter(following=user).select_related('follower')
+
+        followers_users = [relationship.follower for relationship in followers]
+        serializer = UserSerializer(followers_users, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class UserFollowingView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        following = Relationship.objects.filter(follower=user).select_related('following')
+        following_users = [relationship.following for relationship in following]
+        serializer = UserSerializer(following_users, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+
 

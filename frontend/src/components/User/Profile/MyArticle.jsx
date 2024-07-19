@@ -8,20 +8,18 @@ import Articles from '../Articles'
 import axiosInstance from '../../../utils/axiosInstance'
 import toast from 'react-hot-toast'
 
-const MyArticle = ({fromSaved=false}) => {
+const MyArticle = ({fromSaved=false,isOwnProfile, userId}) => {
    const [articles, setArticles] = useState([])
 
-   const accessToken = useSelector((state) => state.auth.userAccessToken)
 
    const getArticles = async () =>{
       try{
-         const decodedToken = jwtDecode(accessToken);
-         const user_id = decodedToken.user_id;
+
          if(fromSaved) {
             const response = await axiosInstance.get(`/article/saved-articles/`)
             setArticles(response.data)
          }else{
-            const response = await axios.get(`${BaseUrl}/article/user-article/${user_id}/`)
+            const response = await axios.get(`${BaseUrl}/article/user-article/${userId}/`)
             setArticles(response.data)
          }
          
@@ -52,7 +50,7 @@ const MyArticle = ({fromSaved=false}) => {
   return (
     <div className="px-8">
       {articles.map((article) => (
-        <Articles key={article.id} article={article} from_profile={true} deleteArticle={deleteArticle} editArticle={editArticle}/>
+        <Articles key={article.id} article={article} from_profile={true} deleteArticle={deleteArticle} editArticle={editArticle} isOwnProfile={isOwnProfile}/>
       ))}
     </div>
   )

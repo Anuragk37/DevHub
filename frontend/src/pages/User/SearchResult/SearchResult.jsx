@@ -49,29 +49,32 @@ const SearchResult = () => {
   const renderResults = () => {
     if (loading) return <div className="text-center py-8">Loading...</div>;
     if (error) return <div className="text-red-500 text-center py-8">{error}</div>;
-    if (results.length === 0) return <div className="text-center py-8">No results found.</div>;
 
     switch (activeTab) {
       case 'articles':
-        return results.map((article) => <Articles key={article.id} article={article} />);
+        if (results.articles.length === 0) return <div className="text-center py-8">No articles found.</div>;
+        return results.articles.map((article) => (
+          <Articles key={article.id} article={article} />
+        ));
       case 'users':
-        return results.map((user) => (
+        if (results.users.length === 0) return <div className="text-center py-8">No users found.</div>;
+        return results.users.map((user) => (
           <div key={user.id} className="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center">
-            <img src={user.avatar || '/default-avatar.png'} alt={user.fullname} className="w-12 h-12 rounded-full mr-4" />
+            <img src={user.profile_pic || '/default-avatar.png'} alt={user.fullname} className="w-12 h-12 rounded-full mr-4" />
             <div>
               <h3 className="font-semibold">{user.fullname}</h3>
-              <p className="text-sm text-gray-500">{user.email}</p>
+              <p className="text-sm text-gray-500">{user.username}</p>
             </div>
           </div>
         ));
-      case 'communities':
-        return results.map((community) => (
-          <div key={community.id} className="bg-white rounded-lg shadow-md p-4 mb-4">
-            <h3 className="font-semibold">{community.name}</h3>
-            <p className="text-sm text-gray-500">{community.description}</p>
-            <p className="text-xs text-gray-400 mt-2">Members: {community.member_count}</p>
-          </div>
-        ));
+      // case 'communities':
+      //   return results.map((community) => (
+      //     <div key={community.id} className="bg-white rounded-lg shadow-md p-4 mb-4">
+      //       <h3 className="font-semibold">{community.name}</h3>
+      //       <p className="text-sm text-gray-500">{community.description}</p>
+      //       <p className="text-xs text-gray-400 mt-2">Members: {community.member_count}</p>
+      //     </div>
+      //   ));
       default:
         return null;
     }

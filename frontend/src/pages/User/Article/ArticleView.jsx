@@ -32,7 +32,6 @@ const ArticleView = () => {
     try {
       const response = await axiosInstance.get(`article/${id}/`);
       const data = response.data;
-      console.log(data);
       setArticleData({
         title: data.title,
         content: data.content,
@@ -123,12 +122,14 @@ const ArticleView = () => {
 
             <div className="flex flex-wrap items-center text-gray-600 text-sm mb-6">
               <UserTooltip user={articleData.auther}>
+              <Link to={`/user/profile/${articleData.auther.id}`}>
                 <div className="flex items-center mr-6 mb-2 cursor-pointer">
                   {articleData.auther.profile_pic ? (
                     <img className="w-8 h-8 rounded-full" src={articleData.auther.profile_pic} alt="" />
                   ) : (<FaUser className="w-8 h-8 mr-2 text-gray-400" />)}
                   <span className="ml-2">{articleData.auther.fullname || "Unknown"}</span>
                 </div>
+                </Link>
               </UserTooltip>
               <div className="flex items-center mr-6 mb-2">
                 <FaCalendarAlt className="mr-2" />

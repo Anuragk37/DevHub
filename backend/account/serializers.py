@@ -8,17 +8,31 @@ from admin_panel.models import Skill,Tag
 class UserSerializer(serializers.ModelSerializer):
    password = serializers.CharField(write_only=True) 
    date_joined = serializers.SerializerMethodField()
+   is_following = serializers.SerializerMethodField()
+   followers_count = serializers.SerializerMethodField()
+   following_count = serializers.SerializerMethodField()
    class Meta:
       model = MyUser
-      fields = ['id','username','fullname','email','phone_number','bio','about','date_joined','password','profile_pic','is_active','is_verified']
+      fields = ['id','username','fullname','email','phone_number','bio','about','date_joined','password','profile_pic','is_active','is_verified','is_following', 'followers_count', 'following_count']
 
    def create(self, validated_data):
-      print("validateeeeeeeeeeeeee",validated_data)
       user = MyUser.objects.create_user(**validated_data)
       return user
 
    def get_date_joined(self, obj):
       return obj.date_joined.date()
+   
+   def get_is_following(self, obj):
+      request = self.context.get('request')
+      if request and request.user.is_authenticated:
+         return Relationship.objects.filter(follower=request.user, following=obj).exists()
+      return False
+   
+   def get_followers_count(self, obj):
+      return obj.following.count()
+
+   def get_following_count(self, obj):
+      return obj.follower.count()
 
 class UserLoginSerializer(serializers.Serializer):
    identifier = serializers.CharField()
@@ -83,4 +97,12 @@ class UserTagSerializer(serializers.ModelSerializer):
       user_tag = MyUserTag.objects.create(user=user,tag=tag)
 
       return user_tag
+   
 
+class RelationshipSerializer(serializers.ModelSerializer):
+   follower = UserSerializer()
+   following = UserSerializer()
+   class Meta:
+        model = Relationship
+        fields = ['follower', 'following', 'created_at']
+        read_only_fields = ['created_at']

@@ -3,9 +3,16 @@ import Header from '../../../components/User/Header'
 import ProfileDetails from '../../../components/User/Profile/ProfileDetails'
 import About from '../../../components/User/Profile/About'
 import MyArticle from '../../../components/User/Profile/MyArticle'
+import { useSelector } from 'react-redux'
+import { jwtDecode } from 'jwt-decode'
 
 const Profile = () => {
   const [activeTab, setActiveTab] = useState('about')
+
+  const accessToken = useSelector((state) => state.auth.userAccessToken);
+
+  const decodedToken = jwtDecode(accessToken);
+  const userId = decodedToken.user_id;
 
   const handleTabClick = (tab) => {
     setActiveTab(tab)
@@ -15,7 +22,7 @@ const Profile = () => {
     <div className='h-full min-h-screen'>
       <Header />
       <div className='w-full px-4 sm:px-8 md:px-12 lg:px-40 py-7 mt-16 flex flex-col md:flex-row'>
-        <ProfileDetails />
+        <ProfileDetails isOwnProfile={true} userId={userId}/>
         <div className='bg-white shadow-equel h-full min-h-[80vh] sm:w-full md:w-3/4 lg:w-8/12 sm:mt-3 md:mt-0 md:ml-4 rounded-xl p-6'>
           <nav className='flex mb-4 border-b border-gray-200'>
             <button
@@ -38,8 +45,8 @@ const Profile = () => {
             </button>
             
           </nav>
-          {activeTab === 'about' && <About />}
-          {activeTab === 'posts' && <MyArticle />}
+          {activeTab === 'about' && <About isOwnProfile={true} userId={userId}/>}
+          {activeTab === 'posts' && <MyArticle isOwnProfile={true} userId={userId}/>}
           {activeTab === 'saved_articles' && <MyArticle fromSaved={true}/>}
         </div>
       </div>

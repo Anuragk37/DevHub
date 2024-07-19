@@ -47,7 +47,7 @@ function Header() {
       const userId = decodedToken.user_id;
       const response = await axios.get(`http://127.0.0.1:8000/api/account/user/${userId}/`);
       
-      setProfilePic(`http://127.0.0.1:8000${response.data.profile_pic}`);
+      setProfilePic(response.data.profile_pic);
     }
   };
 
@@ -109,7 +109,7 @@ function Header() {
             {showMenu && (
               <div className='absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
                 <div className='flex flex-col p-2'>
-                  <Link to={'/user/profile'}><h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Profile</h4></Link>
+                  <Link to={'/user/my-profile'}><h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Profile</h4></Link>
                   <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Settings</h4>
                   <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200' onClick={handleLogout}>Logout</h4>
                 </div>

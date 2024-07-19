@@ -78,3 +78,15 @@ class MyUserTag(models.Model):
 
    def __str__(self):
       return self.user.username
+
+
+class Relationship(models.Model):
+   follower = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="follower")
+   following = models.ForeignKey(MyUser, on_delete=models.CASCADE, related_name="following")
+   created_at = models.DateTimeField(auto_now_add=True)
+
+   class Meta:
+      unique_together = ('follower', 'following')
+   
+   def __str__(self):
+      return f"{self.follower.username} follows {self.following.username}"

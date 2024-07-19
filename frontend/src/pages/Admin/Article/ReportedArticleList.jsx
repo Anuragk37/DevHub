@@ -6,6 +6,7 @@ import { Link } from 'react-router-dom';
 
 const ReportedArticleList = () => {
   const [reportedArticles, setReportedArticles] = useState([]);
+  const [change,setChange] = useState(false)
 
   const getArticles = async () => {
     try {
@@ -19,12 +20,13 @@ const ReportedArticleList = () => {
 
   useEffect(() => {
     getArticles();
-  }, [reportedArticles]);
+  }, [change]);
 
   const handleDelete = (id) => {
     try {
       axiosInstance.delete(`/article/${id}/`);
       getArticles();
+      setChange(!change);
     } catch (error) {
       console.log(error);
     }
@@ -56,7 +58,7 @@ const ReportedArticleList = () => {
                     </Link>
                   </td>
                   <td className="px-6 py-4 text-gray-600">{article.auther.fullname}</td>
-                  <td className="px-6 py-4 text-gray-600">{article.reports}</td>
+                  <td className="px-6 py-4 text-gray-600">{article.total_reports}</td>
                   <td className="px-6 py-4">
                     <button
                       onClick={() => handleDelete(article.id)}

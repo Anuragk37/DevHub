@@ -31,6 +31,10 @@ import ViewArticle from './pages/Admin/Article/ViewArticle.jsx'
 import ReportedArticleList from './pages/Admin/Article/ReportedArticleList.jsx'
 import ReportedArticle from './pages/Admin/Article/ReportedArticle.jsx'
 import SearchResult from './pages/User/SearchResult/SearchResult.jsx'
+import CreateCommunity from './pages/User/Community/CreateCommunity.jsx'
+import CommunityLists from './pages/User/Community/CommunityLists.jsx'
+import CommunityDetail from './pages/User/Community/CommunityDetail.jsx'
+import UserProfile from './pages/User/Profile/UserProfile.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -71,12 +75,28 @@ function App() {
       element:<UserProtecredRoute><SearchResult /></UserProtecredRoute>
     },
     {
-      path:'/user/profile',
+      path:'/user/my-profile',
       element:<UserProtecredRoute><Profile /></UserProtecredRoute>
     },
     {
       path:'/user/add-bio',
       element:<UserProtecredRoute><AddBio /></UserProtecredRoute>
+    },
+    {
+      path:'/user/create-community',
+      element:<UserProtecredRoute><CreateCommunity /></UserProtecredRoute>
+    },
+    {
+      path:'/user/view-communities',
+      element:<UserProtecredRoute><CommunityLists /></UserProtecredRoute>
+    },
+    {
+      path:'/user/community-detail',
+      element:<UserProtecredRoute><CommunityDetail /></UserProtecredRoute>
+    },
+    {
+      path:'/user/profile/:id',
+      element:<UserProfile />
     },
     {
       path:'/admin-login',

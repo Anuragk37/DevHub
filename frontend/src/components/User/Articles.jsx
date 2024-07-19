@@ -10,10 +10,11 @@ import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 
 
-const Articles = ({ article, from_profile = false ,deleteArticle }) => {
+const Articles = ({ article, from_profile = false ,deleteArticle,isOwnProfile }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const navigate = useNavigate()
+  
 
   const accessToken = useSelector((state) => state.auth.userAccessToken);
 
@@ -43,12 +44,12 @@ const Articles = ({ article, from_profile = false ,deleteArticle }) => {
             <span className="mr-4">Comments: {article.comment_count || 0}</span>
             <span>Created at: {new Date(article.create_at).toLocaleDateString()}</span>
           </div>
-          <div className="flex space-x-4">
+          {/* <div className="flex space-x-4">
             <FaLink className="text-gray-600 hover:text-gray-800 cursor-pointer" />
             <FaBookmark className="text-gray-600 hover:text-gray-800 cursor-pointer" />
             
           </div>
-        
+         */}
         </div>
       </div>
       {article.thumbnail && (
@@ -61,7 +62,7 @@ const Articles = ({ article, from_profile = false ,deleteArticle }) => {
         </div>
       )}
 
-      {from_profile && (
+      {isOwnProfile  && (
         <div>
           <HiDotsVertical className="text-gray-600 hover:text-gray-800 cursor-pointer ml-2" onClick={handleToggleDropdown} />
           {isDropdownOpen && (

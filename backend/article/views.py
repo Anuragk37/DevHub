@@ -9,6 +9,7 @@ import json
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
+from django.db.models import Count
 
 
 
@@ -41,6 +42,14 @@ class ArticleView(generics.ListCreateAPIView):
          return Response(serializer.data)
       print(serializer.errors)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+   
+   def get(self, request):
+      if request.user.is_authenticated:
+          articles = Article.objects.exclude(auther=request.user)
+      else:
+          articles = Article.objects.all()
+      serializer = ArticleSerializer(articles, many=True,context={'request': request})
+      return Response(serializer.data, status=status.HTTP_200_OK)
    
    def get_serializer_context(self):
         return {'request': self.request}
@@ -200,16 +209,28 @@ class ReportedArticleListView(APIView):
     def get(self, request):
         reported_articles = ReportedArticle.objects.all()
         article_ids = reported_articles.values_list('article_id', flat=True)
-        articles = Article.objects.filter(id__in=article_ids)
-        serializer = ArticleSerializer(articles, many=True,context={'request': request})
+        articles = Article.objects.filter(id__in=article_ids).annotate(total_reports_count=Count('reportedarticle'))
+        
+        serializer = ArticleSerializer(articles, many=True, context={'request': request})
+        
+        for idx, article_data in enumerate(serializer.data):
+            article_data['total_reports'] = articles[idx].total_reports_count
+        
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 class SearchView(APIView):
     def get(self, request):
         keyword = request.GET.get('keyword')
         articles = Article.objects.filter(Q(title__icontains=keyword) | Q(content__icontains=keyword))
-        serializer = ArticleSerializer(articles, many=True,context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        article_serializer = ArticleSerializer(articles, many=True,context={'request': request})
+        users = MyUser.objects.filter(username__icontains=keyword)
+        user_serializer = UserSerializer(users, many=True,context={'request': request}) 
+
+        response_data = {
+            'articles': article_serializer.data,
+            'users': user_serializer.data
+        }
+        return Response(response_data, status=status.HTTP_200_OK)
 
 
 

@@ -9,7 +9,7 @@ import TagModal from "./TagModal";
 import TagSelector from "../TagSelector";
 import { FaPen, FaPlus, FaLightbulb, FaCode } from "react-icons/fa";
 
-const About = () => {
+const About = ({isOwnProfile,userId}) => {
   const [about, setAbout] = useState("");
   const [skills, setSkills] = useState([]);
   const [interests, setInterests] = useState([]);
@@ -18,12 +18,10 @@ const About = () => {
   const [isTagModalOpen, setIsTagModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  const accessToken = useSelector((state) => state.auth.userAccessToken);
 
   const getUserDetails = async () => {
     try {
-      const decodedToken = jwtDecode(accessToken);
-      const userId = decodedToken.user_id;
+      
       const response = await axios.get(`${BaseUrl}/account/user/${userId}/`);
       setAbout(response.data.about);
 
@@ -41,7 +39,7 @@ const About = () => {
 
   useEffect(() => {
     getUserDetails();
-  }, []);
+  }, [userId]);
 
   const handleAddAboutClick = () => setIsAboutModalOpen(true);
   const handleAddSkillClick = () => setIsSkillModalOpen(true);
@@ -69,12 +67,14 @@ const About = () => {
           {icon}
           <span className="ml-2">{title}</span>
         </h3>
-        <button
+        {isOwnProfile&&(
+          <button
           onClick={addAction}
           className="text-purple-600 hover:text-purple-800 transition-colors duration-300"
         >
           {content ? <FaPen size={14} /> : <FaPlus size={14} />}
         </button>
+        )}
       </div>
       {content ? (
         <div className="text-gray-700">{content}</div>

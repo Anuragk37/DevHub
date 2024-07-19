@@ -1,5 +1,6 @@
 import React from 'react';
 import { FaUsers, FaSearch, FaPlus, FaUserPlus, FaUsersCog, FaUserFriends } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
 
 const SideBar = () => {
   return (
@@ -7,18 +8,24 @@ const SideBar = () => {
       <div>
         <div className="mb-8">
           <h2 className="text-xl font-bold mb-4">Community</h2>
+          
           <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
             <FaUsers className="mr-3" />
             <span>Your communities</span>
           </button>
+          
+          <Link to={'/user/view-communities/'}>
           <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
             <FaSearch className="mr-3" />
             <span>Find</span>
           </button>
+          </Link>
+          <Link to={'/user/create-community'}>
           <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
             <FaPlus className="mr-3" />
             <span>Create</span>
           </button>
+          </Link>
         </div>
         <div>
           <h2 className="text-xl font-bold mb-4">Teams</h2>
