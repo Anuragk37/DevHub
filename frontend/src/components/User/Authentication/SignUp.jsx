@@ -5,8 +5,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
-import { userSignIn } from '../../features/authSlice'
 import toast, { Toaster } from 'react-hot-toast'
+import { userSignIn } from '../../../features/authSlice'
 
 const SignUp = () => {
   const navigate = useNavigate()

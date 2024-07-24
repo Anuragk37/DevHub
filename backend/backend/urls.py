@@ -32,6 +32,7 @@ urlpatterns = [
     path('api/admin/',include('admin_panel.urls')),
     path('api/article/',include('article.urls')),
     path('api/community/',include('community.urls')),
+    path('api/team/',include('team.urls')),
     path('admin/', admin.site.urls),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

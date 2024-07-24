@@ -42,10 +42,14 @@ const OtpVerify = () => {
         is_signup: isSignup,
         email: email
       })
-      dispatch(userSignIn(response.data))
-
-      toast.success(response.data.message)
-      navigate('/skill-selection')
+      if(isSignup){
+        dispatch(userSignIn(response.data))
+        toast.success(response.data.message)
+        navigate('/skill-selection')
+      }else{
+        toast.success(response.data.message)
+        navigate('/reset-password', { state: { email: email } })
+      }
     } catch (error) {
       console.log(error)
     }

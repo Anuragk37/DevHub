@@ -9,7 +9,7 @@ import { useLocation } from 'react-router-dom';
 
 const SearchResult = () => {
   const [activeTab, setActiveTab] = useState('articles');
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState({ articles: [], users: [] });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
@@ -52,12 +52,13 @@ const SearchResult = () => {
 
     switch (activeTab) {
       case 'articles':
-        if (results.articles.length === 0) return <div className="text-center py-8">No articles found.</div>;
+        if (results['articles'].length === 0) return <div className="text-center py-8">No articles found.</div>;
         return results.articles.map((article) => (
           <Articles key={article.id} article={article} />
         ));
       case 'users':
-        if (results.users.length === 0) return <div className="text-center py-8">No users found.</div>;
+        console.log("resulttttttttttttt", results['articles']);
+        if (results['users'].length === 0) return <div className="text-center py-8">No users found.</div>;
         return results.users.map((user) => (
           <div key={user.id} className="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center">
             <img src={user.profile_pic || '/default-avatar.png'} alt={user.fullname} className="w-12 h-12 rounded-full mr-4" />

@@ -17,6 +17,7 @@ import redis
 from django.core.cache import cache
 from admin_panel.serializers import SkillSerializer
 from django.contrib.auth import authenticate
+from team.models import *
 
 
 import smtplib
@@ -163,20 +164,42 @@ class UserLoginView(APIView):
                   status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+@api_view(['POST'])
+def reset_password(request):
+    email = request.data.get('email')
+    new_password = request.data.get('password')
+    try:
+        user = MyUser.objects.get(email=email)
+        user.set_password(new_password)
+        user.save()
+        return Response({"message": "Password reset successfully"}, status=status.HTTP_200_OK)
+    except MyUser.DoesNotExist:
+        return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    except Exception as e:
+        return Response({"message": f"Failed to reset password: {str(e)}"}, status=status.HTTP_400_BAD_REQUEST)
+    
 class UserSkillView(generics.ListCreateAPIView):
     queryset = MyUserSkill.objects.all()
     serializer_class = UserSkillSerializer
 
     def post(self, request):
         user_id = request.data.get('user_id')
-        user=MyUser.objects.get(id=user_id)
-        skills = request.data.get('selectedSkills',[])
-        for skill in skills:
-            skill = Skill.objects.get(id=skill['id'])
-            serializers = UserSkillSerializer(data={'user': user.id, 'skill': skill.id})
-            if serializers.is_valid():
-                serializers.save()
-                
+        user = MyUser.objects.get(id=user_id)
+        skills = request.data.get('selectedSkills', [])
+
+        for skill_data in skills:
+            skill = Skill.objects.get(id=skill_data['id'])
+            serializer = UserSkillSerializer(data={'user': user.id, 'skill': skill.id})
+
+            if serializer.is_valid():
+                serializer.save()
+                teams = TeamSkill.objects.filter(skill=skill).select_related('team')
+
+                for team_skill in teams:
+                    team = team_skill.team
+                    TeamInvitation.objects.create(user=user, team=team)
+
             else:
                 return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response( status=status.HTTP_201_CREATED)

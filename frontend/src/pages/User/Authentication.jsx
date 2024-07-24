@@ -1,6 +1,5 @@
 import React from 'react'
-import SignUp from '../../components/User/SignUp'
-import SignIn from '../../components/User/SignIn'
+
 
 const Authentication = ({children}) => {
   return (

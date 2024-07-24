@@ -1,9 +1,9 @@
 import React from "react";
 import { useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { userSignIn } from '../../features/authSlice'
+import { userSignIn } from "../../../features/authSlice";
 
 const SignIn = () => {
   const [identifier, setIdentifier] = useState('')
@@ -49,6 +49,11 @@ const SignIn = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          <div className="flex items-center justify-between text-sm">
+            <Link to="/forgot-password" className="text-purple-600 hover:text-purple-800 transition duration-300">
+              Forgot Password?
+            </Link>
+          </div>
           <div className="flex items-center justify-center pt-4">
             <button
               className="bg-purple-800 hover:bg-purple-900 text-white font-bold py-2 px-8 rounded-full focus:outline-none focus:shadow-outline transition duration-300 transform hover:scale-105"
@@ -57,6 +62,14 @@ const SignIn = () => {
             </button>
           </div>
         </form>
+      </div>
+      <div className="mt-6 text-center">
+        <p className="text-gray-600">
+          Don't have an account?{" "}
+          <Link to="/signup" className="text-purple-600 hover:text-purple-800 font-semibold transition duration-300">
+            Sign Up
+          </Link>
+        </p>
       </div>
     </div>
   );

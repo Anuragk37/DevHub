@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'admin_panel',
     'article',
     'community',
+    'team',
     
 ]
 

@@ -1,6 +1,6 @@
 import './App.css'
-import SignUp from './components/User/SignUp'
-import SignIn from './components/User/SignIn'
+import SignUp from './components/User/Authentication/SignUp.jsx'
+import SignIn from './components/User/Authentication/SignIn.jsx'
 import Authentication from './pages/User/Authentication'
 import HomePage from './pages/User/HomePage'
 import OtpVerify from './components/User/OtpVerify'
@@ -35,6 +35,14 @@ import CreateCommunity from './pages/User/Community/CreateCommunity.jsx'
 import CommunityLists from './pages/User/Community/CommunityLists.jsx'
 import CommunityDetail from './pages/User/Community/CommunityDetail.jsx'
 import UserProfile from './pages/User/Profile/UserProfile.jsx'
+import CreateTeam from './pages/User/Team/CreateTeam.jsx'
+import TeamInvitations from './pages/User/Team/TeamInvitations.jsx'
+import TeamInvitationDetail from './pages/User/Team/TeamInvitationDetail.jsx'
+import MyTeam from './pages/User/Team/MyTeam.jsx'
+import TeamDetail from './pages/User/Team/TeamDetail.jsx'
+import ChatPage from './pages/User/Team/chat/ChatPage.jsx'
+import ConfirmEmail from './components/User/Authentication/ConfirmEmail.jsx'
+import ResetPassword from './components/User/Authentication/ResetPassword.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -51,8 +59,16 @@ function App() {
       element: <UserReverseRoute><Authentication><SignIn /></Authentication></UserReverseRoute>
     },
     {
+      path: '/forgot-password',
+      element: <UserReverseRoute><Authentication><ConfirmEmail /></Authentication></UserReverseRoute>
+    },
+    {
       path: '/verify-otp',
       element:<Authentication><OtpVerify /></Authentication>
+    },
+    {
+      path: '/reset-password',
+      element:<Authentication><ResetPassword /></Authentication>
     },
     {
       path: '/skill-selection',
@@ -93,6 +109,30 @@ function App() {
     {
       path:'/user/community-detail',
       element:<UserProtecredRoute><CommunityDetail /></UserProtecredRoute>
+    },
+    {
+      path:'/user/create-team',
+      element:<UserProtecredRoute><CreateTeam /></UserProtecredRoute>
+    },
+    {
+      path:'/user/my-team',
+      element:<UserProtecredRoute><MyTeam /></UserProtecredRoute>
+    },
+    {
+      path:'/user/team-detail',
+      element:<UserProtecredRoute><TeamDetail /></UserProtecredRoute>
+    },
+    {
+      path:'/user/team-invitations',
+      element:<UserProtecredRoute><TeamInvitations /></UserProtecredRoute>
+    },
+    {
+      path:'/user/team-invitation-detail/',
+      element:<UserProtecredRoute><TeamInvitationDetail /></UserProtecredRoute>
+    },
+    {
+      path:'/user/chat/',
+      element:<UserProtecredRoute><ChatPage /></UserProtecredRoute>
     },
     {
       path:'/user/profile/:id',

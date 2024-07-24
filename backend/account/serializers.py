@@ -18,6 +18,7 @@ class UserSerializer(serializers.ModelSerializer):
    def create(self, validated_data):
       user = MyUser.objects.create_user(**validated_data)
       return user
+   
 
    def get_date_joined(self, obj):
       return obj.date_joined.date()
