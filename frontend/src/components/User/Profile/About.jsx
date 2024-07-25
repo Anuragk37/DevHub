@@ -107,7 +107,7 @@ const About = ({isOwnProfile,userId}) => {
       {isSkillModalOpen && <SkillsSelector onClose={handleCloseModal} fromProfile={true} />}
       {isTagModalOpen && (
         <TagModal onClose={handleCloseModal}>
-          <TagSelector onClose={handleCloseModal} fromProfile={true} />
+          <TagSelector onClose={handleCloseModal} fromProfile={true} interests={interests}/>
         </TagModal>
       )}
     </div>

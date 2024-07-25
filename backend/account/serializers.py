@@ -95,7 +95,7 @@ class UserTagSerializer(serializers.ModelSerializer):
       user = MyUser.objects.get(id=user_id)
       tag = Tag.objects.get(id=tag_id)
 
-      user_tag = MyUserTag.objects.create(user=user,tag=tag)
+      user_tag = MyUserTag.objects.get_or_create(user=user, tag=tag)
 
       return user_tag
    

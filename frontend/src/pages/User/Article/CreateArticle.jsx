@@ -36,6 +36,7 @@ const CreateArticle = () => {
   }, []);
 
   useEffect(() => {
+    console.log("tagggggggggggggggggggg",tags['results']);
     setDisplayTags(
       tags.filter((tag) =>
         tag.name.toLowerCase().includes(searchTerm.toLowerCase())

@@ -33,6 +33,7 @@ urlpatterns = [
     path('api/article/',include('article.urls')),
     path('api/community/',include('community.urls')),
     path('api/team/',include('team.urls')),
+    path('api/notification_chat/',include('notification_chat.urls')),
     path('admin/', admin.site.urls),
     
 ]+static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

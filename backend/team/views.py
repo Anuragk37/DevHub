@@ -7,6 +7,7 @@ from .models import *
 from .serializers import *
 from account.models import*
 from rest_framework.decorators import api_view
+from notification_chat.utils import send_notification
 
 # Create your views here.
 
@@ -125,6 +126,10 @@ def accept_request(request):
 
         TeamMember.objects.create(team=team, user=user)
 
+        message = f"Your request to join the team {team.name} has been accepted."
+        print("mesageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",message)
+        send_notification(user, message)
+
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
@@ -138,6 +143,10 @@ def reject_request(request):
         team = get_object_or_404(Team, id=team_id)
         user = get_object_or_404(MyUser, id=user_id)
         TeamInterest.objects.filter(team=team, user=user).update(status='Rejected')
+
+        message = f"Your request to join the team {team.name} has been rejected."
+        send_notification(user, message)
+
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)

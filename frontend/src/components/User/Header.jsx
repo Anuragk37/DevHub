@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { FaSearch } from 'react-icons/fa';
-import { Link, useNavigate, useLocation } from 'react-router-dom'; // Add useLocation
+import { FaSearch, FaBell } from 'react-icons/fa';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { userSignOut } from '../../features/authSlice';
 import { jwtDecode } from 'jwt-decode';
@@ -8,14 +8,15 @@ import axios from 'axios';
 import defaultPic from '../../assets/default.jpg';
 import toast, { Toaster } from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
-
+import Notification from './Notification/Notification';
 function Header() {
   const [showMenu, setShowMenu] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
   const [profilePic, setProfilePic] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState([]);
   const navigate = useNavigate();
-  const location = useLocation(); // Add useLocation
+  const location = useLocation();
 
   const dispatch = useDispatch();
 
@@ -31,7 +32,7 @@ function Header() {
         }
       });
       console.log(response.data);
-      navigate('/user/search-results', { state: { results: response.data } }); // Change to absolute path
+      navigate('/user/search-results', { state: { results: response.data } });
     } catch (error) {
       console.error('Error fetching search results:', error);
     }
@@ -92,22 +93,27 @@ function Header() {
             </Link>
           </div>
         ) : (
-          <div className='relative'>
-            <div className='flex items-center space-x-4'>
-              <Link to={'/user/create-article/'}>
-                <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
-                  Create post
-                </button>
-              </Link>
-              <img
-                src={profilePic ? profilePic : defaultPic}
-                className="w-8 h-8 rounded-full border-2 border-purple-500 cursor-pointer object-cover"
-                onClick={() => setShowMenu(!showMenu)}
-                alt="Profile"
+          <div className='relative flex items-center space-x-4'>
+            <Link to={'/user/create-article/'}>
+              <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
+                Create post
+              </button>
+            </Link>
+            <div className='relative'>
+              <FaBell
+                className='text-2xl text-purple-900 cursor-pointer'
+                onClick={() => setShowNotifications(!showNotifications)}
               />
+              {showNotifications && <Notification />}
             </div>
+            <img
+              src={profilePic ? profilePic : defaultPic}
+              className="w-8 h-8 rounded-full border-2 border-purple-500 cursor-pointer object-cover"
+              onClick={() => setShowMenu(!showMenu)}
+              alt="Profile"
+            />
             {showMenu && (
-              <div className='absolute right-0 mt-3 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
+              <div className='absolute right-0 top-full mt-3 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10'>
                 <div className='flex flex-col p-2'>
                   <Link to={'/user/my-profile'}><h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Profile</h4></Link>
                   <h4 className='px-4 py-2 hover:bg-gray-100 cursor-pointer transition-colors duration-200'>Settings</h4>

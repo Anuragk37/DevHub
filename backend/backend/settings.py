@@ -49,12 +49,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_quill',
+    'channels',
 
     'account',
     'admin_panel',
     'article',
     'community',
     'team',
+    'notification_chat',
     
 ]
 
@@ -63,7 +65,10 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+
 }
+
+
 
 SIMPLE_JWT = {  
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=50),
@@ -140,6 +145,17 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+
+ASGI_APPLICATION = "backend.asgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 
 # Database

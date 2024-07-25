@@ -10,6 +10,8 @@ from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.db.models import Count
+from rest_framework.pagination import PageNumberPagination
+
 
 
 
@@ -19,9 +21,22 @@ from .serializer import *
 
 # Create your views here.
 
+
+class ArticlePagination(PageNumberPagination):
+    page_size =10
+    def get_paginated_response(self, data):
+        return Response({
+            'next': self.get_next_link(),
+            'previous': self.get_previous_link(),
+            'count': self.page.paginator.count,
+            'results': data
+        })
+
 class ArticleView(generics.ListCreateAPIView):
    queryset=Article.objects.all()
    serializer_class= ArticleSerializer
+
+   pagination_class = ArticlePagination
 
    def post(self, request):
       title=request.data['title']
@@ -44,12 +59,17 @@ class ArticleView(generics.ListCreateAPIView):
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
    def get(self, request):
-      if request.user.is_authenticated:
-          articles = Article.objects.exclude(auther=request.user)
-      else:
-          articles = Article.objects.all()
-      serializer = ArticleSerializer(articles, many=True,context={'request': request})
-      return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user.is_authenticated:
+            articles = Article.objects.exclude(auther=request.user)
+        else:
+            articles = Article.objects.all()
+        page = self.paginate_queryset(articles)
+        if page is not None:
+            serializer = self.get_paginated_response(ArticleSerializer(page, many=True, context={'request': request}).data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        serializer = ArticleSerializer(articles, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
    
    def get_serializer_context(self):
         return {'request': self.request}

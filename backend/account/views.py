@@ -221,18 +221,28 @@ class  UserTagView(generics.ListCreateAPIView):
     queryset = MyUserTag.objects.all()
     serializer_class = UserTagSerializer
 
-    def post(self,request):
+    def post(self, request):
         user_id = request.data.get('user_id')
-        user = MyUser.objects.get(id=user_id)
-        tags = request.data.get('selectedTags',[])
-        for tag in tags:
-            tag = Tag.objects.get(id=tag['id'])
-            serializers = UserTagSerializer(data={'user':user.id,'tag':tag.id})
+        tags_to_add = request.data.get('tagsToAdd', [])
+        tags_to_remove = request.data.get('tagsToRemove', [])
+
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        for tag in tags_to_remove:
+            MyUserTag.objects.filter(user=user, tag_id=tag['id']).delete()
+
+        for tag in tags_to_add:
+            tag_obj, created = Tag.objects.get_or_create(id=tag['id'])
+            serializers = UserTagSerializer(data={'user': user.id, 'tag': tag_obj.id})
             if serializers.is_valid():
                 serializers.save()
             else:
-                return Response(serializers.error,status=status.HTTP_400_BAD_REQUEST)
-        return Response(status=status.HTTP_201_CREATED)
+                return Response(serializers.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"message": "Tags updated successfully"}, status=status.HTTP_200_OK)
     
     def get_queryset(self):
         user = self.kwargs['user_id']
