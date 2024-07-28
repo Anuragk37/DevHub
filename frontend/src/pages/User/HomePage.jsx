@@ -27,7 +27,7 @@ const HomePage = () => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get(`/article/?page=${page}`);
-      console.log("Fetched data:", response.data);
+      console.log("Fetched dataaaaaaaaaaaaaaaaaaaaaaaaaaaa:", response.data);
       
       if (response.data.results.length === 0) {
         setHasMore(false);

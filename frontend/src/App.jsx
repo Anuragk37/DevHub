@@ -107,7 +107,7 @@ function App() {
       element:<UserProtecredRoute><CommunityLists /></UserProtecredRoute>
     },
     {
-      path:'/user/community-detail',
+      path:'/user/community-detail/:id',
       element:<UserProtecredRoute><CommunityDetail /></UserProtecredRoute>
     },
     {

@@ -3,7 +3,6 @@ import ReactQuill, { Quill } from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import '../../assets/css/Quill/CustomQuill.css';
 
-// Register custom size formats with Quill
 const Size = Quill.import('attributors/style/size');
 Size.whitelist = ['10px', '12px', '14px', '16px', '18px', '20px', '24px', '28px', '32px'];
 Quill.register(Size, true);
@@ -22,29 +21,36 @@ const RichTextEditor = ({ value, onChange }) => {
     }
   }, [onChange]);
 
+  const modules = {
+    toolbar: [
+      [{ 'header': [1, 2, 3, false] }],
+      ['bold', 'italic', 'underline', 'strike'],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'size': Size.whitelist }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+      ['link', 'image', 'video'],
+      ['clean'],
+      ['blockquote', 'code-block'],
+    ],
+  };
+
   return (
-    <ReactQuill
-      ref={editorRef}
-      value={value}
-      onChange={(content, delta, source, editor) => {
-        onChange(content);
-      }}
-      modules={{
-        toolbar: [
-          [{ 'header': '1' }, { 'header': '2' }, { 'font': [] }],
-          [{ 'size': Size.whitelist }], // Use the custom size array
-          [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-          ['bold', 'italic', 'underline', 'strike'],
-          [{ 'color': [] }, { 'background': [] }],
-          [{ 'script': 'sub' }, { 'script': 'super' }],
-          [{ 'align': [] }],
-          ['blockquote', 'code-block'],
-          ['link', 'image', 'video'],
-          ['clean'],
-        ],
-      }}
-      className="bg-white rounded-lg shadow"
-    />
+    <div className="rich-text-editor">
+      <ReactQuill
+        ref={editorRef}
+        value={value}
+        onChange={(content, delta, source, editor) => {
+          onChange(content);
+        }}
+        modules={modules}
+        className="bg-white rounded-lg shadow"
+      />
+    </div>
   );
 };
 

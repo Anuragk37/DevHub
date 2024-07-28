@@ -1,17 +1,96 @@
 import React, { useEffect, useState } from 'react';
-import { FaCalendar, FaUsers, FaHashtag, FaLink, FaInfoCircle, FaBook, FaComments, FaCalendarAlt } from 'react-icons/fa';
-import { useLocation } from 'react-router-dom';
+import { FaCalendar, FaUsers, FaHashtag, FaLink, FaInfoCircle, FaBook, FaComments, FaUserFriends } from 'react-icons/fa';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
+import axiosInstance from '../../../utils/axiosInstance';
 
 const CommunityDetail = () => {
   const [activeTab, setActiveTab] = useState(0);
-  const location = useLocation();
-  const community = location.state.community;
+  const [isLoading, setIsLoading] = useState(true);
+  const [isJoining, setIsJoining] = useState(false);
+  const [isLeaving, setIsLeaving] = useState(false);
+  const navigate = useNavigate();
+  const [community, setCommunity] = useState(null);
+  const [members, setMembers] = useState([]);
+
+  const { id } = useParams();
 
   useEffect(() => {
-    console.log(community);
-  }, [community]);
+    fetchCommunityData();
+    fetchMembers();
+  }, [id, navigate]);
+
+  const fetchCommunityData = async () => {
+    setIsLoading(true);
+    try {
+      const response = await axiosInstance.get(`/community/${id}/`);
+      setCommunity(response.data);
+    } catch (error) {
+      console.error('Error fetching community data:', error);
+      navigate('/404');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const fetchMembers = async () => {
+    try {
+      const response = await axiosInstance.get(`/community/community-members/${id}`);
+      console.log("members",response.data);
+      const memberList = response.data.map(data => data.user);
+
+      console.log("memberList",memberList);
+      setMembers(memberList);
+    } catch (error) {
+      console.error('Error fetching members:', error);
+    }
+  };
+
+  const handleJoinCommunity = async () => {
+    if (isJoining || community.is_member) return;
+
+    setIsJoining(true);
+    try {
+      await axiosInstance.post('/community/join-community/', {
+        community_id: community.id
+      });
+      
+      setCommunity(prevCommunity => ({
+        ...prevCommunity,
+        is_member: true,
+        member_count: prevCommunity.member_count + 1
+      }));
+    } catch (error) {
+      console.error('Error joining community:', error);
+    } finally {
+      setIsJoining(false);
+    }
+  };
+
+  const handleLeaveCommunity = async () => {
+    if (isLeaving || !community.is_member) return;
+
+    setIsLeaving(true);
+    try {
+      await axiosInstance.post('/community/leave-community/', {
+        community_id: community.id
+      });
+      
+      setCommunity(prevCommunity => ({
+        ...prevCommunity,
+        is_member: false,
+        member_count: prevCommunity.member_count - 1
+      }));
+    } catch (error) {
+      console.error('Error leaving community:', error);
+    } finally {
+      setIsLeaving(false);
+    }
+  };
+
+  if (isLoading) return <div className="text-center mt-8">Loading...</div>;
+  if (!community) return null;
 
   return (
     <div className="min-h-screen bg-purple-50 py-10 px-4 sm:px-6 lg:px-8">
@@ -21,7 +100,7 @@ const CommunityDetail = () => {
             <img src={community.banner_url || "/default-banner.jpg"} alt="Community Banner" className="w-full h-full object-cover opacity-50" />
             <div className="absolute inset-0 bg-black opacity-40"></div>
             <img
-              src={community.profile_pic_url}
+              src={community.profile_pic_url || "/default-profile.jpg"}
               alt={`${community.name} logo`}
               className="absolute -bottom-12 left-6 w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
             />
@@ -29,12 +108,31 @@ const CommunityDetail = () => {
           <div className="pt-16 pb-8 px-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-4xl font-bold text-gray-900">{community.name}</h1>
-              <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
-                Join Community
-              </button>
+              {community.is_member ? (
+                <div className="flex space-x-4">
+                  <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
+                    Chat
+                  </button>
+                  <button 
+                    className={`bg-red-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-red-700 transition duration-300 ${isLeaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={handleLeaveCommunity}
+                    disabled={isLeaving}
+                  >
+                    {isLeaving ? 'Leaving...' : 'Leave Community'}
+                  </button>
+                </div>
+              ) : (
+                <button 
+                  className={`bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300 ${isJoining ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  onClick={handleJoinCommunity}
+                  disabled={isJoining}
+                >
+                  {isJoining ? 'Joining...' : 'Join Community'}
+                </button>
+              )}
             </div>
             <p className="text-gray-600 mt-2 text-lg">{community.description}</p>
-            <div className="grid grid-cols-3 gap-6 mt-6 text-sm text-gray-600">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 text-sm text-gray-600">
               <div className="flex items-center bg-purple-50 p-3 rounded-lg">
                 <FaUsers className="mr-3 text-purple-600 text-xl" />
                 <span><strong className="block text-gray-900">Members</strong> {community.member_count || 0}</span>
@@ -52,8 +150,8 @@ const CommunityDetail = () => {
         </div>
 
         <Tabs selectedIndex={activeTab} onSelect={index => setActiveTab(index)} className="bg-white rounded-xl shadow-lg p-6">
-          <TabList className="flex border-b mb-6">
-            {['About', 'Rules', 'Discussions', 'Events'].map((tabName, index) => (
+          <TabList className="flex flex-wrap border-b mb-6">
+            {['About', 'Rules', 'Discussions', 'Members'].map((tabName, index) => (
               <Tab
                 key={tabName}
                 className={`px-6 py-3 text-base font-medium cursor-pointer transition duration-300 ${
@@ -84,10 +182,12 @@ const CommunityDetail = () => {
                   <FaCalendar className="mr-2 text-purple-600" />
                   <span>Founded on <strong>{new Date(community.created_date).toLocaleDateString()}</strong></span>
                 </li>
-                <li className="flex items-center">
-                  <FaLink className="mr-2 text-purple-600" />
-                  <a href={community.website} className="text-blue-600 hover:underline">{community.website}</a>
-                </li>
+                {community.website && (
+                  <li className="flex items-center">
+                    <FaLink className="mr-2 text-purple-600" />
+                    <a href={community.website} className="text-blue-600 hover:underline" target="_blank" rel="noopener noreferrer">{community.website}</a>
+                  </li>
+                )}
               </ul>
             </div>
           </TabPanel>
@@ -118,11 +218,25 @@ const CommunityDetail = () => {
           </TabPanel>
 
           <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaCalendarAlt className="mr-3 text-purple-600" />
-              Upcoming Events
+            <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+              <FaUserFriends className="mr-3 text-purple-600" />
+              Community Members
             </h2>
-            <p className="text-gray-600">Community events calendar would go here.</p>
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {members.map((member) => (
+                <div key={member.id} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-3">
+                  <img 
+                    src={member.profile_pic || "/default-avatar.jpg"} 
+                    alt={member.username} 
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                  <div className="overflow-hidden">
+                    <p className="font-medium text-gray-900 truncate">{member.username}</p>
+                    <p className="text-xs text-gray-500 truncate">@{member.username.toLowerCase()}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </TabPanel>
         </Tabs>
       </div>

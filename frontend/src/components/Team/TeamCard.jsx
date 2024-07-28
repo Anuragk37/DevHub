@@ -18,7 +18,7 @@ const TeamCard = ({ team }) => {
       />
       <div className="flex-grow text-center md:text-left">
         <h3 className="text-xl font-semibold text-purple-900 mb-2">{team.name}</h3>
-        <p className="text-md text-gray-700 mb-1">Created by: <span className="font-medium text-purple-700">{team.user}</span></p>
+        <p className="text-md text-gray-700 mb-1">Created by: <span className="font-medium text-purple-700">{team.creator.username}</span></p>
         <p className="text-sm text-gray-500">Invited on: {new Date(team.created_date).toLocaleDateString()}</p>
       </div>
       <button 

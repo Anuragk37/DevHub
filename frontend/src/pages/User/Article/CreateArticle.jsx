@@ -4,21 +4,24 @@ import Header from '../../../components/User/Header';
 import axios from 'axios';
 import DOMPurify from 'dompurify';
 import { useSelector } from 'react-redux';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../utils/axiosInstance';
+import toast from 'react-hot-toast';
 
 const CreateArticle = () => {
   const location = useLocation();
   const { initialData, fromEdit } = location.state || {};
   const [title, setTitle] = useState(initialData?.title || '');
   const [content, setContent] = useState(initialData?.content || '');
-  const [tags, setTags] = useState([])
+  const [tags, setTags] = useState([]);
   const [selectedTags, setSelectedTags] = useState(initialData?.tags || []);
   const [displayTags, setDisplayTags] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState(null);
   const searchTagInputRef = useRef(null);
   const accessToken = useSelector((state) => state.auth.userAccessToken);
   const navigate = useNavigate();
@@ -29,14 +32,14 @@ const CreateArticle = () => {
         const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/');
         setTags(response.data);
       } catch (error) {
-        console.error(error);
+        console.error('Failed to fetch tags:', error);
+        setError('Failed to load tags. Please try again later.');
       }
     };
     getTags();
   }, []);
 
   useEffect(() => {
-    console.log("tagggggggggggggggggggg",tags['results']);
     setDisplayTags(
       tags.filter((tag) =>
         tag.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -48,7 +51,7 @@ const CreateArticle = () => {
   }, [searchTerm, tags]);
 
   const handleTagSelect = (tag) => {
-    if (!selectedTags.includes(tag)) {
+    if (!selectedTags.some(t => t.id === tag.id)) {
       setSelectedTags([...selectedTags, tag]);
     }
     setSearchTerm('');
@@ -67,31 +70,19 @@ const CreateArticle = () => {
     }
   };
 
-  const handleDragOver = (e) => {
-    e.preventDefault();
-  };
-
-  const handleDrop = (e) => {
-    e.preventDefault();
-    handleThumbnail(e);
-  };
-
   const removeThumbnail = () => {
     setThumbnail(null);
     setThumbnailPreview(null);
   };
 
-  const handleContentChange = (value) => {
-    setContent(value);
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
     const cleanContent = DOMPurify.sanitize(content);
     const decodedToken = jwtDecode(accessToken);
     const user_id = decodedToken.user_id;
-
-    console.log("selected tagssss", typeof(selectedTags));
 
     const articleData = new FormData();
     articleData.append('title', title);
@@ -105,23 +96,27 @@ const CreateArticle = () => {
     try {
       if (fromEdit) {
         await axiosInstance.patch(`/article/${initialData.id}/`, articleData);
-        navigate('/user/profile');
+        toast.success('Article updated successfully!');
+        navigate('/user/my-profile');
       } else {
         await axiosInstance.post('/article/', articleData);
         navigate('/');
       }
     } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const handleClickOutside = (event) => {
-    if (searchTagInputRef.current && !searchTagInputRef.current.contains(event.target)) {
-      setDisplayTags([]);
+      console.error('Failed to submit article:', error);
+      setError('Failed to submit article. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchTagInputRef.current && !searchTagInputRef.current.contains(event.target)) {
+        setDisplayTags([]);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
@@ -129,18 +124,84 @@ const CreateArticle = () => {
   }, []);
 
   return (
-    <div className="min-h-screen font-serif">
+    <div className="min-h-screen bg-gray-100 flex felx-col">
       <Header />
-      <div className="min-h-screen mt-0 bg-background">
-        <div className="max-w-4xl mx-auto mt-20 p-8 bg-white rounded-lg shadow-md relative">
-          <form onSubmit={handleSubmit}>
-            <div className="space-y-2 mb-3">
-              <label htmlFor="thumbnail-upload" className="block text-sm font-medium text-gray-700">
-                Thumbnail
+      <div className="container mx-auto px-4 py-8 mt-16">
+        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 px-8 py-6">
+            <h1 className="text-3xl font-bold text-white">
+              {fromEdit ? 'Edit Article' : 'Create New Article'}
+            </h1>
+          </div>
+          <form onSubmit={handleSubmit} className="p-8 space-y-6">
+            {error && (
+              <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                <p>{error}</p>
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+                Title
               </label>
-              <div className="flex items-center space-x-2">
+              <input
+                id="title"
+                type="text"
+                placeholder="Enter the title"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Tags</label>
+              <div className="relative" ref={searchTagInputRef}>
+                <div className="flex flex-wrap items-center border border-gray-300 rounded-md p-2 focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-indigo-500">
+                  {selectedTags.map((tag) => (
+                    <span key={tag.id} className="inline-flex items-center bg-indigo-100 text-indigo-800 rounded-full px-3 py-1 text-sm font-medium mr-2 mb-2">
+                      {tag.name}
+                      <button
+                        type="button"
+                        className="ml-1 text-indigo-600 hover:text-indigo-800 focus:outline-none"
+                        onClick={() => handleTagRemove(tag)}
+                      >
+                        &times;
+                      </button>
+                    </span>
+                  ))}
+                  <input
+                    type="text"
+                    placeholder="Add tags"
+                    className="flex-grow outline-none bg-transparent"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                  />
+                </div>
+                {displayTags.length > 0 && (
+                  <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+                    <ul className="py-1">
+                      {displayTags.map((tag) => (
+                        <li
+                          key={tag.id}
+                          className="px-3 py-2 cursor-pointer hover:bg-indigo-50 text-sm"
+                          onClick={() => handleTagSelect(tag)}
+                        >
+                          {tag.name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-gray-700">Thumbnail</label>
+              <div className="flex items-center space-x-4">
                 <label htmlFor="thumbnail-upload" className="cursor-pointer inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                  <svg className="-ml-1 mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                  <svg className="mr-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clipRule="evenodd" />
                   </svg>
                   Upload Image
@@ -157,7 +218,7 @@ const CreateArticle = () => {
                   <button
                     type="button"
                     onClick={removeThumbnail}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
                   >
                     Remove
                   </button>
@@ -169,63 +230,29 @@ const CreateArticle = () => {
                 </div>
               )}
             </div>
-            <div className="mb-6">
-              <input
-                type="text"
-                placeholder="Enter the title"
-                className="text-4xl w-full border-b-2 border-gray-300 focus:border-gray-500 outline-none pb-2"
-                required
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
+
+            <div className="space-y-2">
+              <label htmlFor="content" className="block text-sm font-medium text-gray-700">Content</label>
+              <RichTextEditor value={content} onChange={(value) => setContent(value)} />
             </div>
-            <div className="mb-6 relative" ref={searchTagInputRef}>
-              <div className="flex flex-wrap items-center border-b-2 border-gray-300 focus-within:border-gray-500 pb-2">
-                {selectedTags.map((tag) => (
-                  <div key={tag.id} className="inline-flex items-center bg-gray-200 rounded-full px-3 py-1 text-sm font-semibold text-gray-700 mr-2 mb-2">
-                    <span>{tag.name}</span>
-                    <span
-                      className="text-lg text-purple-950 cursor-pointer ml-2"
-                      onClick={() => handleTagRemove(tag)}
-                    >
-                      &times;
-                    </span>
-                  </div>
-                ))}
-                <input
-                  type="text"
-                  placeholder="Add tags"
-                  className="flex-grow outline-none"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
-              {displayTags.length > 0 && (
-                <div className="absolute top-full left-0 right-0 bg-white border border-gray-300 rounded-lg shadow-lg z-10 mt-1">
-                  <ul>
-                    {displayTags.map((tag) => (
-                      <li
-                        key={tag.id}
-                        className="px-3 py-1 cursor-pointer hover:bg-gray-200"
-                        onClick={() => handleTagSelect(tag)}
-                      >
-                        {tag.name}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
-            </div>
-            <div className="mb-6">
-              <p className="text-lg font-semibold mb-2">Enter the content</p>
-              <RichTextEditor value={content} onChange={handleContentChange} />
-            </div>
-            <div className="text-right">
+
+            <div className="flex justify-end">
               <button
                 type="submit"
-                className="bg-gray-800 text-white px-6 py-2 rounded-lg shadow hover:bg-gray-700 focus:outline-none"
+                disabled={isSubmitting}
+                className={`inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                Submit
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  'Submit Article'
+                )}
               </button>
             </div>
           </form>

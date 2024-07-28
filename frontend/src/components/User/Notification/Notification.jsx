@@ -3,22 +3,20 @@ import { FaTimes } from 'react-icons/fa';
 import axiosInstance from '../../../utils/axiosInstance';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
-import useWebSocket from 'react-use-websocket';
 
-const Notification = () => {
+
+const Notification = ({ lastMessage }) => {
   const [notifications, setNotifications] = useState([]);
 
   const userAccessToken = useSelector((state) => state.auth.userAccessToken);
   const userId = jwtDecode(userAccessToken).user_id;
 
-  const { lastMessage } = useWebSocket(`ws://127.0.0.1:8000/ws/notifications/${userId}/`);
-
-  console.log(lastMessage);
 
   useEffect(() => {
    if (lastMessage !== null) {
-     const notification = JSON.parse(lastMessage.data);
-     setNotifications(prev => [notification, ...prev]);
+     const notifi = JSON.parse(lastMessage);
+     
+     setNotifications(prev => [notifi.message, ...prev]);
    }
  }, [lastMessage]);
 
@@ -66,14 +64,14 @@ const Notification = () => {
               <p className="text-xs text-gray-500 mt-1">
                 {new Date(notification.created_at).toLocaleString()}
               </p>
-              {!notification.is_read && (
+              {/* {!notification.is_read && (
                 <button
                   onClick={() => handleMarkAsRead(notification.id)}
                   className="mt-2 text-xs text-purple-600 hover:text-purple-800"
                 >
                   Mark as read
                 </button>
-              )}
+              )} */}
             </div>
           ))
         )}

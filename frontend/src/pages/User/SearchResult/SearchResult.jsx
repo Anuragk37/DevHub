@@ -6,6 +6,7 @@ import Articles from '../../../components/User/Articles';
 import axiosInstance from '../../../utils/axiosInstance';
 import BaseUrl from '../../../utils/BaseUrls';
 import { useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const SearchResult = () => {
   const [activeTab, setActiveTab] = useState('articles');
@@ -57,15 +58,17 @@ const SearchResult = () => {
           <Articles key={article.id} article={article} />
         ));
       case 'users':
-        console.log("resulttttttttttttt", results['articles']);
         if (results['users'].length === 0) return <div className="text-center py-8">No users found.</div>;
         return results.users.map((user) => (
           <div key={user.id} className="bg-white rounded-lg shadow-md p-4 mb-4 flex items-center">
+            
             <img src={user.profile_pic || '/default-avatar.png'} alt={user.fullname} className="w-12 h-12 rounded-full mr-4" />
+            <Link to={`/user/profile/${user.id}`}>
             <div>
               <h3 className="font-semibold">{user.fullname}</h3>
               <p className="text-sm text-gray-500">{user.username}</p>
             </div>
+            </Link>
           </div>
         ));
       // case 'communities':

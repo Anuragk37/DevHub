@@ -18,6 +18,7 @@ from django.core.cache import cache
 from admin_panel.serializers import SkillSerializer
 from django.contrib.auth import authenticate
 from team.models import *
+from notification_chat.utils import send_notification
 
 
 import smtplib
@@ -271,6 +272,8 @@ class RelationshipView(APIView):
         else:
             relationship = Relationship.objects.create(follower=follower, following=following)
             serializer = RelationshipSerializer(relationship)
+            message = f"You are followed by {follower.username}."
+            send_notification(following,message)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserFollowersView(APIView):

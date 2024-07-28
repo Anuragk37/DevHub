@@ -10,7 +10,8 @@ const CommunityCard = ({ community }) =>{
    const navigate = useNavigate();
 
    const handleViewClick = () => {
-      navigate('/user/community-detail', { state: { community: community } });
+    console.log("idddddddddddddddddd", community.id);
+      navigate(`/user/community-detail/${community.id}`)
    }
 
    return (

@@ -1,32 +1,63 @@
+.rich-text-editor {
+  margin-bottom: 20px;
+}
+
+.ql-container {
+  min-height: 200px;
+  font-size: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 0 0 0.5rem 0.5rem;
+}
+
+.ql-toolbar {
+  background-color: #f7fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
+
+.ql-editor {
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
 .ql-snow .ql-picker.ql-size .ql-picker-label::before,
 .ql-snow .ql-picker.ql-size .ql-picker-item::before {
   content: attr(data-value);
 }
 
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='10px']::before {
-  content: '10px';
+.ql-snow .ql-picker.ql-size .ql-picker-item[data-value]::before {
+  content: attr(data-value);
 }
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='12px']::before {
-  content: '12px';
+
+/* Custom styles for toolbar buttons */
+.ql-snow .ql-toolbar button,
+.ql-snow .ql-picker-label {
+  color: #4a5568;
 }
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='14px']::before {
-  content: '14px';
+
+.ql-snow .ql-toolbar button:hover,
+.ql-snow .ql-picker-label:hover {
+  color: #2d3748;
 }
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='16px']::before {
-  content: '16px';
+
+.ql-snow .ql-toolbar button.ql-active,
+.ql-snow .ql-picker-label.ql-active,
+.ql-snow .ql-picker-item.ql-selected {
+  color: #4299e1;
 }
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='18px']::before {
-  content: '18px';
+
+/* Custom styles for dropdown menus */
+.ql-snow .ql-picker-options {
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 0.25rem;
 }
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='20px']::before {
-  content: '20px';
-}
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='24px']::before {
-  content: '24px';
-}
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='28px']::before {
-  content: '28px';
-}
-.ql-snow .ql-picker.ql-size .ql-picker-item[data-value='32px']::before {
-  content: '32px';
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .ql-toolbar {
+    flex-wrap: wrap;
+  }
 }

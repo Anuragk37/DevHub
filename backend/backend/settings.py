@@ -39,6 +39,8 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+   
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,7 +51,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'django_quill',
-    'channels',
+    
 
     'account',
     'admin_panel',

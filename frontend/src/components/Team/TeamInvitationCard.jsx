@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 const TeamInvitationCard = ({ invitation }) => {
 
    const navigate = useNavigate();
-   
+   console.log("invitationsssssssssssssssssssssssssssssss");
   const handleViewTeam = () => {
    const team = { ...invitation.team };
     navigate('/user/team-invitation-detail/',{ state: { team }});
@@ -20,7 +20,7 @@ const TeamInvitationCard = ({ invitation }) => {
       />
       <div className="flex-grow">
         <h3 className="text-lg font-semibold text-purple-700">{invitation.team.name}</h3>
-        <p className="text-sm text-gray-600">Created by: {invitation.user.fullname}</p>
+        <p className="text-sm text-gray-600">Created by: {invitation.team.creator.username}</p>
         <p className="text-xs text-gray-500">Invited on: {new Date(invitation.team.created_date).toLocaleDateString()}</p>
       </div>
       <button 

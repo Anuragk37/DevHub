@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { FaSearch, FaBell } from 'react-icons/fa';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { userSignOut } from '../../features/authSlice';
 import { jwtDecode } from 'jwt-decode';
@@ -9,19 +9,43 @@ import defaultPic from '../../assets/default.jpg';
 import toast, { Toaster } from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
 import Notification from './Notification/Notification';
+import useWebSocket from 'react-use-websocket';
+import WS_URL from '../../utils/BaseUrls';
+import { incrementNotificationCount,resetNotificationCount } from '../../features/notificationSlice';
+
 function Header() {
   const [showMenu, setShowMenu] = useState(false);
   const [showNotifications, setShowNotifications] = useState(false);
   const [profilePic, setProfilePic] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState([]);
+  // const [notificationCount, setNotificationCount] = useState(0);
+  const [message,setMessage] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation();
 
   const dispatch = useDispatch();
 
   const isAuthenticated = useSelector((state) => state.auth.isUserAuthenticated);
   const accessToken = useSelector((state) => state.auth.userAccessToken);
+  const notificationCount = useSelector((state) => state.notification.count);
+
+  const decodedToken = accessToken ? jwtDecode(accessToken) : null;
+  const userId = decodedToken ? decodedToken.user_id : null;
+
+  const { lastMessage } = useWebSocket(
+    
+    userId ? `${WS_URL}/notifications/${userId}/` : null,
+    {
+      shouldReconnect: (closeEvent) => true,
+    }
+  );
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      console.log(lastMessage.data);
+      setMessage(lastMessage.data);
+      dispatch(incrementNotificationCount());
+    }
+  }, [lastMessage]);
 
   const handleSearch = async (e) => {
     e.preventDefault();
@@ -43,18 +67,24 @@ function Header() {
   };
 
   const getUser = async () => {
-    if (accessToken) {
-      const decodedToken = jwtDecode(accessToken);
-      const userId = decodedToken.user_id;
-      const response = await axios.get(`http://127.0.0.1:8000/api/account/user/${userId}/`);
-      
-      setProfilePic(response.data.profile_pic);
+    if (accessToken && userId) {
+      try {
+        const response = await axios.get(`http://127.0.0.1:8000/api/account/user/${userId}/`);
+        setProfilePic(response.data.profile_pic);
+      } catch (error) {
+        console.error('Error fetching user profile:', error);
+      }
     }
   };
 
   useEffect(() => {
     getUser();
-  }, [accessToken]);
+  }, [accessToken, userId]);
+
+  const handleNotificationClick = () => {
+    setShowNotifications(!showNotifications);
+    dispatch(resetNotificationCount());
+  };
 
   return (
     <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md'>
@@ -102,9 +132,14 @@ function Header() {
             <div className='relative'>
               <FaBell
                 className='text-2xl text-purple-900 cursor-pointer'
-                onClick={() => setShowNotifications(!showNotifications)}
+                onClick={handleNotificationClick}
               />
-              {showNotifications && <Notification />}
+              {notificationCount > 0 && (
+                <span className='absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center'>
+                  {notificationCount}
+                </span>
+              )}
+              {showNotifications && <Notification lastMessage={message} />}
             </div>
             <img
               src={profilePic ? profilePic : defaultPic}
