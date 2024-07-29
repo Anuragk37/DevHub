@@ -137,7 +137,7 @@ const TeamDetails = () => {
           <div className="pt-16 pb-8 px-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-4xl font-bold text-gray-900">{team.name}</h1>
-              <Link to={`/user/chat/`}>
+              <Link to={`/user/chat/`} state={{ team }}>
               <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
                 <FaComment className="mr-2" />
                 Chat

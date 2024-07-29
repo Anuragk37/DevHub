@@ -1,37 +1,88 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { FaPaperclip, FaSmile, FaPaperPlane, FaUsers, FaEllipsisV, FaSearch, FaVideo, FaPhoneAlt, FaBars, FaTimes } from 'react-icons/fa';
+import { useLocation } from 'react-router-dom';
+import axiosInstance from '../../../../utils/axiosInstance';
+import WS_URL from '../../../../utils/BaseUrls';
+import useWebSocket from 'react-use-websocket';
+import { useSelector } from 'react-redux';
+import { jwtDecode } from 'jwt-decode';
 
 const ChatPage = () => {
   const [newMessage, setNewMessage] = useState('');
+  const [members, setMembers] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [messages, setMessages] = useState([]);
+  const [selectedMessageId, setSelectedMessageId] = useState(null);
+  const messageContainerRef = useRef(null);
 
-  const team = {
-    name: 'Development Team',
-    profilePic: '/api/placeholder/150/150',
-  };
+  const location = useLocation();
+  const team = location.state?.team;
 
-  const messages = [
-    { sender: 'Alice', senderAvatar: '/api/placeholder/150/150', text: 'Hello team!', time: '10:00 AM' },
-    { sender: 'me', text: 'Hi Alice!', time: '10:02 AM' },
-    { sender: 'Bob', senderAvatar: '/api/placeholder/150/150', text: 'Good morning everyone!', time: '10:05 AM' },
-    { sender: 'me', text: 'Good morning Bob!', time: '10:06 AM' },
-  ];
+  const accessToken = useSelector(state => state.auth.userAccessToken);
 
-  const members = [
-    { id: 1, name: 'Alice', avatar: '/api/placeholder/150/150', online: true },
-    { id: 2, name: 'Bob', avatar: '/api/placeholder/150/150', online: false },
-    { id: 3, name: 'Charlie', avatar: '/api/placeholder/150/150', online: true },
-  ];
+  const decodedToken = accessToken ? jwtDecode(accessToken) : null;
+  const userId = decodedToken ? decodedToken.user_id : null;
 
-  const handleSendMessage = (e) => {
-    e.preventDefault();
-    console.log('New message:', newMessage);
-    setNewMessage('');
-  };
+  const { sendMessage, lastMessage, readyState } = useWebSocket(`${WS_URL}/teamchat/${team?.id}/?token=${accessToken}`);
+
+  useEffect(() => {
+    if (lastMessage !== null) {
+      const messageData = JSON.parse(lastMessage.data);
+      setMessages((prevMessages) => [...prevMessages, messageData]);
+    }
+  }, [lastMessage]);
+
+  useEffect(() => {
+    const getMessages = async () => {
+      try {
+        const response = await axiosInstance.get(`notification_chat/teamchat/${team?.id}/`);
+        setMessages(response.data);
+      } catch (error) {
+        console.error('Error fetching messages:', error);
+      }
+    }
+    getMessages();
+  }, [team?.id]);
+
+  useEffect(() => {
+    if (team?.id) {
+      axiosInstance.get(`/team/team-member/${team.id}/`)
+        .then(response => {
+          setMembers(response.data);
+        })
+        .catch(error => {
+          console.error('Error fetching team members:', error);
+        });
+    }
+  }, [team?.id]);
+
+  useEffect(() => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  }, [messages]);
+
+  const handleSendMessage = useCallback((event) => {
+    event.preventDefault();
+    if (newMessage.trim() && readyState === WebSocket.OPEN) {
+      sendMessage(JSON.stringify({
+        message: newMessage.trim(),
+      }));
+      setNewMessage('');
+    }
+  }, [newMessage, sendMessage, readyState]);
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const handleMessageClick = (messageId) => {
+    setSelectedMessageId(messageId === selectedMessageId ? null : messageId);
+  };
+
+  if (!team) {
+    return <div>No team data available. Please go back and select a team.</div>;
+  }
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100 p-4 space-y-4 lg:space-y-0 lg:space-x-4">
@@ -57,10 +108,9 @@ const ChatPage = () => {
             {members.map((member) => (
               <li key={member.id} className="flex items-center p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition duration-150 ease-in-out">
                 <div className="relative">
-                  <img src={member.avatar} alt={member.name} className="w-10 h-10 rounded-full mr-3 border-2 border-gray-200" />
-                  <span className={`absolute bottom-0 right-0 w-3 h-3 rounded-full ${member.online ? 'bg-green-500' : 'bg-gray-400'} border-2 border-white`}></span>
+                  <img src={member.profile_pic} alt={member.name} className="w-10 h-10 rounded-full mr-3 border-2 border-gray-200" />
                 </div>
-                <span className="font-medium text-gray-800">{member.name}</span>
+                <span className="font-medium text-gray-800">{member.fullname}</span>
               </li>
             ))}
           </ul>
@@ -75,7 +125,7 @@ const ChatPage = () => {
             <button onClick={toggleSidebar} className="lg:hidden mr-4 text-gray-600">
               {isSidebarOpen ? <FaTimes /> : <FaBars />}
             </button>
-            <img src={team.profilePic} alt={team.name} className="w-12 h-12 rounded-full mr-4 border-2 border-purple-200" />
+            <img src={team.profile_pic} alt={team.name} className="w-12 h-12 rounded-full mr-4 border-2 border-purple-200" />
             <div>
               <h2 className="text-xl font-bold text-gray-800">{team.name}</h2>
               <p className="text-sm text-green-500 font-medium">Active now</p>
@@ -95,16 +145,23 @@ const ChatPage = () => {
         </div>
 
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
-          {messages.map((message, index) => (
-            <div key={index} className={`flex ${message.sender === 'me' ? 'justify-end' : 'justify-start'}`}>
-              <div className={`flex items-end ${message.sender === 'me' ? 'flex-row-reverse' : 'flex-row'}`}>
-                {message.sender !== 'me' && (
-                  <img src={message.senderAvatar} alt={message.sender} className="w-8 h-8 rounded-full mr-2" />
+        <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+          {messages.map((message) => (
+            <div key={message.id} className={`flex ${message.sender.id === userId ? 'justify-end' : 'justify-start'}`}>
+              <div 
+                className={`flex items-end ${message.sender.id === userId ? 'flex-row-reverse' : 'flex-row'}`}
+                onClick={() => handleMessageClick(message.id)}
+              >
+                {message.sender.id !== userId && (
+                  <img src={message.sender.profile_pic} alt={message.sender.fullname} className="w-8 h-8 rounded-full mr-2" />
                 )}
-                <div className={`max-w-xs px-4 py-2 rounded-2xl shadow-md ${message.sender === 'me' ? 'bg-purple-600 text-white rounded-br-none' : 'bg-white rounded-bl-none'}`}>
-                  <p>{message.text}</p>
-                  <span className={`text-xs ${message.sender === 'me' ? 'text-purple-200' : 'text-gray-500'} mt-1 block`}>{message.time}</span>
+                <div className={`max-w-xs px-4 py-2 rounded-2xl shadow-md ${message.sender.id === userId ? 'bg-purple-600 text-white rounded-br-none' : 'bg-white rounded-bl-none'}`}>
+                  <p>{message.message}</p>
+                  {selectedMessageId === message.id && (
+                    <span className={`text-xs ${message.sender.id === userId ? 'text-purple-200' : 'text-gray-500'} mt-1 block`}>
+                      {new Date(message.created_at).toLocaleTimeString()}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

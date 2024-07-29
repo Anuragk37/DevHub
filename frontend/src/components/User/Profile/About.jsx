@@ -8,6 +8,7 @@ import SkillsSelector from "../SkillSelector";
 import TagModal from "./TagModal";
 import TagSelector from "../TagSelector";
 import { FaPen, FaPlus, FaLightbulb, FaCode } from "react-icons/fa";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const About = ({isOwnProfile,userId}) => {
   const [about, setAbout] = useState("");
@@ -22,13 +23,13 @@ const About = ({isOwnProfile,userId}) => {
   const getUserDetails = async () => {
     try {
       
-      const response = await axios.get(`${BaseUrl}/account/user/${userId}/`);
+      const response = await axiosInstance.get(`/account/user/${userId}/`);
       setAbout(response.data.about);
 
-      const skills = await axios.get(`${BaseUrl}/account/user-skill/${userId}/`);
+      const skills = await axiosInstance.get(`/account/user-skill/${userId}/`);
       setSkills(skills.data);
       
-      const interests = await axios.get(`${BaseUrl}/account/user-tag/${userId}/`);
+      const interests = await axiosInstance.get(`/account/user-tag/${userId}/`);
       setInterests(interests.data);
     } catch (error) {
       console.error("Error fetching user details:", error);

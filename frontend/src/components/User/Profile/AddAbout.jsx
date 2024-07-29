@@ -14,6 +14,7 @@ import  BaseUrl  from "../../../utils/BaseUrls";
 import toast from "react-hot-toast";
 import { useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
+import axiosInstance from "../../../utils/axiosInstance";
 
 export function AddAbout({ onClose }) {
   const [open, setOpen] = useState(true); 
@@ -29,7 +30,7 @@ export function AddAbout({ onClose }) {
     try {
       const decodedToken = jwtDecode(accessToken);
       const user_id = decodedToken.user_id;
-      const response = await axios.patch(`${BaseUrl}/account/user/${user_id}/`, {
+      const response = await axiosInstance.patch(`/account/user/${user_id}/`, {
         about
       });
       toast.success(response.data.message);

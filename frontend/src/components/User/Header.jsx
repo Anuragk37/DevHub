@@ -33,7 +33,7 @@ function Header() {
 
   const { lastMessage } = useWebSocket(
     
-    userId ? `${WS_URL}/notifications/${userId}/` : null,
+    userId ? `${WS_URL}/notifications/${userId}/?token=${accessToken}` : null,
     {
       shouldReconnect: (closeEvent) => true,
     }
