@@ -19,3 +19,10 @@ class TeamChatView(generics.ListAPIView):
    def get_queryset(self):
       team = self.kwargs.get('team_id')
       return TeamChat.objects.filter(team=team)
+
+class CommunityChatView(generics.ListAPIView):
+   serializer_class = CommunityChatSerializer
+
+   def get_queryset(self):
+      community = self.kwargs.get('community_id')
+      return CommunityChat.objects.filter(community=community)

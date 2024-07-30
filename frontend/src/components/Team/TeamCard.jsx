@@ -1,12 +1,16 @@
 import React from 'react';
 import { FaEye } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { setTeam,resetTeam } from '../../features/teamSlice';
 
 const TeamCard = ({ team }) => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   
   const handleViewTeam = () => {
-    navigate('/user/team-detail/', { state: { team } });
+    dispatch(setTeam(team))
+    navigate('/user/team-detail/');
   };
 
   return (

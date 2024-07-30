@@ -1,15 +1,16 @@
 // ChatPage.js
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import axiosInstance from '../../../../utils/axiosInstance';
-import WS_URL from '../../../../utils/BaseUrls';
+import axiosInstance from '../../../utils/axiosInstance';
+import WS_URL from '../../../utils/BaseUrls';
 import useWebSocket from 'react-use-websocket';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
-import DetailSideBar from '../../../../components/User/Chat/DetailSideBar';
-import ChatWindow from '../../../../components/User/Chat/ChatWindow';
+import DetailSideBar from '../../../components/User/Chat/DetailSideBar';
+import ChatWindow from '../../../components/User/Chat/ChatWindow';
 
-const ChatPage = () => {
+
+const CommunityChat = () => {
   const [newMessage, setNewMessage] = useState('');
   const [members, setMembers] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -19,13 +20,13 @@ const ChatPage = () => {
   const messageContainerRef = useRef(null);
 
   const location = useLocation();
-  const team = location.state?.team;
+  const community = location.state?.community;
 
   const accessToken = useSelector(state => state.auth.userAccessToken);
   const decodedToken = accessToken ? jwtDecode(accessToken) : null;
   const userId = decodedToken ? decodedToken.user_id : null;
 
-  const { sendMessage, lastMessage, readyState } = useWebSocket(`${WS_URL}/teamchat/${team?.id}/?token=${accessToken}`);
+  const { sendMessage, lastMessage, readyState } = useWebSocket(`${WS_URL}/communitychat/${community?.id}/?token=${accessToken}`);
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -37,26 +38,29 @@ const ChatPage = () => {
   useEffect(() => {
     const getMessages = async () => {
       try {
-        const response = await axiosInstance.get(`notification_chat/teamchat/${team?.id}/`);
+        const response = await axiosInstance.get(`notification_chat/communitychat/${community?.id}/`);
         setMessages(response.data);
       } catch (error) {
         console.error('Error fetching messages:', error);
       }
     }
     getMessages();
-  }, [team?.id]);
+  }, [community?.id]);
 
   useEffect(() => {
-    if (team?.id) {
-      axiosInstance.get(`/team/team-member/${team.id}/`)
+    if (community?.id) {
+      axiosInstance.get(`/community/community-members/${community.id}/`)
         .then(response => {
-          setMembers(response.data);
+         const memberList = response.data.map(data => data.user);
+
+         console.log("memberList",memberList);
+         setMembers(memberList);
         })
         .catch(error => {
           console.error('Error fetching team members:', error);
         });
     }
-  }, [team?.id]);
+  }, [community?.id]);
 
   const handleSendMessage = useCallback((event) => {
     event.preventDefault();
@@ -76,14 +80,14 @@ const ChatPage = () => {
     setSelectedMessageId(messageId === selectedMessageId ? null : messageId);
   };
 
-  if (!team) {
+  if (!community) {
     return <div>No team data available. Please go back and select a team.</div>;
   }
 
   return (
     <div className="flex flex-col lg:flex-row h-screen bg-gray-100 p-4 space-y-4 lg:space-y-0 lg:space-x-4">
       <DetailSideBar 
-        team={team}
+        team={community}
         members={members}
         isSidebarOpen={isSidebarOpen}
         toggleSidebar={toggleSidebar}
@@ -91,7 +95,7 @@ const ChatPage = () => {
         setSearchQuery={setSearchQuery}
       />
       <ChatWindow
-        team={team}
+        team={community}
         messages={messages}
         handleSendMessage={handleSendMessage}
         newMessage={newMessage}
@@ -104,4 +108,4 @@ const ChatPage = () => {
   );
 };
 
-export default ChatPage;
+export default CommunityChat;

@@ -4,6 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import axiosInstance from '../../../utils/axiosInstance';
+import { Link } from 'react-router-dom';
 
 const CommunityDetail = () => {
   const [activeTab, setActiveTab] = useState(0);
@@ -110,9 +111,11 @@ const CommunityDetail = () => {
               <h1 className="text-4xl font-bold text-gray-900">{community.name}</h1>
               {community.is_member ? (
                 <div className="flex space-x-4">
+                  <Link to={`/community/chat`} state={{ community }}>
                   <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
                     Chat
                   </button>
+                  </Link>
                   <button 
                     className={`bg-red-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-red-700 transition duration-300 ${isLeaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={handleLeaveCommunity}

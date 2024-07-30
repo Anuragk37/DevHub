@@ -106,6 +106,22 @@ class TeamMemberView(generics.ListAPIView):
         team = get_object_or_404(Team, id=team_id)
         # Get the users related to the team through TeamMember
         return MyUser.objects.filter(teams__team=team)
+
+class TeamMemberDeleteView(generics.DestroyAPIView):
+    queryset = MyUser.objects.all()
+    serializer_class = UserSerializer
+
+    def delete(self, request, *args, **kwargs):
+        team_id = self.kwargs.get('team_id')
+        user_id = self.kwargs.get('user_id')
+        team = get_object_or_404(Team, id=team_id)
+        user = get_object_or_404(MyUser, id=user_id)
+        
+        if not team.members.filter(user=user).exists():
+            return Response({'detail': 'User is not a member of this team.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        team.members.get(user=user).delete()
+        return Response({'detail': 'User removed from the team.'}, status=status.HTTP_204_NO_CONTENT)
       
 @api_view(['GET'])  
 def pending_requests(request, team_id):
@@ -127,7 +143,6 @@ def accept_request(request):
         TeamMember.objects.create(team=team, user=user)
 
         message = f"Your request to join the team {team.name} has been accepted."
-        print("mesageeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",message)
         send_notification(user, message)
 
         return Response(status=status.HTTP_200_OK)

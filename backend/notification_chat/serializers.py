@@ -13,11 +13,18 @@ class TeamChatSerializer(serializers.ModelSerializer):
       model = TeamChat
       fields = '__all__'
 
-      def __init__(self, *args, **kwargs):
-        context = kwargs.pop('context', {})
-        super().__init__(*args, **kwargs)
-        self.context.update(context)
+      # def __init__(self, *args, **kwargs):
+      #   context = kwargs.pop('context', {})
+      #   super().__init__(*args, **kwargs)
+      #   self.context.update(context)
 
-      def to_representation(self, instance):
-         self.fields['sender'].context.update(self.context)
-         return super().to_representation(instance)
+      # def to_representation(self, instance):
+      #    self.fields['sender'].context.update(self.context)
+      #    return super().to_representation(instance)
+
+
+class CommunityChatSerializer(serializers.ModelSerializer):
+   sender = UserSerializer()
+   class Meta:
+      model = CommunityChat
+      fields = '__all__'

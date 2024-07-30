@@ -43,6 +43,7 @@ import TeamDetail from './pages/User/Team/TeamDetail.jsx'
 import ChatPage from './pages/User/Team/chat/ChatPage.jsx'
 import ConfirmEmail from './components/User/Authentication/ConfirmEmail.jsx'
 import ResetPassword from './components/User/Authentication/ResetPassword.jsx'
+import CommunityChat from './pages/User/Community/CommunityChat.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -109,6 +110,10 @@ function App() {
     {
       path:'/user/community-detail/:id',
       element:<UserProtecredRoute><CommunityDetail /></UserProtecredRoute>
+    },
+    {
+      path:'/community/chat/',
+      element:<UserProtecredRoute><CommunityChat /></UserProtecredRoute>
     },
     {
       path:'/user/create-team',
