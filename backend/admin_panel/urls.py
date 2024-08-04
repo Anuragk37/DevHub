@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
    path('admin-login/',views.AdminLoginView.as_view()),
+   path('',views.AdminDashBoardView.as_view()),
    path('skills/',views.SkillView.as_view()),
    path('skills/<int:pk>/',views.SkillRetrieveUpdateDestroyView.as_view()),
    path('tags/',views.TagView.as_view()),

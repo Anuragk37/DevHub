@@ -22,5 +22,25 @@ class CommunityMember(models.Model):
 
    def __str__(self) -> str:
       return self.user.username
+   
+
+class Discussion(models.Model):
+   community = models.ForeignKey(Community,on_delete=models.CASCADE)
+   user = models.ForeignKey(MyUser,on_delete=models.CASCADE)
+   title = models.CharField(max_length=250)
+   content = models.TextField()
+   created_date = models.DateTimeField(auto_now_add=True)
+
+   def __str__(self) -> str:
+      return self.title
+
+class DiscussionComment(models.Model):
+   discussion = models.ForeignKey(Discussion,on_delete=models.CASCADE)
+   user = models.ForeignKey(MyUser,on_delete=models.CASCADE)
+   comment = models.TextField()
+   created_date = models.DateTimeField(auto_now_add=True)
+
+   def __str__(self) -> str:
+      return self.comment
 
 

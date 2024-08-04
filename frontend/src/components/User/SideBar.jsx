@@ -6,7 +6,7 @@ const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="fixed z-50">
+    <div className="fixed z-50 md:w-1/5">
       <button
         className="md:hidden p-4 text-purple-950"
         onClick={() => setIsOpen(!isOpen)}
@@ -23,12 +23,13 @@ const SideBar = () => {
         <div>
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Community</h2>
-
-            <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-              <FaUsers className="mr-3" />
-              <span>Your communities</span>
-            </button>
-
+            <Link to={'/user/your-communities'}>
+              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
+                <FaUsers className="mr-3" />
+                <span>Your communities</span>
+              </button>
+            </Link>
+            
             <Link to={'/user/view-communities/'}>
               <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
                 <FaSearch className="mr-3" />

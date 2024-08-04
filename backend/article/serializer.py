@@ -69,7 +69,7 @@ class ArticleSerializer(serializers.ModelSerializer):
         tags = ArticleTag.objects.filter(article=instance).values_list('tag__id', 'tag__name')
         data['tags'] = [{'id': tag[0], 'name': tag[1]} for tag in tags]
         return data
-
+ 
 
    
    

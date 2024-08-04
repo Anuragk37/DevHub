@@ -1,7 +1,7 @@
 import React , { useState,useEffect } from 'react'
 import Headers from '../../components/Admin/Header'
 import SideBar from '../../components/Admin/SideBar'
-import Tables from '../../components/Admin/Tags & skills/Table'
+import Table from '../../components/Admin/Tags & skills/Table'
 import Add from '../../components/Admin/Tags & skills/Add'
 import axios from 'axios'
 
@@ -63,14 +63,14 @@ const Tags = () => {
         </div>
         
         {/* Main Content */}
-        <div className="flex overflow-y-auto  py-10 px-16">
-          <div className='w-3/5 h-full'>
-            <Tables list={tags} onDelete={deleteTag}/>
-          </div>
-          <div className='w-2/5 h-64 '>
-            <Add add={addTag} tag={true} error={error}/>
-          </div>
-        </div>
+        <div className="flex flex-col lg:flex-row p-4 lg:p-8 space-y-8 lg:space-y-0 lg:space-x-8">
+               <div className='w-full lg:w-3/5 order-2 lg:order-1'>
+                  <Table list={tags} onDelete={deleteTag}/>
+               </div>
+               <div className='w-full lg:w-2/5 order-1 lg:order-2'>
+                  <Add add={addTag} error={error}/>
+               </div>
+            </div>
       </div>
     </div>
   )

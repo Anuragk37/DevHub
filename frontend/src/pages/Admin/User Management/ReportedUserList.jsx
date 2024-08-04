@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../../components/Admin/Header';
 import SideBar from '../../../components/Admin/SideBar';
-import axios from 'axios';
+import axiosInstance from '../../../utils/axiosInstance';
 
-const UserManagement = () => {
+const ReportedUserList = () => {
   const [users, setUsers] = useState([]);
 
   const getUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/account/user/');
+      const response = await axiosInstance.get('account/reorted-users/');
       console.log(response.data);
       setUsers(response.data);
     } catch (error) {
@@ -56,6 +56,7 @@ const UserManagement = () => {
                   <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Email</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Date Joined</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-white uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
               <tbody className="bg-white">
@@ -78,7 +79,13 @@ const UserManagement = () => {
                     <td className="px-4 py-4 text-sm text-gray-500">{user.email}</td>
                     <td className="px-4 py-4 text-sm text-gray-500">{user.phone_number}</td>
                     <td className="px-4 py-4 text-sm text-gray-500">{user.date_joined}</td>
-                    
+                    <td className="px-4 py-4 text-sm text-gray-900">
+                      {user.is_active ? (
+                        <a onClick={() => handleBlock(user.id)} className="font-medium text-blue-600 hover:underline cursor-pointer">Block</a>
+                      ) : (
+                        <a onClick={() => handleUnblock(user.id)} className="font-medium text-blue-600 hover:underline cursor-pointer">Unblock</a>
+                      )}
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -90,4 +97,4 @@ const UserManagement = () => {
   );
 };
 
-export default UserManagement;
+export default ReportedUserList;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { adminSignOut } from '../../features/authSlice';
 import { Link } from 'react-router-dom';
@@ -11,9 +11,10 @@ const SideBar = () => {
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const toggleDropdown = () => {
-    setIsEcommerceOpen(!isEcommerceOpen);
+  const toggleDropdown = (setter) => () => {
+    setter(prev => !prev);
   };
 
   const toggleSidebar = () => {
@@ -23,6 +24,10 @@ const SideBar = () => {
   const handleLogout = () => {
     dispatch(adminSignOut());
     navigate('/admin-login');
+  };
+
+  const isActive = (path) => {
+    return location.pathname === path;
   };
 
   return (
@@ -49,28 +54,59 @@ const SideBar = () => {
             <ul className="space-y-2 font-medium">
               <li>
                 <Link to="/admin/dashboard">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/dashboard') ? 'bg-blue-700' : ''}`}>
                     <span className="ml-3">Dashboard</span>
                   </p>
                 </Link>
               </li>
+              
               <li>
-                <Link to="/admin/user-management">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
-                    <span className="flex-1 ml-3 whitespace-nowrap">User Management</span>
-                  </p>
-                </Link>
+                <button
+                  type="button"
+                  className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg group hover:bg-blue-700 ${
+                    isActive('/admin/user-management') || isActive('/admin/reported-users') ? 'bg-blue-700' : ''
+                  }`}
+                  aria-controls="dropdown-example"
+                  onClick={toggleDropdown(setIsEcommerceOpen)}
+                >
+                  <span className="flex-1 ml-3 text-left whitespace-nowrap">User Management</span>
+                  <svg
+                    className={`w-3 h-3 transform transition-transform ${isEcommerceOpen ? 'rotate-180' : ''}`}
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 10 6"
+                  >
+                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
+                  </svg>
+                </button>
+                <ul id="dropdown-example" className={`${isEcommerceOpen ? '' : 'hidden'} py-2 space-y-2`}>
+                  <li>
+                    <Link to="/admin/user-management">
+                      <p className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700 ${
+                        isActive('/admin/user-management') ? 'bg-blue-600' : ''
+                      }`}>Users</p>
+                    </Link>
+                  </li>
+                  <li>
+                    <Link to="/admin/reported-users">
+                      <p className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700 ${
+                        isActive('/admin/reported-users') ? 'bg-blue-600' : ''
+                      }`}>Reported Users</p>
+                    </Link>
+                  </li>
+                </ul>
               </li>
               <li>
                 <Link to="/admin/skills">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/skills') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Skills</span>
                   </p>
                 </Link>
               </li>
               <li>
                 <Link to="/admin/tags">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/tags') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Tags</span>
                   </p>
                 </Link>
@@ -78,9 +114,11 @@ const SideBar = () => {
               <li>
                 <button
                   type="button"
-                  className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg group hover:bg-blue-700"
+                  className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg group hover:bg-blue-700 ${
+                    isActive('/admin/articles') || isActive('/admin/reported-articles') ? 'bg-blue-700' : ''
+                  }`}
                   aria-controls="dropdown-articles"
-                  onClick={() => setIsArticlesOpen(!isArticlesOpen)}
+                  onClick={toggleDropdown(setIsArticlesOpen)}
                 >
                   <span className="flex-1 ml-3 text-left whitespace-nowrap">Articles</span>
                   <svg
@@ -96,69 +134,44 @@ const SideBar = () => {
                 <ul id="dropdown-articles" className={`${isArticlesOpen ? '' : 'hidden'} py-2 space-y-2`}>
                   <li>
                     <Link to="/admin/articles/">
-                      <p className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700">Articles</p>
+                      <p className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700 ${
+                        isActive('/admin/articles/') ? 'bg-blue-600' : ''
+                      }`}>Articles</p>
                     </Link>
                   </li>
                   <li>
                     <Link to="/admin/reported-articles/">
-                      <p className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700">Reported Articles</p>
+                      <p className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700 ${
+                        isActive('/admin/reported-articles/') ? 'bg-blue-600' : ''
+                      }`}>Reported Articles</p>
                     </Link>
                   </li>
                 </ul>
               </li>
               <li>
                 <Link to="/admin/comments">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/comments') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Comments</span>
                   </p>
                 </Link>
               </li>
               <li>
-                <button
-                  type="button"
-                  className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg group hover:bg-blue-700"
-                  aria-controls="dropdown-example"
-                  onClick={toggleDropdown}
-                >
-                  <span className="flex-1 ml-3 text-left whitespace-nowrap">Community</span>
-                  <svg
-                    className={`w-3 h-3 transform transition-transform ${isEcommerceOpen ? 'rotate-180' : ''}`}
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 10 6"
-                  >
-                    <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m1 1 4 4 4-4" />
-                  </svg>
-                </button>
-                <ul id="dropdown-example" className={`${isEcommerceOpen ? '' : 'hidden'} py-2 space-y-2`}>
-                  <li>
-                    <Link to="/admin/community/products">
-                      <p className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700">Products</p>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/community/billing">
-                      <p className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700">Billing</p>
-                    </Link>
-                  </li>
-                  <li>
-                    <Link to="/admin/community/invoice">
-                      <p className="flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700">Invoice</p>
-                    </Link>
-                  </li>
-                </ul>
+                <Link to="/admin/community-management">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/community-management') ? 'bg-blue-700' : ''}`}>
+                    <span className="flex-1 ml-3 whitespace-nowrap">Community</span>
+                  </p>
+                </Link>
               </li>
               <li>
-                <Link to="/admin/teams">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                <Link to="/admin/team-management">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/team-management') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Teams</span>
                   </p>
                 </Link>
               </li>
               <li>
                 <Link to="/admin/help">
-                  <p className="flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group">
+                  <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/help') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Help</span>
                   </p>
                 </Link>

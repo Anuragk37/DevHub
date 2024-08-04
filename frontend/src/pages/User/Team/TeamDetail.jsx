@@ -1,156 +1,31 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaUser, FaCalendarAlt, FaUsers, FaInfoCircle, FaComment, FaEdit, FaTasks, FaPlus } from 'react-icons/fa';
-import axiosInstance from '../../../utils/axiosInstance';
-import defaultPic from '../../../assets/default.jpg';
-import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
-import 'react-tabs/style/react-tabs.css';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-
-const MemberList = ({ members, isPending, onAccept, onReject, onRemove, isCreator }) => (
-  <ul className="space-y-8">
-    {members.map(member => (
-      <li key={member.id} className="flex items-center justify-between bg-white p-4 rounded-lg shadow-md hover:shadow-lg transition duration-300">
-        <Link to={`/user/profile/${member.id}`} className="flex items-center">
-          <img
-            src={member.profile_pic || defaultPic}
-            alt={member.fullname}
-            className="w-12 h-12 rounded-full mr-4 object-cover border-2 border-purple-200"
-          />
-          <span className="text-base font-medium text-gray-800">{member.fullname}</span>
-        </Link>
-        {isPending ? (
-          <div>
-            <button
-              onClick={() => onAccept(member.id)}
-              className="bg-green-500 text-white px-3 py-1 rounded-md text-sm mr-2 hover:bg-green-600 transition duration-300"
-            >
-              Accept
-            </button>
-            <button
-              onClick={() => onReject(member.id)}
-              className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 transition duration-300"
-            >
-              Reject
-            </button>
-          </div>
-        ) : (
-          isCreator && (
-            <button
-              onClick={() => onRemove(member.id)}
-              className="bg-red-500 text-white px-3 py-1 rounded-md text-sm hover:bg-red-600 transition duration-300"
-            >
-              Remove
-            </button>
-          )
-        )}
-      </li>
-    ))}
-  </ul>
-);
-
-const TaskList = ({ tasks, members, isCreator, onAddTask, onUpdateTask, onDeleteTask }) => {
-  const [newTask, setNewTask] = useState({ title: '', description: '', assignedTo: '', dueDate: '' });
-
-  const handleNewTaskChange = (e) => {
-    setNewTask({ ...newTask, [e.target.name]: e.target.value });
-  };
-
-  const handleAddTask = () => {
-    onAddTask(newTask);
-    setNewTask({ title: '', description: '', assignedTo: '', dueDate: '' });
-  };
-
-  return (
-    <div className="space-y-6">
-      {isCreator && (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h3 className="text-lg font-semibold mb-4">Add New Task</h3>
-          <div className="space-y-4">
-            <input
-              type="text"
-              name="title"
-              value={newTask.title}
-              onChange={handleNewTaskChange}
-              placeholder="Task Title"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            <textarea
-              name="description"
-              value={newTask.description}
-              onChange={handleNewTaskChange}
-              placeholder="Task Description"
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            <select
-              name="assignedTo"
-              value={newTask.assignedTo}
-              onChange={handleNewTaskChange}
-              className="w-full px-3 py-2 border rounded-md"
-            >
-              <option value="">Assign to...</option>
-              {members.map(member => (
-                <option key={member.id} value={member.id}>{member.fullname}</option>
-              ))}
-            </select>
-            <input
-              type="date"
-              name="dueDate"
-              value={newTask.dueDate}
-              onChange={handleNewTaskChange}
-              className="w-full px-3 py-2 border rounded-md"
-            />
-            <button
-              onClick={handleAddTask}
-              className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700 transition duration-300"
-            >
-              Add Task
-            </button>
-          </div>
-        </div>
-      )}
-      <ul className="space-y-4">
-        {tasks.map(task => (
-          <li key={task.id} className="bg-white p-4 rounded-lg shadow-md">
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="text-lg font-semibold">{task.title}</h3>
-                <p className="text-gray-600">{task.description}</p>
-                <p className="text-sm text-gray-500">
-                  Assigned to: {members.find(m => m.id === task.assignedTo)?.fullname}
-                </p>
-                <p className="text-sm text-gray-500">Due: {new Date(task.dueDate).toLocaleDateString()}</p>
-              </div>
-              {isCreator && (
-                <button
-                  onClick={() => onDeleteTask(task.id)}
-                  className="text-red-500 hover:text-red-700"
-                >
-                  Delete
-                </button>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-};
-
+import { FaUser, FaCalendarAlt, FaUsers, FaInfoCircle, FaComment, FaEdit, FaTasks, FaTrash,FaVideo ,FaCog, FaGithub,FaTimes,FaChevronRight  } from 'react-icons/fa';
+import axiosInstance from '../../../utils/axiosInstance';
+import { setTeam } from '../../../features/teamSlice';
+import MemberList from '../../../components/Team/MemberList';
+import TaskList from '../../../components/Team/TaskList';
+import TeamEditModal from '../../../components/Team/TeamEditModal';
+import Header from '../../../components/User/Header';
 const TeamDetails = () => {
+  const [activeSection, setActiveSection] = useState('about');
   const [members, setMembers] = useState([]);
   const [pendingMembers, setPendingMembers] = useState([]);
   const [tasks, setTasks] = useState([]);
-  const [activeTab, setActiveTab] = useState(0);
-  const [tabs, setTabs] = useState(['About', 'Tasks', 'Team Members']);
   const [isCreator, setIsCreator] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [isManageTeamOpen, setIsManageTeamOpen] = useState(false);
+  const [newGithubLink, setNewGithubLink] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const userAccessToken = useSelector(state => state.auth.userAccessToken);
   const decodedToken = jwtDecode(userAccessToken);
   const userId = decodedToken.user_id;
   const team = useSelector(state => state.team.team);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (team) {
@@ -172,7 +47,6 @@ const TeamDetails = () => {
           console.error(error);
         });
 
-      // Fetch tasks (you'll need to implement this endpoint)
       axiosInstance.get(`/team/tasks/${team.id}/`)
         .then(response => {
           setTasks(response.data);
@@ -180,24 +54,29 @@ const TeamDetails = () => {
         .catch(error => {
           console.error(error);
         });
-    }
-  }, [team]);
 
-  useEffect(() => {
-    if (userId === team.creator.id) {
-      setIsCreator(true);
-      if (!tabs.includes('Pending Requests')) {
-        setTabs([...tabs, 'Pending Requests']);
-      }
+      setIsCreator(userId === team.creator.id);
     }
-  }, [userId, team.creator.id, tabs]);
+  }, [team, userId]);
+  
 
   const handleRemove = async (memberId) => {
     try {
-      await axiosInstance.delete(`/team/delete-member/${team.id}/${memberId}/`);
+      await axiosInstance.delete(`/team/member-detail/${memberId}/`);
       setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (error) {
       console.error('Error removing member:', error);
+    }
+  };
+
+  const handleMemberEditRole = async (memberId, role) => {
+    try {
+      await axiosInstance.patch(`/team/member-detail/${memberId}/`, { role });
+      setMembers(prev => prev.map(member => 
+        member.id === memberId ? { ...member, role: role } : member
+      ));
+    } catch (error) {
+      console.error('Error updating member role:', error);
     }
   };
 
@@ -209,7 +88,7 @@ const TeamDetails = () => {
       });
       setPendingMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (error) {
-      console.error(error);
+      console.error('Error accepting member:', error);
     }
   };
 
@@ -221,17 +100,13 @@ const TeamDetails = () => {
       });
       setPendingMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (error) {
-      console.error(error);
+      console.error('Error rejecting member:', error);
     }
-  };
-
-  const handleEdit = () => {
-    navigate(`/team/edit/${team.id}`);
   };
 
   const handleAddTask = async (newTask) => {
     try {
-      const response = await axiosInstance.post(`/team/tasks/${team.id}/`, newTask);
+      const response = await axiosInstance.post(`/team/tasks/`, newTask);
       setTasks([...tasks, response.data]);
     } catch (error) {
       console.error('Error adding task:', error);
@@ -240,7 +115,7 @@ const TeamDetails = () => {
 
   const handleUpdateTask = async (updatedTask) => {
     try {
-      await axiosInstance.put(`/team/tasks/${team.id}/${updatedTask.id}/`, updatedTask);
+      await axiosInstance.put(`team/task/${updatedTask.id}/`, updatedTask);
       setTasks(tasks.map(task => task.id === updatedTask.id ? updatedTask : task));
     } catch (error) {
       console.error('Error updating task:', error);
@@ -249,11 +124,52 @@ const TeamDetails = () => {
 
   const handleDeleteTask = async (taskId) => {
     try {
-      await axiosInstance.delete(`/team/tasks/${team.id}/${taskId}/`);
+      await axiosInstance.delete(`team/task/${taskId}/`);
       setTasks(tasks.filter(task => task.id !== taskId));
     } catch (error) {
       console.error('Error deleting task:', error);
     }
+  };
+
+  const handleDeleteTeam = async () => {
+    if (window.confirm('Are you sure you want to delete this team? This action cannot be undone.')) {
+      try {
+        await axiosInstance.delete(`/team/${team.id}/`);
+        navigate('/user/my-team');
+      } catch (error) {
+        console.error('Error deleting team:', error);
+      }
+    }
+  };
+
+  const handleSubmitEdit = async (formData) => {
+    try {
+      const response = await axiosInstance.put(`/team/${team.id}/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      dispatch(setTeam(response.data));
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating team:', error);
+    }
+  };
+
+  const handleGithubLinkSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await axiosInstance.patch(`/team/${team.id}/`, { github_link: newGithubLink });
+      dispatch(setTeam({ ...team, github_link: response.data.github_link }));
+      setNewGithubLink('');
+    } catch (error) {
+      console.error('Error updating GitHub link:', error);
+    }
+  };
+
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
   };
 
   if (!team) {
@@ -261,138 +177,211 @@ const TeamDetails = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
-        <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-48 relative">
+    <div className="flex flex-col min-h-screen bg-gray-100">
+      <Header />
+      <div className="flex flex-1 p-6 mt-16 max-h-[calc(100vh-4rem)] px-4 sm:px-6 lg:px-24 relative">
+        {/* Sidebar Toggle Button for mobile */}
+        <button 
+          onClick={toggleSidebar}
+          className="fixed top-20 left-4 z-50 lg:hidden bg-purple-500 text-white p-2 rounded-full shadow-lg"
+        >
+          {isSidebarOpen ? <FaTimes /> : <FaChevronRight />}
+        </button>
+
+        {/* Sidebar */}
+
+
+        <div className="w-72 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col mr-6">
+          <div className="p-5 text-center bg-white border-b">
             <img
-              src={team.profile_pic_url || defaultPic}
-              alt={`${team.name} banner`}
-              className="w-full h-full object-cover opacity-50"
+              src={team.profile_pic_url}
+              alt={team.name}
+              className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-purple-100 shadow-md"
             />
-            <div className="absolute inset-0 bg-black opacity-40"></div>
-            <img
-              src={team.profile_pic_url || defaultPic}
-              alt={`${team.name} logo`}
-              className="absolute -bottom-12 left-6 w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
-            />
-            {isCreator && (
-              <button
-                onClick={handleEdit}
-                className="absolute top-4 right-4 bg-white text-purple-600 p-2 rounded-full shadow-md hover:bg-purple-100 transition duration-300 group"
-              >
-                <FaEdit className="text-xl group-hover:scale-110 transition-transform duration-300" />
-                <span className="sr-only">Edit Team</span>
-              </button>
-            )}
+            <h2 className="text-xl font-bold text-gray-800 truncate">{team.name}</h2>
           </div>
-          <div className="pt-16 pb-8 px-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-4xl font-bold text-gray-900">{team.name}</h1>
-              <div className="flex items-center space-x-4">
-                {isCreator && (
-                  <button
-                    onClick={handleEdit}
-                    className="bg-purple-100 text-purple-600 px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-200 transition duration-300"
-                  >
-                    <FaEdit className="mr-2" />
-                    Edit Team
-                  </button>
+          <nav className="flex-grow py-4 px-4 overflow-y-auto">
+            {[
+              { name: 'About', icon: FaInfoCircle },
+              { name: 'Tasks', icon: FaTasks },
+              { name: 'Members', icon: FaUsers },
+              { name: 'Pending', icon: FaUser, creatorOnly: true },
+            ].map(({ name, icon: Icon, creatorOnly }) => (
+              (!creatorOnly || isCreator) && (
+                <button
+                  key={name}
+                  onClick={() => {
+                    setActiveSection(name.toLowerCase());
+                    if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                  }}
+                  
+                  className={`w-full text-left p-2 flex items-center space-x-3 rounded-lg transition-all duration-100 ${
+                    activeSection === name.toLowerCase() 
+                      ? 'bg-purple-500 text-white shadow-md' 
+                      : 'text-gray-600 hover:bg-gray-100'
+                  }`}
+                >
+                  <Icon className={`text-lg ${activeSection === name.toLowerCase() ? 'text-white' : 'text-purple-500'}`} />
+                  <span>{name}</span>
+                </button>
+              )
+            ))}
+          </nav>
+          <div className="p-4 border-t space-y-3">
+            <div className="flex space-x-2">
+              <button
+                onClick={() => navigate('/user/meet', { state: { team } })}
+                className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm"
+              >
+                <FaVideo className="mr-1" />
+                Video Call
+              </button>
+              <button
+                onClick={() => navigate('/user/chat/', { state: { team } })}
+                className="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm"
+              >
+                <FaComment className="mr-1" />
+                Team Chat
+              </button>
+            </div>
+            {isCreator && (
+              <div className="relative mt-2">
+                <button
+                  onClick={() => setIsManageTeamOpen(!isManageTeamOpen)}
+                  className="w-full bg-purple-500 text-white px-3 py-2 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center text-sm"
+                >
+                  <FaCog className="mr-1" />
+                  Manage Team
+                </button>
+                {isManageTeamOpen && (
+                  <div className="absolute bottom-full left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-2 mb-1">
+                    <button
+                      onClick={() => {
+                        setIsEditModalOpen(true);
+                        setIsManageTeamOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm"
+                    >
+                      <FaEdit className="mr-2 text-purple-500" />
+                      Edit Team
+                    </button>
+                    <button
+                      onClick={handleDeleteTeam}
+                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm text-red-500"
+                    >
+                      <FaTrash className="mr-2" />
+                      Delete Team
+                    </button>
+                  </div>
                 )}
-                <Link to={`/user/chat/`} state={{ team }}>
-                  <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
-                    <FaComment className="mr-2" />
-                    Chat
-                  </button>
-                </Link>
               </div>
-            </div>
-            <div className="grid grid-cols-3 gap-6 text-sm text-gray-600">
-              <div className="flex items-center bg-purple-50 p-3 rounded-lg">
-                <FaUser className="mr-3 text-purple-600 text-xl" />
-                <span><strong className="block text-gray-900">Leader</strong> {team.creator.fullname}</span>
-              </div>
-              <div className="flex items-center bg-purple-50 p-3 rounded-lg">
-                <FaCalendarAlt className="mr-3 text-purple-600 text-xl" />
-                <span><strong className="block text-gray-900">Created</strong> {new Date(team.created_date).toLocaleDateString()}</span>
-              </div>
-              <div className="flex items-center bg-purple-50 p-3 rounded-lg">
-                <FaUsers className="mr-3 text-purple-600 text-xl" />
-                <span><strong className="block text-gray-900">Members</strong> {members.length}</span>
-              </div>
-            </div>
+            )}
           </div>
         </div>
 
-        <Tabs selectedIndex={activeTab} onSelect={index => setActiveTab(index)} className="bg-white rounded-xl shadow-lg p-6">
-          <TabList className="flex border-b mb-6">
-            {tabs.map((tabName, index) => (
-              <Tab
-                key={`${tabName}-${index}`}
-                className={`px-6 py-3 text-base font-medium cursor-pointer transition duration-300 ${
-                  activeTab === index
-                    ? 'text-purple-600 border-b-2 border-purple-600'
-                    : 'text-gray-500 hover:text-gray-800'
-                }`}
-              >
-                {tabName}
-              </Tab>
-            ))}
-          </TabList>
 
-          <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaInfoCircle className="mr-3 text-purple-600" />
-              About the Team
-            </h2>
-            <p className="text-base text-gray-700 leading-relaxed">{team.description}</p>
-          </TabPanel>
+        {/* Main content */}
+        <div className="flex-1 overflow-y-auto bg-white shadow-lg rounded-xl ml-0 lg:ml-6">
+          <div className="p-6">
+            {activeSection === 'about' && (
+              <div className="space-y-6">
+                <h2 className="text-2xl font-bold text-purple-600 mb-4">About Our Team</h2>
+                <p className="text-gray-600 text-base leading-relaxed">{team.description}</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
+                    <FaUser className="text-purple-500 mb-2 text-xl" />
+                    <p className="font-semibold">Leader</p>
+                    <p className="text-sm text-gray-600">{team.creator.fullname}</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
+                    <FaCalendarAlt className="text-purple-500 mb-2 text-xl" />
+                    <p className="font-semibold">Created</p>
+                    <p className="text-sm text-gray-600">{new Date(team.created_date).toLocaleDateString()}</p>
+                  </div>
+                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
+                    <FaUsers className="text-purple-500 mb-2 text-xl" />
+                    <p className="font-semibold">Members</p>
+                    <p className="text-sm text-gray-600">{members.length}</p>
+                  </div>
+                </div>
+                <div className="border-t pt-6">
+                  <h3 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
+                    <FaGithub className="mr-2 text-purple-500" />
+                    GitHub Repository
+                  </h3>
+                  {team.github_link ? (
+                    <a
+                      href={team.github_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-500 hover:underline flex items-center"
+                    >
+                      <FaGithub className="mr-2" />
+                      {team.github_link}
+                    </a>
+                  ) : isCreator && (
+                    <form onSubmit={handleGithubLinkSubmit} className="flex">
+                      <input
+                        type="url"
+                        value={newGithubLink}
+                        onChange={(e) => setNewGithubLink(e.target.value)}
+                        placeholder="Enter GitHub repository URL"
+                        className="flex-grow px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
+                        required
+                      />
+                      <button
+                        type="submit"
+                        className="bg-purple-500 text-white px-4 py-2 rounded-r-lg hover:bg-purple-600 transition duration-300 text-sm font-semibold"
+                      >
+                        Add
+                      </button>
+                    </form>
+                  )}
+                </div>
+              </div>
+            )}
 
-          <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaTasks className="mr-3 text-purple-600" />
-              Tasks
-            </h2>
-            <TaskList 
-              tasks={tasks} 
-              members={members}
-              isCreator={isCreator}
-              onAddTask={handleAddTask}
-              onUpdateTask={handleUpdateTask}
-              onDeleteTask={handleDeleteTask}
-            />
-          </TabPanel>
+            {activeSection === 'tasks' && (
+              <TaskList
+                tasks={tasks}
+                teamId={team.id}
+                members={members}
+                isCreator={isCreator}
+                onAddTask={handleAddTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
 
-          <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-              <FaUsers className="mr-3 text-purple-600" />
-              Team Members
-            </h2>
-            <MemberList 
-              members={members} 
-              isPending={false} 
-              onRemove={handleRemove} 
-              isCreator={isCreator} 
-            />
-          </TabPanel>
+            {activeSection === 'members' && (
+              <MemberList
+                members={members}
+                isPending={false}
+                onRemove={handleRemove}
+                isCreator={isCreator}
+                onEditRole={handleMemberEditRole}
+              />
+            )}
 
-          {isCreator && (
-            <TabPanel>
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
-                <FaUsers className="mr-3 text-purple-600" />
-                Pending Requests
-              </h2>
-              <MemberList 
-                members={pendingMembers} 
-                isPending={true} 
-                onAccept={handleAccept} 
+            {activeSection === 'pending' && isCreator && (
+              <MemberList
+                members={pendingMembers}
+                isPending={true}
+                onAccept={handleAccept}
                 onReject={handleReject}
                 isCreator={isCreator}
               />
-            </TabPanel>
-          )}
-        </Tabs>
+            )}
+          </div>
+        </div>
       </div>
+
+      <TeamEditModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSubmit={handleSubmitEdit}
+        team={team}
+      />
     </div>
   );
 };

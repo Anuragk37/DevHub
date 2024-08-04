@@ -1,32 +1,94 @@
-import React, { useEffect, useState } from 'react';
-import { FaCalendar, FaUsers, FaHashtag, FaLink, FaInfoCircle, FaBook, FaComments, FaUserFriends } from 'react-icons/fa';
-import { useParams, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { FaImage, FaTimes, FaCalendar, FaUsers, FaHashtag, FaLink, FaInfoCircle, FaBook, FaComments, FaUserFriends, FaEllipsisV, FaEdit, FaTrash } from 'react-icons/fa';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import axiosInstance from '../../../utils/axiosInstance';
 import { Link } from 'react-router-dom';
+import Header from '../../../components/User/Header';
+import { useSelector } from 'react-redux';
+import { jwtDecode } from 'jwt-decode';
+import CommunityEditModal from '../../../components/User/Community/CommunityEditModal';
+import DiscussionPanel from '../../../components/User/Community/DiscussionPanel';
 
 const CommunityDetail = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [isJoining, setIsJoining] = useState(false);
   const [isLeaving, setIsLeaving] = useState(false);
-  const navigate = useNavigate();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [community, setCommunity] = useState(null);
   const [members, setMembers] = useState([]);
+  const [isCreator, setIsCreator] = useState(false);
+  const dropdownRef = useRef(null);
 
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const accessToken = useSelector((state) => state.auth.userAccessToken);
+  const userId = accessToken ? jwtDecode(accessToken).user_id : null;
 
   useEffect(() => {
     fetchCommunityData();
     fetchMembers();
-  }, [id, navigate]);
+  }, [id]);
+
+  useEffect(() => {
+    checkUrlHash();
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, [location]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  const handlePopState = (event) => {
+    event.preventDefault();
+    checkUrlHash();
+  };
+
+  const checkUrlHash = () => {
+    const hash = location.hash.replace('#', '');
+    const tabIndex = ['', 'rules', 'discussions', 'members'].indexOf(hash);
+    setActiveTab(tabIndex !== -1 ? tabIndex : 0);
+  };
+
+  const updateUrlHash = (index) => {
+    const hashes = ['', 'rules', 'discussions', 'members'];
+    const newHash = hashes[index];
+    if (newHash) {
+      window.history.pushState(null, '', `#${newHash}`);
+    } else {
+      window.history.pushState(null, '', location.pathname);
+    }
+  };
+
+  const handleTabSelect = (index) => {
+    setActiveTab(index);
+    updateUrlHash(index);
+  };
 
   const fetchCommunityData = async () => {
     setIsLoading(true);
     try {
       const response = await axiosInstance.get(`/community/${id}/`);
       setCommunity(response.data);
+      if (response.data.creator.id === userId) {
+        setIsCreator(true);
+      }
     } catch (error) {
       console.error('Error fetching community data:', error);
       navigate('/404');
@@ -38,10 +100,7 @@ const CommunityDetail = () => {
   const fetchMembers = async () => {
     try {
       const response = await axiosInstance.get(`/community/community-members/${id}`);
-      console.log("members",response.data);
       const memberList = response.data.map(data => data.user);
-
-      console.log("memberList",memberList);
       setMembers(memberList);
     } catch (error) {
       console.error('Error fetching members:', error);
@@ -74,15 +133,14 @@ const CommunityDetail = () => {
 
     setIsLeaving(true);
     try {
-      await axiosInstance.post('/community/leave-community/', {
-        community_id: community.id
-      });
+      await axiosInstance.delete(`community/community-members/${community.id}/`);
       
       setCommunity(prevCommunity => ({
         ...prevCommunity,
         is_member: false,
         member_count: prevCommunity.member_count - 1
       }));
+      navigate('/user/your-communities');
     } catch (error) {
       console.error('Error leaving community:', error);
     } finally {
@@ -90,12 +148,43 @@ const CommunityDetail = () => {
     }
   };
 
+  const handleEditCommunity = () => {
+    setIsEditModalOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const handleDeleteCommunity = async () => {
+    if (window.confirm('Are you sure you want to delete this community? This action cannot be undone.')) {
+      try {
+        await axiosInstance.delete(`/community/${community.id}/`);
+        navigate('/user/your-communities');
+      } catch (error) {
+        console.error('Error deleting community:', error);
+      }
+    }
+  };
+
+  const handleEditSubmit = async (formData) => {
+    try {
+      const response = await axiosInstance.patch(`/community/${community.id}/`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      setCommunity(response.data);
+      setIsEditModalOpen(false);
+    } catch (error) {
+      console.error('Error updating community:', error);
+    }
+  };
+
   if (isLoading) return <div className="text-center mt-8">Loading...</div>;
   if (!community) return null;
 
   return (
-    <div className="min-h-screen bg-purple-50 py-10 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background py-10 px-4 sm:px-6 lg:px-8">
+      <Header />
+      <div className="max-w-6xl mx-auto mt-12">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
           <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-48 relative">
             <img src={community.banner_url || "/default-banner.jpg"} alt="Community Banner" className="w-full h-full object-cover opacity-50" />
@@ -109,13 +198,15 @@ const CommunityDetail = () => {
           <div className="pt-16 pb-8 px-6">
             <div className="flex justify-between items-center mb-6">
               <h1 className="text-4xl font-bold text-gray-900">{community.name}</h1>
-              {community.is_member ? (
-                <div className="flex space-x-4">
+              <div className="flex space-x-4 items-center">
+                {community.is_member && (
                   <Link to={`/community/chat`} state={{ community }}>
-                  <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
-                    Chat
-                  </button>
+                    <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
+                      Chat
+                    </button>
                   </Link>
+                )}
+                {community.is_member ? (
                   <button 
                     className={`bg-red-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-red-700 transition duration-300 ${isLeaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={handleLeaveCommunity}
@@ -123,16 +214,42 @@ const CommunityDetail = () => {
                   >
                     {isLeaving ? 'Leaving...' : 'Leave Community'}
                   </button>
-                </div>
-              ) : (
-                <button 
-                  className={`bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300 ${isJoining ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  onClick={handleJoinCommunity}
-                  disabled={isJoining}
-                >
-                  {isJoining ? 'Joining...' : 'Join Community'}
-                </button>
-              )}
+                ) : (
+                  <button 
+                    className={`bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300 ${isJoining ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    onClick={handleJoinCommunity}
+                    disabled={isJoining}
+                  >
+                    {isJoining ? 'Joining...' : 'Join Community'}
+                  </button>
+                )}
+                {isCreator && (
+                  <div className="relative" ref={dropdownRef}>
+                    <button 
+                      onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                      className="bg-gray-200 p-2 rounded-full hover:bg-gray-300 transition duration-300"
+                    >
+                      <FaEllipsisV className="text-gray-600" />
+                    </button>
+                    {isDropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-md overflow-hidden shadow-xl z-10">
+                        <button
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-purple-500 hover:text-white w-full text-left"
+                          onClick={handleEditCommunity}
+                        >
+                          <FaEdit className="inline-block mr-2" /> Edit Community
+                        </button>
+                        <button
+                          className="block px-4 py-2 text-sm text-gray-700 hover:bg-red-500 hover:text-white w-full text-left"
+                          onClick={handleDeleteCommunity}
+                        >
+                          <FaTrash className="inline-block mr-2" /> Delete Community
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
             <p className="text-gray-600 mt-2 text-lg">{community.description}</p>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 text-sm text-gray-600">
@@ -152,7 +269,7 @@ const CommunityDetail = () => {
           </div>
         </div>
 
-        <Tabs selectedIndex={activeTab} onSelect={index => setActiveTab(index)} className="bg-white rounded-xl shadow-lg p-6">
+        <Tabs selectedIndex={activeTab} onSelect={handleTabSelect} className="bg-white rounded-xl shadow-lg p-6">
           <TabList className="flex flex-wrap border-b mb-6">
             {['About', 'Rules', 'Discussions', 'Members'].map((tabName, index) => (
               <Tab
@@ -217,7 +334,7 @@ const CommunityDetail = () => {
               <FaComments className="mr-3 text-purple-600" />
               Recent Discussions
             </h2>
-            <p className="text-gray-600">Discussion forum content would go here.</p>
+            <DiscussionPanel communityId={community.id} />
           </TabPanel>
 
           <TabPanel>
@@ -243,6 +360,15 @@ const CommunityDetail = () => {
           </TabPanel>
         </Tabs>
       </div>
+      
+      {isEditModalOpen && (
+        <CommunityEditModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          community={community}
+          onSubmit={handleEditSubmit}
+        />
+      )}
     </div>
   );
 };

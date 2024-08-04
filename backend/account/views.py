@@ -300,6 +300,39 @@ class UserFollowingView(APIView):
         following_users = [relationship.following for relationship in following]
         serializer = UserSerializer(following_users, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UserReportView(generics.ListCreateAPIView):
+    queryset = ReportUser.objects.all()
+    serializer_class = UserReportSerializer
+    
+    def perform_create(self, serializer):
+        reported_user = MyUser.objects.get(id=self.request.data['reported_user'])
+        reporter = self.request.user
+        if ReportUser.objects.filter(reported_user=reported_user,reporter = self.request.user).exists():
+            raise serializers.ValidationError("You have already reported this user.")
+        report = serializer.save(reporter=reporter)
+        if ReportUser.objects.filter(reported_user=report.reported_user).count() >= 3:
+            MyUser.objects.filter(id=report.reported_user.id).update(need_review=True)
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    def get_queryset(self):
+        user_id = self.kwargs['user_id']
+        user = MyUser.objects.get(id=user_id)
+        user_reports = ReportUser.objects.filter(reported_user=user)
+        return user_reports
+
+class ReportedUsersView(APIView):
+    def get(self, request, user_id):
+        try:
+            user = MyUser.objects.get(id=user_id)
+        except MyUser.DoesNotExist:
+            return Response({"message": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+
+        reported_users = MyUser.objects.filter(need_review=True)
+        serializer = UserSerializer(reported_users, many=True, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 

@@ -12,6 +12,14 @@ from django.shortcuts import get_object_or_404
 from account.models import MyUser
 from rest_framework.decorators import api_view
 from rest_framework.exceptions import ValidationError
+from article.models import *
+from community.models import *
+from team.models import *
+from django.utils import timezone
+from datetime import timedelta
+from django.db.models import Count
+
+
 
 # Create your views here.
 
@@ -76,3 +84,30 @@ def unblockUser(request,pk):
    user.is_active = True
    user.save()
    return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class AdminDashBoardView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        now = timezone.now()
+        past_month = now - timedelta(days=30)
+
+        user_count = MyUser.objects.count()
+        article_count = Article.objects.count()
+        community_count = Community.objects.count()
+        team_count = Team.objects.count()
+
+        # User and Article data over the past month
+        users_by_date = MyUser.objects.filter(date_joined__gte=past_month).extra({'date': "date(date_joined)"}).values('date').annotate(count=Count('id')).order_by('date')
+        articles_by_date = Article.objects.filter(create_at__gte=past_month).extra({'date': "date(create_at)"}).values('date').annotate(count=Count('id')).order_by('date')
+
+        return Response({
+            "user_count": user_count,
+            "article_count": article_count,
+            "community_count": community_count,
+            "team_count": team_count,
+            "users_by_date": users_by_date,
+            "articles_by_date": articles_by_date,
+        })

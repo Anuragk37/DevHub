@@ -44,6 +44,7 @@ class MyUser(AbstractBaseUser):
    about=models.TextField(blank=True)
    profile_pic=models.ImageField(upload_to='profile_pics/', default='default.jpg', blank=True, null=True)
    date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
+   need_review = models.BooleanField(default=False)
    is_admin = models.BooleanField(default=False)
    is_active = models.BooleanField(default=True)
    is_staff = models.BooleanField(default=False)
@@ -90,3 +91,14 @@ class Relationship(models.Model):
    
    def __str__(self):
       return f"{self.follower.username} follows {self.following.username}"
+   
+
+class ReportUser(models.Model):
+   reporter = models.ForeignKey(MyUser, on_delete=models.CASCADE,related_name="reporter")
+   reported_user= models.ForeignKey(MyUser, on_delete=models.CASCADE,related_name="reported_user")
+   reason = models.TextField()
+   screenshot = models.ImageField(upload_to='screenshot/', blank=True, null=True)
+   reported_date = models.DateTimeField(auto_now_add=True)
+
+   def __str__(self):
+      return f"{self.reporter.username} reported {self.reported_uyser.username}"

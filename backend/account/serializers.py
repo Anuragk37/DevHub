@@ -107,3 +107,10 @@ class RelationshipSerializer(serializers.ModelSerializer):
         model = Relationship
         fields = ['follower', 'following', 'created_at']
         read_only_fields = ['created_at']
+
+
+class UserReportSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ReportUser
+        fields = ['id', 'reported_user', 'reason', 'screenshot', 'reported_date']
+        read_only_fields = ['id', 'reported_date', 'reporter']

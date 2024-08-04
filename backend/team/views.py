@@ -99,30 +99,17 @@ class TeamInterestView(APIView):
 
 
 class TeamMemberView(generics.ListAPIView):
-    serializer_class = UserSerializer
+    serializer_class = TeamMemberSerializer
 
     def get_queryset(self):
         team_id = self.kwargs.get('team_id')
-        team = get_object_or_404(Team, id=team_id)
-        # Get the users related to the team through TeamMember
-        return MyUser.objects.filter(teams__team=team)
+        team_members = TeamMember.objects.filter(team_id=team_id)
+        return team_members
 
-class TeamMemberDeleteView(generics.DestroyAPIView):
-    queryset = MyUser.objects.all()
-    serializer_class = UserSerializer
+class TeamMemberDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TeamMember.objects.all()
+    serializer_class = TeamMemberSerializer
 
-    def delete(self, request, *args, **kwargs):
-        team_id = self.kwargs.get('team_id')
-        user_id = self.kwargs.get('user_id')
-        team = get_object_or_404(Team, id=team_id)
-        user = get_object_or_404(MyUser, id=user_id)
-        
-        if not team.members.filter(user=user).exists():
-            return Response({'detail': 'User is not a member of this team.'}, status=status.HTTP_400_BAD_REQUEST)
-        
-        team.members.get(user=user).delete()
-        return Response({'detail': 'User removed from the team.'}, status=status.HTTP_204_NO_CONTENT)
-      
 @api_view(['GET'])  
 def pending_requests(request, team_id):
     team = get_object_or_404(Team, id=team_id)
@@ -165,5 +152,32 @@ def reject_request(request):
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class TaskView(generics.ListCreateAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
+
+    def get_queryset(self):
+        team_id = self.kwargs.get('team_id')
+        team = get_object_or_404(Team, id=team_id)
+        return Task.objects.filter(team=team)
+
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('assigned_to')
+        user = get_object_or_404(MyUser, id=user_id)
+        team_id = self.request.data.get('team')
+        team = get_object_or_404(Team, id=team_id)
+
+        if not team.members.filter(user=user).exists():
+            return Response({'detail': 'User is not a member of this team.'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        serializer.save(team=team, assigned_to=user)
+
+        send_notification(user, f"You have a new task in {team.name}.")
+
+class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Task.objects.all()
+    serializer_class = TaskSerializer
     
 

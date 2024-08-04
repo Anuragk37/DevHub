@@ -44,6 +44,10 @@ import ChatPage from './pages/User/Team/chat/ChatPage.jsx'
 import ConfirmEmail from './components/User/Authentication/ConfirmEmail.jsx'
 import ResetPassword from './components/User/Authentication/ResetPassword.jsx'
 import CommunityChat from './pages/User/Community/CommunityChat.jsx'
+import MyCommunity from './pages/User/Community/MyCommunity.jsx'
+import CommunityManagement from './pages/Admin/CommunityManagement/CommunityManagement.jsx'
+import ReportedUserList from './pages/Admin/User Management/ReportedUserList.jsx'
+import TeamManagement from './pages/Admin/TeamManagement/TeamManagement.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -108,6 +112,10 @@ function App() {
       element:<UserProtecredRoute><CommunityLists /></UserProtecredRoute>
     },
     {
+      path:'/user/your-communities',
+      element:<UserProtecredRoute><MyCommunity /></UserProtecredRoute>
+    },
+    {
       path:'/user/community-detail/:id',
       element:<UserProtecredRoute><CommunityDetail /></UserProtecredRoute>
     },
@@ -156,6 +164,10 @@ function App() {
       element:<AdminProtectedRoute><UserManagemment /></AdminProtectedRoute>
     },
     {
+      path: '/admin/reported-users',
+      element:<AdminProtectedRoute><ReportedUserList /></AdminProtectedRoute>
+    },
+    {
       path: '/admin/skills',
       element: <AdminProtectedRoute><Skills /></AdminProtectedRoute>
     },
@@ -178,6 +190,14 @@ function App() {
     {
       path: '/admin/view-article/:id',
       element: <AdminProtectedRoute><ViewArticle /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/community-management/',
+      element: <AdminProtectedRoute><CommunityManagement /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/team-management/',
+      element: <AdminProtectedRoute><TeamManagement /></AdminProtectedRoute>
     }
   ])
 

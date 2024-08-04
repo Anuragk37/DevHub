@@ -19,7 +19,7 @@ class TeamSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Team
-        fields = ['id', 'name', 'description', 'creator', 'members_required', 'created_date', 'skills_required', 'profile_pic', 'profile_pic_url']
+        fields = ['id', 'name', 'description', 'creator', 'members_required', 'created_date', 'skills_required', 'profile_pic', 'profile_pic_url',"github_link","other_link"]
         read_only_fields = ['creator', 'created_date']
 
     def get_skills_required(self, obj):
@@ -52,7 +52,13 @@ class TeamInterestSerializer(serializers.ModelSerializer):
         return representation
 
 class TeamMemberSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(queryset=MyUser.objects.all())
+    user = UserSerializer()
     class Meta:
         model = TeamMember
-        fields = ['id', 'team', 'user', 'joined_at']
+        fields = ['id', 'team', 'user', 'joined_at','role']
+
+class TaskSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Task
+        fields = '__all__'
+

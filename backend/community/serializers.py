@@ -48,4 +48,17 @@ class CommunityMemberSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation['user'] = UserSerializer(instance.user, context=self.context).data
         return representation
+   
 
+class DiscussionSerializer(serializers.ModelSerializer):
+   user = UserSerializer(read_only=True)
+   class Meta:
+      model = Discussion
+      fields = ['id', 'title', 'content','community', 'user', 'created_date']
+
+
+class DiscussionCommentSerializer(serializers.ModelSerializer):
+   user = UserSerializer(read_only=True)
+   class Meta:
+      model = DiscussionComment
+      fields = ['id', 'discussion', 'user', 'comment', 'created_date']

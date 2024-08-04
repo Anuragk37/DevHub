@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { FaEdit, FaMapMarkerAlt, FaLink, FaCalendarAlt, FaEnvelope, FaUserPlus, FaUserMinus } from 'react-icons/fa';
+import { FaEdit, FaMapMarkerAlt, FaLink, FaCalendarAlt, FaEnvelope, FaUserPlus, FaUserMinus, FaEllipsisV, FaFlag } from 'react-icons/fa';
 import axiosInstance from '../../../utils/axiosInstance';
 import EditProfileModal from './EditProfileModal';
 import FollowersModal from './FollowersModal';
+import ReportModal from './ReportModal';
 
 const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
   const [userData, setUserData] = useState({
@@ -21,6 +22,8 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isFollowersModalOpen, setIsFollowersModalOpen] = useState(false);
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const getUser = async () => {
     try {
@@ -73,6 +76,19 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
     setIsFollowingModalOpen(false);
   };
 
+  const handleOpenReportModal = () => {
+    setIsReportModalOpen(true);
+    setIsDropdownOpen(false);
+  };
+
+  const handleCloseReportModal = () => {
+    setIsReportModalOpen(false);
+  };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
   return (
     <div className="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">
       <div className="h-48 bg-gradient-to-r from-purple-600 to-indigo-600 relative">
@@ -92,26 +108,46 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
             src={userData.profilePic}
             alt={userData.name}
           />
-          <div className="ml-auto">
+          <div className="ml-auto flex space-x-2">
             {!isOwnProfile && (
-              <button
-                onClick={() => handleFollowUnfollow(setUserData)}
-                className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
-                  userData.isFollowing
-                    ? 'bg-red-500 text-white hover:bg-red-600'
-                    : 'bg-purple-600 text-white hover:bg-purple-700'
-                }`}
-              >
-                {userData.isFollowing ? (
-                  <>
-                    <FaUserMinus className="inline mr-2" /> Unfollow
-                  </>
-                ) : (
-                  <>
-                    <FaUserPlus className="inline mr-2" /> Follow
-                  </>
-                )}
-              </button>
+              <>
+                <button
+                  onClick={() => handleFollowUnfollow(setUserData)}
+                  className={`px-6 py-2 rounded-full text-sm font-semibold transition-all duration-300 ${
+                    userData.isFollowing
+                      ? 'bg-red-500 text-white hover:bg-red-600'
+                      : 'bg-purple-600 text-white hover:bg-purple-700'
+                  }`}
+                >
+                  {userData.isFollowing ? (
+                    <>
+                      <FaUserMinus className="inline mr-2" /> Unfollow
+                    </>
+                  ) : (
+                    <>
+                      <FaUserPlus className="inline mr-2" /> Follow
+                    </>
+                  )}
+                </button>
+                <div className="relative">
+                  <button
+                    onClick={toggleDropdown}
+                    className="px-3 py-2 rounded-full text-sm font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 transition-all duration-300"
+                  >
+                    <FaEllipsisV />
+                  </button>
+                  {isDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg z-10">
+                      <button
+                        onClick={handleOpenReportModal}
+                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                      >
+                        <FaFlag className="inline mr-2" /> Report User
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </>
             )}
           </div>
         </div>
@@ -162,7 +198,6 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
       {isEditModalOpen && (
         <EditProfileModal isOpen={isEditModalOpen} onClose={handleCloseEditModal} initialData={userData} />
       )}
-
       {isFollowersModalOpen && (
         <FollowersModal
           isOpen={isFollowersModalOpen}
@@ -177,6 +212,13 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
           onClose={handleCloseFollowingModal}
           userId={userId}
           type="following"
+        />
+      )}
+      {isReportModalOpen && (
+        <ReportModal
+          isOpen={isReportModalOpen}
+          onClose={handleCloseReportModal}
+          userId={userId}
         />
       )}
     </div>
