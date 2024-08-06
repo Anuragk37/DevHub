@@ -8,6 +8,7 @@ from .serializers import *
 from account.models import*
 from rest_framework.decorators import api_view
 from notification_chat.utils import send_notification
+from rest_framework.exceptions import ValidationError
 
 # Create your views here.
 
@@ -21,6 +22,10 @@ class TeamView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         skills = self.request.data.getlist('skills_required')
+
+        if TeamMember.objects.filter(user=user).count() >= 3:
+            raise ValidationError({"message": "You are already a member of 3 teams."})
+
         team = serializer.save(creator=user)
 
         TeamMember.objects.create(team=team, user=self.request.user)

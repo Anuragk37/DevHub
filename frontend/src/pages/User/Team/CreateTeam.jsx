@@ -71,11 +71,29 @@ const CreateTeam = () => {
     }
     try {
       const response = await axiosInstance.post("team/create-team/", formData);
+      console.log(response.data);
       toast.success("Team created successfully");
       navigate("/");
     } catch (error) {
       console.error(error);
-      toast.error("Error creating team");
+      
+      if (error.response) {
+        // The request was made and the server responded with a status code
+        // that falls out of the range of 2xx
+        if (error.response.status === 400 && error.response.data.message) {
+          // This is likely our validation error
+          toast.error(error.response.data.message);
+        } else {
+          // Handle other types of errors
+          toast.error("An error occurred while creating the team");
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        toast.error("No response received from the server");
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        toast.error("Error setting up the request");
+      }
     }
   };
 

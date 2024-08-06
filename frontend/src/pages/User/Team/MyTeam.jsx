@@ -3,11 +3,13 @@ import Header from '../../../components/User/Header';
 import SideBar from '../../../components/User/SideBar';
 import axiosInstance from '../../../utils/axiosInstance';
 import TeamCard from '../../../components/Team/TeamCard';
+import TeamInvitationCard from '../../../components/Team/TeamInvitationCard';
 
 const MyTeam = () => {
   const [activeTab, setActiveTab] = useState("my-team");
   const [myTeams, setMyTeams] = useState([]);
   const [allTeam, setAllTeam] = useState([]);
+  const [invitations, setInvitations] = useState([]);
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -25,8 +27,18 @@ const MyTeam = () => {
     }
   }
 
+  const getTeamInvitations = async () => {
+    try {
+      const response = await axiosInstance.get('/team/team-invitation/');
+      setInvitations(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   useEffect(() => {
     getMyTeam();
+    getTeamInvitations();
   }, []);
 
   return (
@@ -51,13 +63,23 @@ const MyTeam = () => {
             </button>
             <button
               className={`py-2 px-4 font-medium text-sm focus:outline-none ${
+                activeTab === 'joined-team'
+                  ? 'border-b-2 border-purple-500 text-purple-600'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+              onClick={() => handleTabClick('joined-team')}
+            >
+              Joined Teams
+            </button>
+            <button
+              className={`py-2 px-4 font-medium text-sm focus:outline-none ${
                 activeTab === 'all-team'
                   ? 'border-b-2 border-purple-500 text-purple-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
               onClick={() => handleTabClick('all-team')}
             >
-              All Teams
+              all Teams
             </button>
           </div>
           <div>
@@ -72,7 +94,7 @@ const MyTeam = () => {
                 )}
               </div>
             )}
-            {activeTab === 'all-team' && (
+            {activeTab === 'joined-team' && (
               <div className="space-y-4">
                 {allTeam.length > 0 ? (
                   allTeam.map((team) => (
@@ -81,6 +103,17 @@ const MyTeam = () => {
                 ) : (
                   <p className="text-gray-600">There are no teams available to join.</p>
                 )}
+              </div>
+            )}
+            {activeTab === 'all-team' && (
+              <div className="space-y-4">
+                    {invitations.length > 0 ? (
+                invitations.map((invitation) => (
+                  <TeamInvitationCard key={invitation.id} invitation={invitation} />
+                ))
+              ) : (
+                <p className="text-center text-gray-600">No team invitations at the moment.</p>
+              )}
               </div>
             )}
           </div>
