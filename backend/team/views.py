@@ -179,5 +179,18 @@ class TaskView(generics.ListCreateAPIView):
 class TaskDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Task.objects.all()
     serializer_class = TaskSerializer
+
+class MeetingView(generics.ListCreateAPIView):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
+
+    def get_queryset(self):
+        team_id = self.kwargs.get('team_id')
+        team = get_object_or_404(Team, id=team_id)
+        return Meeting.objects.filter(team=team)
+
+class MeetingDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Meeting.objects.all()
+    serializer_class = MeetingSerializer
     
 

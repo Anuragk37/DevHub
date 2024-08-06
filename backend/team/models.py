@@ -60,3 +60,12 @@ class Task(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.task}" if len(self.task) < 20 else self.task[:20]
+
+class Meeting(models.Model):
+    team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='meetings')
+    title = models.CharField(max_length=100)
+    date = models.DateField()
+    time = models.TimeField()
+
+    def __str__(self):
+        return self.title

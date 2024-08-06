@@ -17,4 +17,7 @@ urlpatterns = [
    path('tasks/', views.TaskView.as_view()),
    path('tasks/<int:team_id>/', views.TaskView.as_view()),
    path('task/<int:pk>/', views.TaskDetailView.as_view()),
+   path('meeting/', views.MeetingView.as_view()),
+   path('meeting/<int:team_id>/', views.MeetingView.as_view()),
+   path('meeting-detail/<int:pk>/', views.MeetingDetailView.as_view()),
 ]

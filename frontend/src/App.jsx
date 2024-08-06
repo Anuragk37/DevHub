@@ -48,6 +48,7 @@ import MyCommunity from './pages/User/Community/MyCommunity.jsx'
 import CommunityManagement from './pages/Admin/CommunityManagement/CommunityManagement.jsx'
 import ReportedUserList from './pages/Admin/User Management/ReportedUserList.jsx'
 import TeamManagement from './pages/Admin/TeamManagement/TeamManagement.jsx'
+import VideoConferencePage from './pages/User/Team/VideoConferencePage.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -146,6 +147,10 @@ function App() {
     {
       path:'/user/chat/',
       element:<UserProtecredRoute><ChatPage /></UserProtecredRoute>
+    },
+    {
+      path:'/user/team/video-conference/:id',
+      element:<UserProtecredRoute><VideoConferencePage /></UserProtecredRoute>
     },
     {
       path:'/user/profile/:id',

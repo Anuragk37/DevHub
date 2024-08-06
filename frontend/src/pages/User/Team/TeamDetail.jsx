@@ -2,13 +2,17 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { FaUser, FaCalendarAlt, FaUsers, FaInfoCircle, FaComment, FaEdit, FaTasks, FaTrash,FaVideo ,FaCog, FaGithub,FaTimes,FaChevronRight  } from 'react-icons/fa';
+import { FaUser, FaCalendarAlt, FaUsers, FaInfoCircle, FaComment, FaEdit, FaTasks, FaTrash, FaVideo, FaCog, FaTimes, FaChevronRight } from 'react-icons/fa';
 import axiosInstance from '../../../utils/axiosInstance';
 import { setTeam } from '../../../features/teamSlice';
 import MemberList from '../../../components/Team/MemberList';
 import TaskList from '../../../components/Team/TaskList';
 import TeamEditModal from '../../../components/Team/TeamEditModal';
 import Header from '../../../components/User/Header';
+import TeamAbout from '../../../components/Team/TeamAbout';
+import TeamMeeting from '../../../components/Team/TeamMeeting';
+
+
 const TeamDetails = () => {
   const [activeSection, setActiveSection] = useState('about');
   const [members, setMembers] = useState([]);
@@ -18,7 +22,8 @@ const TeamDetails = () => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isManageTeamOpen, setIsManageTeamOpen] = useState(false);
   const [newGithubLink, setNewGithubLink] = useState('');
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isConferenceActive, setIsConferenceActive] = useState(false);
 
   const userAccessToken = useSelector(state => state.auth.userAccessToken);
   const decodedToken = jwtDecode(userAccessToken);
@@ -58,7 +63,6 @@ const TeamDetails = () => {
       setIsCreator(userId === team.creator.id);
     }
   }, [team, userId]);
-  
 
   const handleRemove = async (memberId) => {
     try {
@@ -167,10 +171,15 @@ const TeamDetails = () => {
     }
   };
 
-
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
+
+  const handleStartConference = () => {
+    navigate(`/user/team/video-conference/${team.id}`);
+  };
+
+  
 
   if (!team) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
@@ -179,8 +188,8 @@ const TeamDetails = () => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
       <Header />
-      <div className="flex flex-1 p-6 mt-16 max-h-[calc(100vh-4rem)] px-4 sm:px-6 lg:px-24 relative">
-        {/* Sidebar Toggle Button for mobile */}
+      <div className="flex flex-1 p-4 mt-16 max-h-[calc(100vh-4rem)] px-4 sm:px-6 lg:px-24 relative">
+        {/* Sidebar Toggle Button */}
         <button 
           onClick={toggleSidebar}
           className="fixed top-20 left-4 z-50 lg:hidden bg-purple-500 text-white p-2 rounded-full shadow-lg"
@@ -189,188 +198,144 @@ const TeamDetails = () => {
         </button>
 
         {/* Sidebar */}
-
-
-        <div className="w-72 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col mr-6">
-          <div className="p-5 text-center bg-white border-b">
-            <img
-              src={team.profile_pic_url}
-              alt={team.name}
-              className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-purple-100 shadow-md"
-            />
-            <h2 className="text-xl font-bold text-gray-800 truncate">{team.name}</h2>
-          </div>
-          <nav className="flex-grow py-4 px-4 overflow-y-auto">
-            {[
-              { name: 'About', icon: FaInfoCircle },
-              { name: 'Tasks', icon: FaTasks },
-              { name: 'Members', icon: FaUsers },
-              { name: 'Pending', icon: FaUser, creatorOnly: true },
-            ].map(({ name, icon: Icon, creatorOnly }) => (
-              (!creatorOnly || isCreator) && (
-                <button
-                  key={name}
-                  onClick={() => {
-                    setActiveSection(name.toLowerCase());
-                    if (window.innerWidth < 1024) setIsSidebarOpen(false);
-                  }}
-                  
-                  className={`w-full text-left p-2 flex items-center space-x-3 rounded-lg transition-all duration-100 ${
-                    activeSection === name.toLowerCase() 
-                      ? 'bg-purple-500 text-white shadow-md' 
-                      : 'text-gray-600 hover:bg-gray-100'
-                  }`}
-                >
-                  <Icon className={`text-lg ${activeSection === name.toLowerCase() ? 'text-white' : 'text-purple-500'}`} />
-                  <span>{name}</span>
-                </button>
-              )
-            ))}
-          </nav>
-          <div className="p-4 border-t space-y-3">
-            <div className="flex space-x-2">
-              <button
-                onClick={() => navigate('/user/meet', { state: { team } })}
-                className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm"
-              >
-                <FaVideo className="mr-1" />
-                Video Call
-              </button>
-              <button
-                onClick={() => navigate('/user/chat/', { state: { team } })}
-                className="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm"
-              >
-                <FaComment className="mr-1" />
-                Team Chat
-              </button>
+        <div className={`fixed lg:static inset-y-0 left-0 z-40 w-64 rounded-lg bg-white shadow-lg transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        } lg:translate-x-0 lg:w-2/9 overflow-hidden`}>
+          <div className="h-full flex flex-col">
+            <div className="p-5 text-center bg-white border-b">
+              <img
+                src={team.profile_pic_url}
+                alt={team.name}
+                className="w-24 h-24 rounded-full mx-auto mb-3 border-4 border-purple-100 shadow-md"
+              />
+              <h2 className="text-xl font-bold text-gray-800 truncate">{team.name}</h2>
             </div>
-            {isCreator && (
-              <div className="relative mt-2">
+            <nav className="flex-grow py-4 px-4 overflow-y-auto">
+              {[
+                { name: 'About', icon: FaInfoCircle },
+                { name: 'Tasks', icon: FaTasks },
+                { name: 'Members', icon: FaUsers },
+                { name: 'Meetings', icon: FaCalendarAlt },
+                { name: 'Pending', icon: FaUser, creatorOnly: true },
+              ].map(({ name, icon: Icon, creatorOnly }) => (
+                (!creatorOnly || isCreator) && (
+                  <button
+                    key={name}
+                    onClick={() => {
+                      setActiveSection(name.toLowerCase());
+                      if (window.innerWidth < 1024) setIsSidebarOpen(false);
+                    }}
+                    className={`w-full text-left p-2 flex items-center space-x-3 rounded-lg transition-all duration-100 ${
+                      activeSection === name.toLowerCase() 
+                        ? 'bg-purple-500 text-white shadow-md' 
+                        : 'text-gray-600 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon className={`text-lg ${activeSection === name.toLowerCase() ? 'text-white' : 'text-purple-500'}`} />
+                    <span>{name}</span>
+                  </button>
+                )
+              ))}
+            </nav>
+            <div className="p-4 border-t space-y-3">
+              <div className="flex space-x-2">
                 <button
-                  onClick={() => setIsManageTeamOpen(!isManageTeamOpen)}
-                  className="w-full bg-purple-500 text-white px-3 py-2 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center text-sm"
+                  onClick={handleStartConference}
+                  className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm"
                 >
-                  <FaCog className="mr-1" />
-                  Manage Team
+                  <FaVideo className="mr-1" />
+                  Video Call
                 </button>
-                {isManageTeamOpen && (
-                  <div className="absolute bottom-full left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-2 mb-1">
-                    <button
-                      onClick={() => {
-                        setIsEditModalOpen(true);
-                        setIsManageTeamOpen(false);
-                      }}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm"
-                    >
-                      <FaEdit className="mr-2 text-purple-500" />
-                      Edit Team
-                    </button>
-                    <button
-                      onClick={handleDeleteTeam}
-                      className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm text-red-500"
-                    >
-                      <FaTrash className="mr-2" />
-                      Delete Team
-                    </button>
-                  </div>
-                )}
+                <button
+                  onClick={() => navigate('/user/chat/', { state: { team } })}
+                  className="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm"
+                >
+                  <FaComment className="mr-1" />
+                  Chat
+                </button>
               </div>
-            )}
+              {isCreator && (
+                <div className="relative mt-2">
+                  <button
+                    onClick={() => setIsManageTeamOpen(!isManageTeamOpen)}
+                    className="w-full bg-purple-500 text-white px-3 py-2 rounded-lg hover:bg-purple-600 transition duration-300 flex items-center justify-center text-sm"
+                  >
+                    <FaCog className="mr-1" />
+                    Manage Team
+                  </button>
+                  {isManageTeamOpen && (
+                    <div className="absolute bottom-full left-0 w-full bg-white border border-gray-200 rounded-lg shadow-lg py-2 mb-1">
+                      <button
+                        onClick={() => {
+                          setIsEditModalOpen(true);
+                          setIsManageTeamOpen(false);
+                        }}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm"
+                      >
+                        <FaEdit className="mr-2 text-purple-500" />
+                        Edit Team
+                      </button>
+                      <button
+                        onClick={handleDeleteTeam}
+                        className="w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center text-sm text-red-500"
+                      >
+                        <FaTrash className="mr-2" />
+                        Delete Team
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
-
         {/* Main content */}
-        <div className="flex-1 overflow-y-auto bg-white shadow-lg rounded-xl ml-0 lg:ml-6">
+        <div className={`flex-1 overflow-y-auto bg-white shadow-lg rounded-lg ml-4 transition-all duration-300 ${
+          isSidebarOpen ? 'lg:ml-3 lg:w-7/9' : 'w-full'
+        }`}>
           <div className="p-6">
-            {activeSection === 'about' && (
-              <div className="space-y-6">
-                <h2 className="text-2xl font-bold text-purple-600 mb-4">About Our Team</h2>
-                <p className="text-gray-600 text-base leading-relaxed">{team.description}</p>
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
-                    <FaUser className="text-purple-500 mb-2 text-xl" />
-                    <p className="font-semibold">Leader</p>
-                    <p className="text-sm text-gray-600">{team.creator.fullname}</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
-                    <FaCalendarAlt className="text-purple-500 mb-2 text-xl" />
-                    <p className="font-semibold">Created</p>
-                    <p className="text-sm text-gray-600">{new Date(team.created_date).toLocaleDateString()}</p>
-                  </div>
-                  <div className="bg-purple-50 p-4 rounded-xl shadow-md">
-                    <FaUsers className="text-purple-500 mb-2 text-xl" />
-                    <p className="font-semibold">Members</p>
-                    <p className="text-sm text-gray-600">{members.length}</p>
-                  </div>
-                </div>
-                <div className="border-t pt-6">
-                  <h3 className="text-xl font-semibold mb-3 flex items-center text-gray-800">
-                    <FaGithub className="mr-2 text-purple-500" />
-                    GitHub Repository
-                  </h3>
-                  {team.github_link ? (
-                    <a
-                      href={team.github_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-500 hover:underline flex items-center"
-                    >
-                      <FaGithub className="mr-2" />
-                      {team.github_link}
-                    </a>
-                  ) : isCreator && (
-                    <form onSubmit={handleGithubLinkSubmit} className="flex">
-                      <input
-                        type="url"
-                        value={newGithubLink}
-                        onChange={(e) => setNewGithubLink(e.target.value)}
-                        placeholder="Enter GitHub repository URL"
-                        className="flex-grow px-3 py-2 border rounded-l-lg focus:outline-none focus:ring-2 focus:ring-purple-500 text-sm"
-                        required
-                      />
-                      <button
-                        type="submit"
-                        className="bg-purple-500 text-white px-4 py-2 rounded-r-lg hover:bg-purple-600 transition duration-300 text-sm font-semibold"
-                      >
-                        Add
-                      </button>
-                    </form>
-                  )}
-                </div>
-              </div>
-            )}
+          
+                {activeSection === 'about' && (
+                  <TeamAbout team={team} isCreator={isCreator} onUpdateGithub={handleGithubLinkSubmit}/>
+                )}
 
-            {activeSection === 'tasks' && (
-              <TaskList
-                tasks={tasks}
-                teamId={team.id}
-                members={members}
-                isCreator={isCreator}
-                onAddTask={handleAddTask}
-                onUpdateTask={handleUpdateTask}
-                onDeleteTask={handleDeleteTask}
-              />
-            )}
+                {activeSection === 'tasks' && (
+                  <TaskList
+                    tasks={tasks}
+                    teamId={team.id}
+                    members={members}
+                    isCreator={isCreator}
+                    onAddTask={handleAddTask}
+                    onUpdateTask={handleUpdateTask}
+                    onDeleteTask={handleDeleteTask}
+                  />
+                )}
 
-            {activeSection === 'members' && (
-              <MemberList
-                members={members}
-                isPending={false}
-                onRemove={handleRemove}
-                isCreator={isCreator}
-                onEditRole={handleMemberEditRole}
-              />
-            )}
+                {activeSection === 'members' && (
+                  <MemberList
+                    memberList={members}
+                    isPending={false}
+                    onRemove={handleRemove}
+                    isCreator={isCreator}
+                    onEditRole={handleMemberEditRole}
+                  />
+                )}
 
-            {activeSection === 'pending' && isCreator && (
-              <MemberList
-                members={pendingMembers}
-                isPending={true}
-                onAccept={handleAccept}
-                onReject={handleReject}
-                isCreator={isCreator}
-              />
+                {activeSection === 'pending' && isCreator && (
+                  <MemberList
+                    members={pendingMembers}
+                    isPending={true}
+                    onAccept={handleAccept}
+                    onReject={handleReject}
+                    isCreator={isCreator}
+                  />
+                )}
+                {activeSection === 'meetings' && (
+                  <TeamMeeting
+                    teamId={team.id}
+                    isCreator={isCreator}
+                  />
             )}
           </div>
         </div>
