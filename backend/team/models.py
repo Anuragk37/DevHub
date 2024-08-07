@@ -64,6 +64,7 @@ class Task(models.Model):
 class Meeting(models.Model):
     team = models.ForeignKey(Team, on_delete=models.CASCADE, related_name='meetings')
     title = models.CharField(max_length=100)
+    members = models.ManyToManyField(MyUser, related_name='team_meetings',blank=True)
     date = models.DateField()
     time = models.TimeField()
 

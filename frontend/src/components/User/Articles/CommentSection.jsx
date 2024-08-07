@@ -3,9 +3,9 @@ import { FaUserCircle, FaPaperPlane } from "react-icons/fa";
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { jwtDecode } from "jwt-decode";
-import BaseUrl from "../../../utils/BaseUrls";
 import moment from "moment";
 import { BiCommentDetail } from "react-icons/bi";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const CommentSection = ({ id }) => {
   const [commentsData, setCommentsData] = useState([]);
@@ -14,7 +14,7 @@ const CommentSection = ({ id }) => {
 
   const getComments = async () => {
     try {
-      const response = await axios.get(`${BaseUrl}/article/comment/${id}`);
+      const response = await axiosInstance.get(`/article/comment/${id}`);
       setCommentsData(response.data);
     } catch (error) {
       console.error("Error fetching comments:", error);
@@ -29,7 +29,7 @@ const CommentSection = ({ id }) => {
     const decodedToken = jwtDecode(accessToken);
     const userId = decodedToken.user_id;
     try {
-      await axios.post(`${BaseUrl}/article/comment/`, {
+      await axiosInstance.post(`/article/comment/`, {
         commentBody,
         article_id: id,
         user_id: userId,

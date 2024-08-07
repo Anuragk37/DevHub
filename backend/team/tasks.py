@@ -23,11 +23,11 @@ def send_meeting_reminder():
         for meeting in meetings:
             cache_key = f"meeting_{meeting.id}"
             if not cache.get(cache_key):
-                team_members = meeting.team.members.all()
+                members = meeting.members.all()
 
-                for member in team_members:
-                    send_email(email=member.user.email,subject="Meeting Reminder",message=f"Meeting Reminder: {meeting.title}")
-                    send_notification(member.user, f"Meeting Reminder: {meeting.title}")    
+                for member in members:
+                    send_email(email=member.email,subject="Meeting Reminder",message=f"Meeting Reminder: {meeting.title}")
+                    send_notification(member, f"Meeting Reminder: {meeting.title}")    
                     
 
                 cache.set(cache_key, True, timeout=600)

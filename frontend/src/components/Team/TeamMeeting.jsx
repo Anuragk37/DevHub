@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaClock, FaUsers, FaPlus, FaTrash, FaVideo, FaChevronRight } from 'react-icons/fa';
+import { FaCalendarAlt, FaClock, FaUsers, FaPlus, FaTrash, FaVideo, FaChevronRight, FaCheck } from 'react-icons/fa';
 import axiosInstance from '../../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,14 +10,18 @@ const TeamMeeting = ({ teamId, isCreator }) => {
     title: '',
     date: '',
     time: '',
-    team: teamId
+    team: teamId,
+    members: []
   });
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [selectAllMembers, setSelectAllMembers] = useState(false);
 
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchMeetings();
+    fetchTeamMembers();
   }, [teamId]);
 
   const fetchMeetings = async () => {
@@ -29,12 +33,24 @@ const TeamMeeting = ({ teamId, isCreator }) => {
     }
   };
 
+  const fetchTeamMembers = async () => {
+    try {
+      const response = await axiosInstance.get(`/team/team-member/${teamId}/`);
+      setTeamMembers(response.data);
+    } catch (error) {
+      console.error('Error fetching team members:', error);
+    }
+  };
+
   const handleScheduleMeeting = async (e) => {
     e.preventDefault();
     try {
+      console.log(newMeeting);
+      
       await axiosInstance.post(`/team/meeting/`, newMeeting);
       setShowScheduleForm(false);
-      setNewMeeting({ title: '', date: '', time: '' });
+      setNewMeeting({ title: '', date: '', time: '', team: teamId, members: [] });
+      setSelectAllMembers(false);
       fetchMeetings();
     } catch (error) {
       console.error('Error scheduling meeting:', error);
@@ -68,11 +84,28 @@ const TeamMeeting = ({ teamId, isCreator }) => {
   };
 
   const handleStartConference = () => {
-   navigate(`/user/team/video-conference/${teamId}`);
+    navigate(`/user/team/video-conference/${teamId}`);
   };
 
   const getUpcomingMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.time}`) > new Date());
   const getPastMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.time}`) <= new Date());
+
+  const handleMemberSelection = (memberId) => {
+    setNewMeeting(prevState => {
+      const updatedMembers = prevState.members.includes(memberId)
+        ? prevState.members.filter(id => id !== memberId)
+        : [...prevState.members, memberId];
+      return { ...prevState, members: updatedMembers };
+    });
+  };
+
+  const handleSelectAllMembers = () => {
+    setSelectAllMembers(!selectAllMembers);
+    setNewMeeting(prevState => ({
+      ...prevState,
+      members: !selectAllMembers ? teamMembers.map(member => member.user.id) : []
+    }));
+  };
 
   const MeetingList = ({ meetings, isPast }) => (
     <div className="space-y-4">
@@ -86,6 +119,10 @@ const TeamMeeting = ({ teamId, isCreator }) => {
                 {formatDate(meeting.date)}
                 <FaClock className="ml-4 mr-2 text-purple-500" />
                 {formatTime(meeting.time)}
+              </div>
+              <div className="mt-2 text-sm text-gray-600">
+                <FaUsers className="inline-block mr-2 text-purple-500" />
+                {meeting.members.length} participants
               </div>
             </div>
             <div className="flex items-center space-x-3">
@@ -158,10 +195,41 @@ const TeamMeeting = ({ teamId, isCreator }) => {
                   required
                 />
               </div>
+              <div className="mt-4">
+                <h4 className="text-lg font-semibold mb-2 text-purple-700">Select Participants</h4>
+                <div className="flex items-center mb-2">
+                  <input
+                    type="checkbox"
+                    id="selectAll"
+                    checked={selectAllMembers}
+                    onChange={handleSelectAllMembers}
+                    className="mr-2"
+                  />
+                  <label htmlFor="selectAll" className="text-sm font-medium text-gray-700">Select All</label>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                  {teamMembers.map(member => (
+                    <div key={member.user.id} className="flex items-center">
+                      <input
+                        type="checkbox"
+                        id={`member-${member.user.id}`}
+                        checked={newMeeting.members.includes(member.user.id)}
+                        onChange={() => handleMemberSelection(member.user.id)}
+                        className="mr-2"
+                      />
+                      <label htmlFor={`member-${member.user.id}`} className="text-sm text-gray-700">{member.user.username}</label>
+                    </div>
+                  ))}
+                </div>
+              </div>
               <div className="mt-6 flex justify-end space-x-3">
                 <button
                   type="button"
-                  onClick={() => setShowScheduleForm(false)}
+                  onClick={() => {
+                    setShowScheduleForm(false);
+                    setNewMeeting({ title: '', date: '', time: '', team: teamId, members: [] });
+                    setSelectAllMembers(false);
+                  }}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
                 >
                   Cancel

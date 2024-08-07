@@ -27,7 +27,7 @@ class JWTAuthMiddleware:
         query_params = dict(qp.split('=') for qp in query_string.split('&') if '=' in qp)
         token = query_params.get('token')
         scope['user'] = await get_user_from_token(token) if token else AnonymousUser()
-        
+        print(scope['user'])
         return await self.inner(scope, receive, send)
 
 JWTAuthMiddlewareStack = lambda inner: JWTAuthMiddleware(AuthMiddlewareStack(inner))

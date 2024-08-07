@@ -63,6 +63,7 @@ class TaskSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class MeetingSerializer(serializers.ModelSerializer):
+    members = UserSerializer(many=True, read_only=True) 
     class Meta:
         model = Meeting
         fields = '__all__'

@@ -193,6 +193,15 @@ class MeetingView(generics.ListCreateAPIView):
         team_id = self.kwargs.get('team_id')
         team = get_object_or_404(Team, id=team_id)
         return Meeting.objects.filter(team=team)
+    
+    def perform_create(self, serializer):
+        members = self.request.data.get('members',[])
+        meeting=serializer.save()
+        if members:
+            meeting.members.set(members)
+            meeting.save()
+            
+        
 
 class MeetingDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Meeting.objects.all()

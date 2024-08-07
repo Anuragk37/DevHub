@@ -79,6 +79,15 @@ class ArticleDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Article.objects.all()
     serializer_class = ArticleSerializer
 
+    def get(self, request, *args, **kwargs):
+        article = self.get_object()
+        if request.user.is_authenticated:
+            article_view, created = ViewedArticle.objects.get_or_create(user=request.user, article=article)
+
+        serializer = self.get_serializer(article)
+        return Response(serializer.data)
+
+
     def delete(self, request, *args, **kwargs):
         article = self.get_object()
         if request.user == article.auther or request.user.is_superuser:
@@ -250,6 +259,9 @@ class SearchView(APIView):
             'users': user_serializer.data
         }
         return Response(response_data, status=status.HTTP_200_OK)
+    
+
+
 
 
 

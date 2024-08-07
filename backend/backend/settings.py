@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'community',
     'team',
     'notification_chat',
+    'recommendations',
     
 ]
 

@@ -61,6 +61,19 @@ class Comment(models.Model):
    def children(self):
       return self.replies.all()
 
+class ViewedArticle(models.Model):
+   user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+   article = models.ForeignKey(Article, on_delete=models.CASCADE)
+   viewed_at = models.DateTimeField(auto_now_add=True)
+   
+   def __str__(self):
+      return f"{self.user.username} viewed {self.article.title}"
+   
+   def sava(self, *args, **kwargs):
+      super().save(*args, **kwargs)
+      views = ViewedArticle.objects.filter(user=self.user).order_by('-viewed_at')
+      if views.count() > 10:
+         views[10:].delete()
 
 @receiver(post_save, sender=Comment)
 def update_comment_count(sender, instance, created, **kwargs):

@@ -104,6 +104,11 @@ class ReportArticleSerializer(serializers.ModelSerializer):
         model = ReportedArticle
         fields = ['id', 'user', 'article', 'reason', 'reported_at']
 
+class ViewedArticleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ViewedArticle
+        fields = ['id', 'user', 'article', 'viewed_at']
+
 
 
       

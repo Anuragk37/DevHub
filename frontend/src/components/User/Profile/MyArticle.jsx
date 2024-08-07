@@ -19,7 +19,7 @@ const MyArticle = ({fromSaved=false,isOwnProfile, userId}) => {
             const response = await axiosInstance.get(`/article/saved-articles/`)
             setArticles(response.data)
          }else{
-            const response = await axios.get(`${BaseUrl}/article/user-article/${userId}/`)
+            const response = await axiosInstance.get(`/article/user-article/${userId}/`)
             setArticles(response.data)
          }
          
