@@ -151,7 +151,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'backend.wsgi.application'
 
-ASGI_APPLICATION = "backend.asgi.application"
+ASGI_APPLICATION = "backend.asgi.application" 
 
 CHANNEL_LAYERS = {
     "default": {
@@ -258,6 +258,11 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Kolkata'
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+
+
+
+PERSPECTIVE_API_KEY = os.getenv("PERSPECTIVE_API_KEY")
 
 
 

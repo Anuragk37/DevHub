@@ -11,7 +11,7 @@ class NotificationView(generics.ListAPIView):
 
    def get_queryset(self):
       user = self.request.user
-      return Notification.objects.filter(user=user)
+      return Notification.objects.filter(user=user).order_by('-created_at')
    
 class TeamChatView(generics.ListAPIView):
    serializer_class = TeamChatSerializer

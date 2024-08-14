@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaClock, FaUsers, FaPlus, FaTrash, FaVideo, FaChevronRight, FaCheck } from 'react-icons/fa';
 import axiosInstance from '../../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import { jwtDecode } from 'jwt-decode';
 
 const TeamMeeting = ({ teamId, isCreator }) => {
   const [meetings, setMeetings] = useState([]);
@@ -9,15 +11,18 @@ const TeamMeeting = ({ teamId, isCreator }) => {
   const [newMeeting, setNewMeeting] = useState({
     title: '',
     date: '',
-    time: '',
+    start_time: '',
+    end_time: '',
     team: teamId,
     members: []
   });
-  const [activeTab, setActiveTab] = useState('upcoming');
+  const [activeTab, setActiveTab] = useState('scheduled');
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectAllMembers, setSelectAllMembers] = useState(false);
 
   const navigate = useNavigate();
+  const accessToken = useSelector((state) => state.auth.userAccessToken);
+  const userId = jwtDecode(accessToken).user_id;
 
   useEffect(() => {
     fetchMeetings();
@@ -45,11 +50,13 @@ const TeamMeeting = ({ teamId, isCreator }) => {
   const handleScheduleMeeting = async (e) => {
     e.preventDefault();
     try {
-      console.log(newMeeting);
-      
-      await axiosInstance.post(`/team/meeting/`, newMeeting);
+      await axiosInstance.post(`/team/meeting/`, {
+        ...newMeeting,
+        start_time: newMeeting.start_time,
+        end_time: newMeeting.end_time
+      });
       setShowScheduleForm(false);
-      setNewMeeting({ title: '', date: '', time: '', team: teamId, members: [] });
+      setNewMeeting({ title: '', date: '', start_time: '', end_time: '', team: teamId, members: [] });
       setSelectAllMembers(false);
       fetchMeetings();
     } catch (error) {
@@ -76,19 +83,19 @@ const TeamMeeting = ({ teamId, isCreator }) => {
     return new Date(2000, 0, 1, hours, minutes).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
   };
 
-  const isMeetingActive = (date, time) => {
-    const meetingDateTime = new Date(`${date}T${time}`);
+  const isActiveNow = (start_time, end_time) => {
     const now = new Date();
-    const diffMinutes = (meetingDateTime - now) / (1000 * 60);
-    return diffMinutes >= -30 && diffMinutes <= 60;
+    const meetingStartTime = new Date(`${now.toDateString()} ${start_time}`);
+    const meetingEndTime = new Date(`${now.toDateString()} ${end_time}`);
+    return now >= meetingStartTime && now <= meetingEndTime;
   };
 
-  const handleStartConference = () => {
-    navigate(`/user/team/video-conference/${teamId}`);
+  const handleStartConference = (meetingId) => {
+    navigate(`/user/team/video-conference/${teamId}?meetingId=${meetingId}`);
   };
 
-  const getUpcomingMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.time}`) > new Date());
-  const getPastMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.time}`) <= new Date());
+  const getScheduledMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.end_time}`) > new Date());
+  const getPastMeetings = () => meetings.filter(meeting => new Date(`${meeting.date}T${meeting.end_time}`) <= new Date());
 
   const handleMemberSelection = (memberId) => {
     setNewMeeting(prevState => {
@@ -118,22 +125,32 @@ const TeamMeeting = ({ teamId, isCreator }) => {
                 <FaCalendarAlt className="mr-2 text-purple-500" />
                 {formatDate(meeting.date)}
                 <FaClock className="ml-4 mr-2 text-purple-500" />
-                {formatTime(meeting.time)}
+                {formatTime(meeting.start_time)} - {formatTime(meeting.end_time)}
               </div>
               <div className="mt-2 text-sm text-gray-600">
                 <FaUsers className="inline-block mr-2 text-purple-500" />
-                {meeting.members.length} participants
+                {meeting.members.length} participants |
+                <span className="text-purple-500 ml-4">
+                  {meeting.members.some((member) => member.id === userId) ? ("You are in meeting"):("You are not in meeting")}
+                </span>
               </div>
             </div>
             <div className="flex items-center space-x-3">
               {!isPast && (
-                isMeetingActive(meeting.date, meeting.time) ? (
-                  <button onClick={handleStartConference} className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium hover:bg-green-600 transition duration-300 flex items-center">
-                    <FaVideo className="mr-1" />
-                    Join
-                  </button>
-                ) : (
-                  <span className="text-gray-500 text-sm">Upcoming</span>
+                meeting.members.some((member) => member.id === userId) && (
+                  (
+                    isActiveNow(meeting.start_time, meeting.end_time) ? (
+                      <button
+                        onClick={() => handleStartConference(meeting.id)}
+                        className="bg-green-500 text-white px-3 py-1 rounded-full text-sm font-medium hover:bg-green-600 transition duration-300 flex items-center"
+                      >
+                        <FaVideo className="mr-1" />
+                        Join
+                      </button>
+                    ) : (
+                      <span className="text-gray-500 text-sm">Scheduled</span>
+                    )
+                  )
                 )
               )}
               {isCreator && !isPast && (
@@ -171,7 +188,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
           ) : (
             <form onSubmit={handleScheduleMeeting} className="bg-white p-6 rounded-lg shadow-lg">
               <h3 className="text-xl font-semibold mb-4 text-purple-700">Schedule New Meeting</h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input
                   type="text"
                   placeholder="Meeting Title"
@@ -189,8 +206,15 @@ const TeamMeeting = ({ teamId, isCreator }) => {
                 />
                 <input
                   type="time"
-                  value={newMeeting.time}
-                  onChange={(e) => setNewMeeting({ ...newMeeting, time: e.target.value })}
+                  value={newMeeting.start_time}
+                  onChange={(e) => setNewMeeting({ ...newMeeting, start_time: e.target.value })}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  required
+                />
+                <input
+                  type="time"
+                  value={newMeeting.end_time}
+                  onChange={(e) => setNewMeeting({ ...newMeeting, end_time: e.target.value })}
                   className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   required
                 />
@@ -227,7 +251,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
                   type="button"
                   onClick={() => {
                     setShowScheduleForm(false);
-                    setNewMeeting({ title: '', date: '', time: '', team: teamId, members: [] });
+                    setNewMeeting({ title: '', date: '', start_time: '', end_time: '', team: teamId, members: [] });
                     setSelectAllMembers(false);
                   }}
                   className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100 transition duration-300"
@@ -253,13 +277,13 @@ const TeamMeeting = ({ teamId, isCreator }) => {
           <div className="flex border-b border-gray-200">
             <button
               className={`py-2 px-4 font-medium text-sm focus:outline-none ${
-                activeTab === 'upcoming'
+                activeTab === 'scheduled'
                   ? 'border-b-2 border-purple-500 text-purple-600'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
-              onClick={() => setActiveTab('upcoming')}
+              onClick={() => setActiveTab('scheduled')}
             >
-              Upcoming Meetings
+              Scheduled Meetings
             </button>
             <button
               className={`py-2 px-4 font-medium text-sm focus:outline-none ${
@@ -273,10 +297,10 @@ const TeamMeeting = ({ teamId, isCreator }) => {
             </button>
           </div>
 
-          {activeTab === 'upcoming' && (
+          {activeTab === 'scheduled' && (
             <div>
-              <h3 className="text-2xl font-semibold mb-4 text-purple-700">Upcoming Meetings</h3>
-              <MeetingList meetings={getUpcomingMeetings()} isPast={false} />
+              <h3 className="text-2xl font-semibold mb-4 text-purple-700">Scheduled Meetings</h3>
+              <MeetingList meetings={getScheduledMeetings()} isPast={false} />
             </div>
           )}
 

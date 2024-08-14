@@ -7,6 +7,7 @@ import axiosInstance from '../../../utils/axiosInstance';
 import BaseUrl from '../../../utils/BaseUrls';
 import { useLocation } from 'react-router-dom';
 import { Link } from 'react-router-dom';
+import CommunityCard from '../../../components/User/Community/CommunityCard';
 
 const SearchResult = () => {
   const [activeTab, setActiveTab] = useState('articles');
@@ -71,21 +72,24 @@ const SearchResult = () => {
             </Link>
           </div>
         ));
-      // case 'communities':
-      //   return results.map((community) => (
-      //     <div key={community.id} className="bg-white rounded-lg shadow-md p-4 mb-4">
-      //       <h3 className="font-semibold">{community.name}</h3>
-      //       <p className="text-sm text-gray-500">{community.description}</p>
-      //       <p className="text-xs text-gray-400 mt-2">Members: {community.member_count}</p>
-      //     </div>
-      //   ));
+      case 'communities':
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 xl:gap-8">
+            {
+              results['communities'].map((community) => (
+                <CommunityCard key={community.id} community={community} fromMyCommunity={true}/>
+              ))
+            }
+          </div>
+        )
       default:
         return null;
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8"></div>
     }
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background"> 
       <Header />
       <div className="flex flex-col lg:flex-row w-full px-6 mt-16 lg:px-20 py-6">
         <div className="hidden md:block md:w-1/5 mr-6">

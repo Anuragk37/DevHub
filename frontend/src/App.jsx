@@ -49,6 +49,7 @@ import CommunityManagement from './pages/Admin/CommunityManagement/CommunityMana
 import ReportedUserList from './pages/Admin/User Management/ReportedUserList.jsx'
 import TeamManagement from './pages/Admin/TeamManagement/TeamManagement.jsx'
 import VideoConferencePage from './pages/User/Team/VideoConferencePage.jsx'
+import FlaggedArticle from './pages/Admin/Article/FlaggedArticle.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -83,6 +84,10 @@ function App() {
     {
       path: '/tag-selection',
       element: <Authentication><TagSelector /></Authentication>
+    },
+    {
+      path:'/recommended',
+      element:<UserProtecredRoute><HomePage fromRecommended={true}/></UserProtecredRoute>
     },
     {
       path:'/user/create-article',
@@ -188,10 +193,12 @@ function App() {
       path: '/admin/reported-articles',
       element: <AdminProtectedRoute><ReportedArticleList /></AdminProtectedRoute>
     },
+    
     {
-      path: '/admin/reported-article',
-      element: <AdminProtectedRoute><ReportedArticle /></AdminProtectedRoute>
+      path: '/admin/flagged-articles',
+      element: <AdminProtectedRoute><FlaggedArticle /></AdminProtectedRoute>
     },
+    
     {
       path: '/admin/view-article/:id',
       element: <AdminProtectedRoute><ViewArticle /></AdminProtectedRoute>

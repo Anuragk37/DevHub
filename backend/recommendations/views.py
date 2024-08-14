@@ -12,7 +12,6 @@ class RecommendationView(APIView):
       user_id = request.user.id
       recommended_articles = recommend_articles(user_id)
 
-      print(recommended_articles)
 
       serializer = ArticleSerializer(recommended_articles, many=True, context={'request': request})
 

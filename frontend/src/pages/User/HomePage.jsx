@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import Header from '../../components/User/Header';
 import SideBar from '../../components/User/SideBar';
-import axiosInstance from '../../utils/axiosInstance';
 import Articles from '../../components/User/Articles';
 import RightSidebar from '../../components/User/RightSidebar';
+import axiosInstance from '../../utils/axiosInstance';
 
-const HomePage = () => {
+const HomePage = ({fromRecommended}) => {
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState(null);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const observer = useRef();
+
   const lastArticleElementRef = useCallback(node => {
     if (isLoading) return;
     if (observer.current) observer.current.disconnect();
@@ -27,9 +28,11 @@ const HomePage = () => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get(`/article/?page=${page}`);
-      console.log("Fetched dataaaaaaaaaaaaaaaaaaaaaaaaaaaa:", response.data);
+      console.log(response.data);
       
       if (response.data.results.length === 0) {
+        console.log('No more articles');
+        
         setHasMore(false);
       } else {
         setArticles(prevArticles => {
@@ -40,42 +43,72 @@ const HomePage = () => {
         });
         setHasMore(response.data.next !== null);
       }
-      setIsLoading(false);
     } catch (error) {
       setError('Failed to load articles. Please try again later.');
-      console.log(error);
+      console.error(error);
+    } finally {
       setIsLoading(false);
     }
   }, [page]);
 
+  const getRecommendedArticles = async () => {  
+    try {
+      setIsLoading(true);
+        const response = await axiosInstance.get('/recommendations/');
+        console.log(response.data);
+        setArticles(response.data);
+        setIsLoading(false);
+        setHasMore(false);
+
+      }catch(error){
+        console.log(error);
+        
+      }
+    }
+
   useEffect(() => {
-    getArticles();
-  }, [getArticles]);
+    if(fromRecommended){
+      getRecommendedArticles();
+    }else{
+      getArticles();
+    }
+  }, [page]);
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gray-100">
       <Header />
-      <div className="flex flex-col lg:flex-row w-screen px-6 mt-16 lg:px-20 bg-background py-6">
-        <div className="hidden md:block md:w-1/5 mr-6">
-          <SideBar />
-        </div>
-        <div className="w-full md:w-4/5 lg:w-3/5 lg:px-4">
-          {error && <div className="text-red-500 mb-4">{error}</div>}
-          {articles.map((article, index) => (
-            <div key={article.id} ref={index === articles.length - 1 ? lastArticleElementRef : null}>
-              <Articles article={article} />
+      <div className="flex pt-16">
+        <SideBar />
+        <main className="flex-1 px-4 sm:px-6 lg:px-4 py-8 md:ml-96 md:mr-20">
+          <div className="max-w-5xl mx-auto">
+            <div className="lg:flex lg:space-x-8">
+              <div className="lg:w-3/4">
+                {error && <div className="text-red-500 mb-4 p-4 bg-red-100 rounded-lg">{error}</div>}
+                {articles.map((article, index) => (
+                  <div key={article.id} ref={index === articles.length - 1 ? lastArticleElementRef : null}>
+                    <Articles article={article} />
+                  </div>
+                ))}
+                {isLoading && (
+                  <div className="text-center py-4">
+                    <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-purple-500"></div>
+                    <span className="ml-2 text-purple-700">Loading more articles...</span>
+                  </div>
+                )}
+                {!hasMore && !isLoading && (
+                  <div className="text-center py-4 text-gray-500">
+                    No more articles to load.
+                  </div>
+                )}
+              </div>
+              <div className="lg:w-1/4 mt-8 lg:mt-0 hidden lg:block">
+                <div className="sticky top-24">
+                  <RightSidebar />
+                </div>
+              </div>
             </div>
-          ))}
-          {isLoading && <div className="text-center py-4">Loading more articles...</div>}
-          {!hasMore && !isLoading && (
-            <div className="text-center py-4 text-gray-500">
-              No more articles to load.
-            </div>
-          )}
-        </div>
-        <div className="hidden lg:block lg:w-1/5">
-          <RightSidebar />
-        </div>
+          </div>
+        </main>
       </div>
     </div>
   );

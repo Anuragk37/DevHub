@@ -123,7 +123,7 @@ const TaskList = ({ tasks, members, teamId, isCreator, onAddTask, onUpdateTask, 
                   <h3 className="text-lg font-semibold text-gray-800 mb-1">{task.task}</h3>
                   <div className="flex items-center text-sm text-gray-600 space-x-4">
                     <p>
-                      <span className="font-medium">Assigned to:</span> {members.find(m => m.id === task.assigned_to)?.fullname}
+                      <span className="font-medium">Assigned to:</span> {task.assigned_to.fullname}
                     </p>
                     <p>
                       <span className="font-medium">Due:</span> {new Date(task.deadline).toLocaleString()}

@@ -66,7 +66,8 @@ class Meeting(models.Model):
     title = models.CharField(max_length=100)
     members = models.ManyToManyField(MyUser, related_name='team_meetings',blank=True)
     date = models.DateField()
-    time = models.TimeField()
+    start_time = models.TimeField(default='00:00')
+    end_time = models.TimeField(default='00:00')
 
     def __str__(self):
         return self.title

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
 import { FaUser, FaCalendarAlt, FaUsers, FaInfoCircle, FaComment, FaEdit, FaTasks, FaTrash, FaVideo, FaCog, FaTimes, FaChevronRight } from 'react-icons/fa';
 import axiosInstance from '../../../utils/axiosInstance';
@@ -11,7 +11,6 @@ import TeamEditModal from '../../../components/Team/TeamEditModal';
 import Header from '../../../components/User/Header';
 import TeamAbout from '../../../components/Team/TeamAbout';
 import TeamMeeting from '../../../components/Team/TeamMeeting';
-
 
 const TeamDetails = () => {
   const [activeSection, setActiveSection] = useState('about');
@@ -31,38 +30,51 @@ const TeamDetails = () => {
   const team = useSelector(state => state.team.team);
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     if (team) {
-      axiosInstance.get(`/team/team-member/${team.id}/`)
-        .then(response => {
-          setMembers(response.data);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-
-      axiosInstance.get(`/team/pending-request/${team.id}/`)
-        .then(response => {
-          const pendingRequests = response.data;
-          const pendingUsers = pendingRequests.map(request => request.user);
-          setPendingMembers(pendingUsers);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-
-      axiosInstance.get(`/team/tasks/${team.id}/`)
-        .then(response => {
-          setTasks(response.data);
-        })
-        .catch(error => {
-          console.error(error);
-        });
-
+      fetchMembersAndPendingRequests();
+      fetchTasks();
       setIsCreator(userId === team.creator.id);
+      
+      // Handle hash routing
+      const hash = location.hash.replace('#', '');
+      if (hash) {
+        setActiveSection(hash);
+      } else {
+        setActiveSection('about');
+      }
     }
-  }, [team, userId]);
+  }, [team, userId, location.hash]);
+
+  const fetchMembersAndPendingRequests = () => {
+    axiosInstance.get(`/team/team-member/${team.id}/`)
+      .then(response => {
+        setMembers(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+
+    axiosInstance.get(`/team/pending-request/${team.id}/`)
+      .then(response => {
+        setPendingMembers(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
+
+  const fetchTasks = () => {
+    axiosInstance.get(`/team/tasks/${team.id}/`)
+      .then(response => {
+        setTasks(response.data);
+      })
+      .catch(error => {
+        console.error(error);
+      });
+  };
 
   const handleRemove = async (memberId) => {
     try {
@@ -70,6 +82,32 @@ const TeamDetails = () => {
       setMembers(prev => prev.filter(member => member.id !== memberId));
     } catch (error) {
       console.error('Error removing member:', error);
+    }
+  };
+
+  const handleAccept = async (memberId) => {
+    try {
+      await axiosInstance.post(`/team/accept-request/`, {
+        team_id: team.id,
+        user_id: memberId
+      });
+      setPendingMembers(prev => prev.filter(member => member.id !== memberId));
+      fetchMembersAndPendingRequests();
+    } catch (error) {
+      console.error('Error accepting member:', error);
+    }
+  };
+
+  const handleReject = async (memberId) => {
+    try {
+      await axiosInstance.post(`/team/reject-request/`, {
+        team_id: team.id,
+        user_id: memberId
+      });
+      setPendingMembers(prev => prev.filter(member => member.id !== memberId));
+      fetchMembersAndPendingRequests();
+    } catch (error) {
+      console.error('Error rejecting member:', error);
     }
   };
 
@@ -84,33 +122,11 @@ const TeamDetails = () => {
     }
   };
 
-  const handleAccept = async (memberId) => {
-    try {
-      await axiosInstance.post(`/team/accept-request/`, {
-        team_id: team.id,
-        user_id: memberId
-      });
-      setPendingMembers(prev => prev.filter(member => member.id !== memberId));
-    } catch (error) {
-      console.error('Error accepting member:', error);
-    }
-  };
-
-  const handleReject = async (memberId) => {
-    try {
-      await axiosInstance.post(`/team/reject-request/`, {
-        team_id: team.id,
-        user_id: memberId
-      });
-      setPendingMembers(prev => prev.filter(member => member.id !== memberId));
-    } catch (error) {
-      console.error('Error rejecting member:', error);
-    }
-  };
-
   const handleAddTask = async (newTask) => {
     try {
       const response = await axiosInstance.post(`/team/tasks/`, newTask);
+      console.log('Added task:', response.data);
+      
       setTasks([...tasks, response.data]);
     } catch (error) {
       console.error('Error adding task:', error);
@@ -179,8 +195,6 @@ const TeamDetails = () => {
     navigate(`/user/team/video-conference/${team.id}`);
   };
 
-  
-
   if (!team) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>;
   }
@@ -212,26 +226,26 @@ const TeamDetails = () => {
             </div>
             <nav className="flex-grow py-4 px-4 overflow-y-auto">
               {[
-                { name: 'About', icon: FaInfoCircle },
-                { name: 'Tasks', icon: FaTasks },
-                { name: 'Members', icon: FaUsers },
-                { name: 'Meetings', icon: FaCalendarAlt },
-                { name: 'Pending', icon: FaUser, creatorOnly: true },
-              ].map(({ name, icon: Icon, creatorOnly }) => (
+                { name: 'About', icon: FaInfoCircle, hash: '' },
+                { name: 'Tasks', icon: FaTasks, hash: '#tasks' },
+                { name: 'Members', icon: FaUsers, hash: '#members' },
+                { name: 'Meetings', icon: FaCalendarAlt, hash: '#meetings' },
+                { name: 'Pending', icon: FaUser, hash: '#pending', creatorOnly: true },
+              ].map(({ name, icon: Icon, hash, creatorOnly }) => (
                 (!creatorOnly || isCreator) && (
                   <button
                     key={name}
                     onClick={() => {
-                      setActiveSection(name.toLowerCase());
+                      navigate(`${hash}`);
                       if (window.innerWidth < 1024) setIsSidebarOpen(false);
                     }}
                     className={`w-full text-left p-2 flex items-center space-x-3 rounded-lg transition-all duration-100 ${
-                      activeSection === name.toLowerCase() 
+                      activeSection === (hash.replace('#', '') || 'about')
                         ? 'bg-purple-500 text-white shadow-md' 
                         : 'text-gray-600 hover:bg-gray-100'
                     }`}
                   >
-                    <Icon className={`text-lg ${activeSection === name.toLowerCase() ? 'text-white' : 'text-purple-500'}`} />
+                    <Icon className={`text-lg ${activeSection === (hash.replace('#', '') || 'about') ? 'text-white' : 'text-purple-500'}`} />
                     <span>{name}</span>
                   </button>
                 )
@@ -239,13 +253,6 @@ const TeamDetails = () => {
             </nav>
             <div className="p-4 border-t space-y-3">
               <div className="flex space-x-2">
-                <button
-                  onClick={handleStartConference}
-                  className="flex-1 bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600 transition duration-300 flex items-center justify-center text-sm"
-                >
-                  <FaVideo className="mr-1" />
-                  Video Call
-                </button>
                 <button
                   onClick={() => navigate('/user/chat/', { state: { team } })}
                   className="flex-1 bg-green-500 text-white px-3 py-2 rounded-lg hover:bg-green-600 transition duration-300 flex items-center justify-center text-sm"
@@ -295,47 +302,48 @@ const TeamDetails = () => {
           isSidebarOpen ? 'lg:ml-3 lg:w-7/9' : 'w-full'
         }`}>
           <div className="p-6">
-          
-                {activeSection === 'about' && (
-                  <TeamAbout team={team} isCreator={isCreator} onUpdateGithub={handleGithubLinkSubmit}/>
-                )}
+            {activeSection === 'about' && (
+              <TeamAbout team={team} isCreator={isCreator} onUpdateGithub={handleGithubLinkSubmit}/>
+            )}
 
-                {activeSection === 'tasks' && (
-                  <TaskList
-                    tasks={tasks}
-                    teamId={team.id}
-                    members={members}
-                    isCreator={isCreator}
-                    onAddTask={handleAddTask}
-                    onUpdateTask={handleUpdateTask}
-                    onDeleteTask={handleDeleteTask}
-                  />
-                )}
+            {activeSection === 'tasks' && (
+              <TaskList
+                tasks={tasks}
+                teamId={team.id}
+                members={members}
+                isCreator={isCreator}
+                onAddTask={handleAddTask}
+                onUpdateTask={handleUpdateTask}
+                onDeleteTask={handleDeleteTask}
+              />
+            )}
 
-                {activeSection === 'members' && (
-                  <MemberList
-                    memberList={members}
-                    isPending={false}
-                    onRemove={handleRemove}
-                    isCreator={isCreator}
-                    onEditRole={handleMemberEditRole}
-                  />
-                )}
+            {activeSection === 'members' && (
+              <MemberList
+                memberList={members}
+                isPending={false}
+                onRemove={handleRemove}
+                isCreator={isCreator}
+                onEditRole={handleMemberEditRole}
+                refreshMembers={fetchMembersAndPendingRequests}
+              />
+            )}
 
-                {activeSection === 'pending' && isCreator && (
-                  <MemberList
-                    members={pendingMembers}
-                    isPending={true}
-                    onAccept={handleAccept}
-                    onReject={handleReject}
-                    isCreator={isCreator}
-                  />
-                )}
-                {activeSection === 'meetings' && (
-                  <TeamMeeting
-                    teamId={team.id}
-                    isCreator={isCreator}
-                  />
+            {activeSection === 'pending' && isCreator && (
+              <MemberList
+                memberList={pendingMembers}
+                isPending={true}
+                onAccept={handleAccept}
+                onReject={handleReject}
+                isCreator={isCreator}
+                refreshMembers={fetchMembersAndPendingRequests}
+              />
+            )}
+            {activeSection === 'meetings' && (
+              <TeamMeeting
+                teamId={team.id}
+                isCreator={isCreator}
+              />
             )}
           </div>
         </div>

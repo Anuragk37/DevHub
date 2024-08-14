@@ -24,10 +24,6 @@ def get_dataframes():
 
 
 def preprocess_text(text):
-   nltk.download('punkt')
-   nltk.download('stopwords')
-   nltk.download('wordnet')
-
    stop_words = set(stopwords.words('english'))
    lemmatizer = WordNetLemmatizer()
 

@@ -1,6 +1,6 @@
 // ChatWindow.js
-import React, { useEffect, useRef, useCallback } from 'react';
-import { FaPaperclip, FaSmile, FaPaperPlane,FaPhoneAlt,FaVideo  } from 'react-icons/fa';
+import React, { useEffect, useRef } from 'react';
+import { FaPaperclip, FaPaperPlane, FaPhoneAlt, FaVideo } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 
@@ -9,11 +9,29 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
   const decodedToken = accessToken ? jwtDecode(accessToken) : null;
   const userId = decodedToken ? decodedToken.user_id : null;
 
+  const textareaRef = useRef(null);
+
   useEffect(() => {
     if (messageContainerRef.current) {
       messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleTextareaChange = (e) => {
+    setNewMessage(e.target.value);
+    adjustTextareaHeight();
+  };
+
+  const adjustTextareaHeight = () => {
+    if (textareaRef.current) {
+      textareaRef.current.style.height = 'auto';
+      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+    }
+  };
+
+  useEffect(() => {
+    adjustTextareaHeight();
+  }, [newMessage]);
 
   return (
     <div className="flex-1 flex flex-col bg-white rounded-xl shadow-lg overflow-hidden">
@@ -27,12 +45,12 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
           </div>
         </div>
         <div className="flex items-center space-x-3">
-          <button className="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-150 ease-in-out">
+          {/* <button className="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-150 ease-in-out">
             <FaPhoneAlt className="text-purple-500" />
           </button>
           <button className="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-150 ease-in-out">
             <FaVideo className="text-purple-500" />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -62,21 +80,20 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
 
       {/* Message Input */}
       <div className="p-4 bg-white border-t">
-        <form onSubmit={handleSendMessage} className="flex items-center bg-gray-100 rounded-full p-2">
+        <form onSubmit={handleSendMessage} className="flex items-center bg-gray-100 rounded-lg p-2">
           <button type="button" className="text-gray-500 hover:text-gray-700 mx-2">
             <FaPaperclip />
           </button>
-          <input
-            type="text"
-            className="flex-1 bg-transparent px-4 py-2 text-gray-700 focus:outline-none"
+          <textarea
+            ref={textareaRef}
+            className="flex-1 bg-transparent px-4 py-2 text-gray-700 focus:outline-none resize-none overflow-hidden"
             placeholder="Type a message..."
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleTextareaChange}
+            rows={1}
+            style={{ minHeight: '40px', maxHeight: '120px' }}
           />
-          <button type="button" className="text-gray-500 hover:text-gray-700 mx-2">
-            <FaSmile />
-          </button>
-          <button type="submit" className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition duration-150 ease-in-out">
+          <button type="submit" className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition duration-150 ease-in-out ml-2">
             <FaPaperPlane />
           </button>
         </form>

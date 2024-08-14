@@ -44,12 +44,12 @@ const Notification = ({ lastMessage }) => {
   };
 
   return (
-    <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl overflow-hidden z-50">
+    <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-xl overflow-hidden z-50">
       <div className="p-4 bg-purple-900 text-white font-bold flex justify-between items-center">
         <h3>Notifications</h3>
         <FaTimes className="cursor-pointer" onClick={() => {}} />
       </div>
-      <div className="max-h-80 overflow-y-auto">
+      <div className="max-h-96 overflow-y-auto">
         {notifications.length === 0 ? (
           <p className="p-4 text-gray-500">No new notifications</p>
         ) : (

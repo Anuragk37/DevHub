@@ -15,15 +15,14 @@ const VideoConferencePage = () => {
   
 
   const handleLeave = () => {
-   console.log("leavedddddddddddddddddddddddddddddddddddddddddddddddddd");
    
     navigate(`/user/team-detail`);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
-      <div className="flex-1 mt-16">
-        <div className="h-[calc(100vh-4rem)]">
+      <div className="flex-1">
+        <div className="h-screen">
           <VideoConference
             teamId={teamId}
             userId={userId}

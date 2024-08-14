@@ -110,11 +110,6 @@ const AdminHome = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-          <RecentActivity />
-          <QuickActions />
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
           <ChartCard title="User Growth" data={userChartData} type="line" />
           <ChartCard title="Article Growth" data={articleChartData} type="bar" />
         </div>
@@ -137,45 +132,45 @@ const StatCard = ({ icon, title, value }) => (
   </div>
 );
 
-const RecentActivity = () => (
-  <div className="bg-white rounded-lg shadow-md p-6">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h2>
-    <ul className="space-y-3">
-      <li className="flex items-center text-sm text-gray-600">
-        <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
-        New user registered: John Doe
-      </li>
-      <li className="flex items-center text-sm text-gray-600">
-        <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
-        Article published: "Getting Started with React"
-      </li>
-      <li className="flex items-center text-sm text-gray-600">
-        <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
-        New community created: JavaScript Enthusiasts
-      </li>
-    </ul>
-  </div>
-);
+// const RecentActivity = () => (
+//   <div className="bg-white rounded-lg shadow-md p-6">
+//     <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Activity</h2>
+//     <ul className="space-y-3">
+//       <li className="flex items-center text-sm text-gray-600">
+//         <span className="w-3 h-3 bg-green-500 rounded-full mr-2"></span>
+//         New user registered: John Doe
+//       </li>
+//       <li className="flex items-center text-sm text-gray-600">
+//         <span className="w-3 h-3 bg-blue-500 rounded-full mr-2"></span>
+//         Article published: "Getting Started with React"
+//       </li>
+//       <li className="flex items-center text-sm text-gray-600">
+//         <span className="w-3 h-3 bg-yellow-500 rounded-full mr-2"></span>
+//         New community created: JavaScript Enthusiasts
+//       </li>
+//     </ul>
+//   </div>
+// );
 
-const QuickActions = () => (
-  <div className="bg-white rounded-lg shadow-md p-6">
-    <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
-    <div className="grid grid-cols-2 gap-4">
-      <button className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-300">
-        Add New User
-      </button>
-      <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition duration-300">
-        Create Article
-      </button>
-      <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
-        Manage Communities
-      </button>
-      <button className="bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 transition duration-300">
-        Review Reports
-      </button>
-    </div>
-  </div>
-);
+// const QuickActions = () => (
+//   <div className="bg-white rounded-lg shadow-md p-6">
+//     <h2 className="text-xl font-semibold text-gray-800 mb-4">Quick Actions</h2>
+//     <div className="grid grid-cols-2 gap-4">
+//       <button className="bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 transition duration-300">
+//         Add New User
+//       </button>
+//       <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 transition duration-300">
+//         Create Article
+//       </button>
+//       <button className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300">
+//         Manage Communities
+//       </button>
+//       <button className="bg-yellow-600 text-white py-2 px-4 rounded hover:bg-yellow-700 transition duration-300">
+//         Review Reports
+//       </button>
+//     </div>
+//   </div>
+// );
 
 const ChartCard = ({ title, data, type }) => {
   const options = {

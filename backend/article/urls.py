@@ -16,5 +16,6 @@ urlpatterns = [
    path('report-article/<int:article_id>/', views.ReportArticleView.as_view()),
    path('reported-articles/', views.ReportedArticleListView.as_view()),
    path('search/', views.SearchView.as_view()),
+   path('flag-article/', views.FlagedArticleView.as_view()),
    
 ]

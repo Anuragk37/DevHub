@@ -16,6 +16,7 @@ class Article(models.Model):
    likes=models.ManyToManyField(MyUser,related_name='likes',blank=True)
    comment_count=models.IntegerField(default=0)
    needs_review = models.BooleanField(default=False)
+   flaged = models.BooleanField(default=False)
    
    def __str__(self) -> str:
       return self.title

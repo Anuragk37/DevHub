@@ -18,7 +18,7 @@ def send_meeting_reminder():
         now = timezone.now().astimezone(kolkata_timezone)
         start_time = now + timedelta(minutes=10)
 
-        meetings = Meeting.objects.filter(date=now.date(), time__range=(now.time(), start_time.time()))
+        meetings = Meeting.objects.filter(date=now.date(), start_time__range=(now.time(), start_time.time()))
 
         for meeting in meetings:
             cache_key = f"meeting_{meeting.id}"

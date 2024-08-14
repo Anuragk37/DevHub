@@ -11,9 +11,11 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.db.models import Count
 from rest_framework.pagination import PageNumberPagination
-
-
-
+from notification_chat.utils import send_notification
+from community.models import Community
+from community.serializers import CommunitySerializer
+from django.core.cache import cache
+from .task import check_toxicity
 
 
 from .models import *
@@ -52,20 +54,36 @@ class ArticleView(generics.ListCreateAPIView):
 
       serializer = ArticleSerializer(data={'title':title,'content':content,'thumbnail':thumbnail,'auther_id':auther_id,'tags':tags}, context={'request': request})
       if serializer.is_valid():
-         serializer.save()
+         article = serializer.save()
+         
+         check_toxicity.delay(article.id)
+        
          return Response(serializer.data)
       print(serializer.errors)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
    def get(self, request):
-        if request.user.is_authenticated:
+        page = self.request.query_params.get('page', 1)
+        user_id = request.user.id if request.user.is_authenticated else 'anonymous'
+        cache_key = f'articles_page_{page}_user_{user_id}'
+
+        cached_data = cache.get(cache_key)
+        if cached_data is not None:
+            return Response(cached_data, status=status.HTTP_200_OK)
+
+        if request.user.is_authenticated and not request.user.is_superuser:
             articles = Article.objects.exclude(auther=request.user)
         else:
             articles = Article.objects.all()
-        page = self.paginate_queryset(articles)
-        if page is not None:
-            serializer = self.get_paginated_response(ArticleSerializer(page, many=True, context={'request': request}).data)
-            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        paginator = self.pagination_class()
+        page_obj = paginator.paginate_queryset(articles, request)
+
+        if page_obj is not None:
+            serializer = ArticleSerializer(page_obj, many=True, context={'request': request})
+            result = paginator.get_paginated_response(serializer.data)
+            cache.set(cache_key, result.data, 3600)  
+            return result
 
         serializer = ArticleSerializer(articles, many=True, context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -246,6 +264,13 @@ class ReportedArticleListView(APIView):
         
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+class FlagedArticleView(APIView):
+    def get(self, request):
+        if request.user.is_superuser:
+            articles = Article.objects.filter(flaged=True)
+            serializer = ArticleSerializer(articles, many=True, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
 class SearchView(APIView):
     def get(self, request):
         keyword = request.GET.get('keyword')
@@ -254,9 +279,13 @@ class SearchView(APIView):
         users = MyUser.objects.filter(username__icontains=keyword)
         user_serializer = UserSerializer(users, many=True,context={'request': request}) 
 
+        communities = Community.objects.filter(name__icontains=keyword)
+        community_serializer = CommunitySerializer(communities, many=True,context={'request': request})
+
         response_data = {
             'articles': article_serializer.data,
-            'users': user_serializer.data
+            'users': user_serializer.data,
+            'communities': community_serializer.data
         }
         return Response(response_data, status=status.HTTP_200_OK)
     

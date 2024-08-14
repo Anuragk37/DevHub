@@ -1,72 +1,64 @@
 import React, { useState } from 'react';
-import { FaUsers, FaSearch, FaPlus, FaUserPlus, FaUsersCog, FaUserFriends, FaBars, FaTimes } from 'react-icons/fa';
-import { Link } from 'react-router-dom';
+import { FaRss, FaStar, FaUsers, FaInfoCircle, FaClipboardList, FaBars, FaTimes } from 'react-icons/fa';
+import { Link, useLocation } from 'react-router-dom';
 
 const SideBar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+
+  const menuItems = [
+    { icon: FaRss, text: 'Feed', link: '/' },
+    { icon: FaStar, text: 'Recommended', link: '/recommended' },
+    { icon: FaUsers, text: 'Teams', link: '/user/my-team' },
+    { icon: FaUsers, text: 'Community', link: '/user/your-communities' },
+    { icon: FaInfoCircle, text: 'About', link: '/about' },
+    { icon: FaClipboardList, text: 'Feedback', link: '/feedback' },
+  ];
+
+  const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
-    <div className="fixed z-50 md:w-1/5">
+    <>
       <button
-        className="md:hidden p-4 text-purple-950"
-        onClick={() => setIsOpen(!isOpen)}
+        className="fixed top-20 left-4 p-3 bg-purple-600 text-white rounded-full shadow-lg z-50 md:hidden"
+        onClick={toggleSidebar}
       >
-        {isOpen ? <FaTimes className="text-2xl" /> : <FaBars className="text-2xl" />}
+        {isOpen ? <FaTimes /> : <FaBars />}
       </button>
       <div
         className={`${
-          isOpen ? 'block' : 'hidden'
-        } md:block h-[85vh] w-72 bg-white text-purple-950 shadow-xl rounded-xl p-6 flex flex-col justify-between transition-transform transform md:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } md:relative fixed`}
+        } fixed left-4 top-24 h-[85vh] w-72 bg-white text-purple-900 shadow-2xl rounded-lg p-6 transition-all duration-300 ease-in-out z-40 overflow-y-auto md:left-[23rem] flex flex-col`}
       >
-        <div>
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Community</h2>
-            <Link to={'/user/your-communities'}>
-              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-                <FaUsers className="mr-3" />
-                <span>Your communities</span>
-              </button>
-            </Link>
-            
-            <Link to={'/user/view-communities/'}>
-              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-                <FaSearch className="mr-3" />
-                <span>Find</span>
-              </button>
-            </Link>
-            <Link to={'/user/create-community'}>
-              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-                <FaPlus className="mr-3" />
-                <span>Create</span>
-              </button>
-            </Link>
-          </div>
-          <div>
-            <h2 className="text-xl font-bold mb-4">Teams</h2>
-            <Link to={'/user/create-team'}>
-              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-                <FaUserPlus className="mr-3" />
-                <span>Create team</span>
-              </button>
-            </Link>
-            <Link to={'/user/my-team'}>
-            <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-              <FaUsersCog className="mr-3" />
-              <span>My teams</span>
-            </button>
-            </Link>
-            <Link to={'/user/team-invitations'}>
-              <button className="flex items-center w-full py-3 px-4 mb-2 font-semibold bg-purple-300 hover:bg-purple-800 rounded-lg transition duration-200 shadow-sm hover:shadow-md">
-                <FaUserFriends className="mr-3" />
-                <span>Join teams</span>
-              </button>
-            </Link>
-          </div>
+        <h2 className="text-2xl font-bold mb-8 text-purple-700">DevHub Menu</h2>
+        <nav className="flex-grow">
+          <ul className="space-y-2">
+            {menuItems.map((item, index) => {
+              const isActive = location.pathname === item.link;
+              return (
+                <li key={index}>
+                  <Link
+                    to={item.link}
+                    className={`flex items-center py-3 px-4 rounded-lg transition duration-200 ${
+                      isActive
+                        ? 'bg-purple-800 text-white'
+                        : 'hover:bg-purple-50 text-gray-700 hover:text-purple-800'
+                    }`}
+                    onClick={toggleSidebar}
+                  >
+                    <item.icon className={`mr-3 ${isActive ? 'text-white' : 'text-purple-600'}`} />
+                    <span className="font-medium">{item.text}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+        <div className="mt-auto pt-4 border-t border-purple-100">
+          <p className="text-sm text-purple-600">© 2024 DevHub</p>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

@@ -146,6 +146,13 @@ const SideBar = () => {
                       }`}>Reported Articles</p>
                     </Link>
                   </li>
+                  <li>
+                    <Link to="/admin/flagged-articles">
+                      <p className={`flex items-center w-full p-2 text-white transition duration-75 rounded-lg pl-11 group hover:bg-blue-700 ${
+                        isActive('/admin/flagged-articles/') ? 'bg-blue-600' : ''
+                      }`}>Flagged Articles</p>
+                    </Link>
+                  </li>
                 </ul>
               </li>
               <li>

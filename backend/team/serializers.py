@@ -58,6 +58,7 @@ class TeamMemberSerializer(serializers.ModelSerializer):
         fields = ['id', 'team', 'user', 'joined_at','role']
 
 class TaskSerializer(serializers.ModelSerializer):
+    assigned_to = UserSerializer(read_only=True)
     class Meta:
         model = Task
         fields = '__all__'

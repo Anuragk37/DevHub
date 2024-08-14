@@ -50,7 +50,8 @@ const ChatPage = () => {
     if (team?.id) {
       axiosInstance.get(`/team/team-member/${team.id}/`)
         .then(response => {
-          setMembers(response.data);
+          const memberList=response.data.map(data => data.user);
+          setMembers(memberList);
         })
         .catch(error => {
           console.error('Error fetching team members:', error);
