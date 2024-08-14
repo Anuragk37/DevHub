@@ -79,8 +79,8 @@ const HomePage = ({fromRecommended}) => {
       <Header />
       <div className="flex pt-16">
         <SideBar />
-        <main className="flex-1 px-4 sm:px-6 lg:px-4 py-8 md:ml-96 md:mr-20">
-          <div className="max-w-5xl mx-auto">
+        <main className="flex-1 px-4 sm:px-6 lg:px-4 py-8 md:ml-80 md:mr-20">
+          <div className="max-w-[60rem] mx-auto">
             <div className="lg:flex lg:space-x-8">
               <div className="lg:w-3/4">
                 {error && <div className="text-red-500 mb-4 p-4 bg-red-100 rounded-lg">{error}</div>}
@@ -102,7 +102,7 @@ const HomePage = ({fromRecommended}) => {
                 )}
               </div>
               <div className="lg:w-1/4 mt-8 lg:mt-0 hidden lg:block">
-                <div className="sticky top-24">
+                <div className=" top-24">
                   <RightSidebar />
                 </div>
               </div>

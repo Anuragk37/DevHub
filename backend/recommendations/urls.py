@@ -3,4 +3,5 @@ from . import views
 
 urlpatterns = [
    path('', views.RecommendationView.as_view()),
+   path('user/', views.UserRecommendationView.as_view()),
 ]
