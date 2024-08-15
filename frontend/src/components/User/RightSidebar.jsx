@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaUserCircle, FaHashtag, FaBookOpen, FaLightbulb } from 'react-icons/fa';
 import axiosInstance from '../../utils/axiosInstance';
+import { Link } from 'react-router-dom';
 
 const RightSidebar = () => {
   const [recommendedUsers, setRecommendedUsers] = useState([]);
@@ -21,9 +22,12 @@ const RightSidebar = () => {
   const fetchData = async () => {
     try {
       const usersResponse = await axiosInstance.get('/recommendations/user');
+      const articlesResponse = await axiosInstance.get('/article/recently-viewed/');
+      console.log(articlesResponse.data);
+      
       setRecommendedUsers(usersResponse.data);
       setTrendingTopics(mockTrendingTopics);
-      setRecentArticles(mockRecentArticles);
+      setRecentArticles(articlesResponse.data);
     } catch (error) {
       console.error(error);
     }
@@ -49,6 +53,7 @@ const RightSidebar = () => {
           <div className="space-y-3">
             {recommendedUsers.map((user) => (
               <div key={user.id} className="flex items-center justify-between">
+                <Link to={`/user/profile/${user.id}`}>
                 <div className="flex items-center space-x-3">
                   <img src={user.profile_pic} alt={user.name} className="w-10 h-10 rounded-full object-cover" />
                   <div>
@@ -56,6 +61,7 @@ const RightSidebar = () => {
                     <p className="text-xs text-gray-500">@{user.username}</p>
                   </div>
                 </div>
+                </Link>
                 <button className="text-sm text-purple-600 hover:text-purple-800 font-medium">
                   Follow
                 </button>
@@ -86,8 +92,8 @@ const RightSidebar = () => {
           <div className="space-y-3">
             {recentArticles.map((article) => (
               <div key={article.id} className="border-l-4 border-green-400 pl-3">
-                <h4 className="font-medium text-gray-800">{article.title}</h4>
-                <p className="text-sm text-gray-600">{article.summary}</p>
+                <h4 className="font-medium text-gray-800">{article.article.title}</h4>
+                <p className="text-sm text-gray-600">{article.article.auther.username}</p>
               </div>
             ))}
           </div>

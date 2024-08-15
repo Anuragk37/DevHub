@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaRss, FaStar, FaUsers, FaInfoCircle, FaClipboardList, FaBars, FaTimes } from 'react-icons/fa';
+import { FaRss, FaStar, FaUsers, FaInfoCircle, FaClipboardList, FaBars, FaTimes,FaAngleRight } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const SideBar = () => {
@@ -20,15 +20,15 @@ const SideBar = () => {
   return (
     <>
       <button
-        className="fixed top-20 left-4 p-3 bg-purple-600 text-white rounded-full shadow-lg z-50 md:hidden"
+        className="fixed top-16 left-1 p-3 bg-purple-600 text-white rounded-full shadow-lg z-50 md:hidden"
         onClick={toggleSidebar}
       >
-        {isOpen ? <FaTimes /> : <FaBars />}
+        {isOpen ? <FaTimes /> : <FaAngleRight />}
       </button>
       <div
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed left-4 top-24 h-[85vh] w-72 bg-white text-purple-900 shadow-2xl rounded-lg p-6 transition-all duration-300 ease-in-out z-40 overflow-y-auto md:left-[23rem] flex flex-col`}
+        } fixed  top-24 h-[85vh] w-72 bg-white text-purple-900 shadow-2xl rounded-lg p-6 transition-all duration-300 ease-in-out z-40 overflow-y-auto md:left-[23rem] flex flex-col`}
       >
         <h2 className="text-2xl font-bold mb-8 text-purple-700">DevHub Menu</h2>
         <nav className="flex-grow">

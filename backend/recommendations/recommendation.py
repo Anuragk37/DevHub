@@ -77,60 +77,65 @@ def recommend_articles(user_id):
 #user recommendation
 
 def load_user_data():
-   users = MyUser.objects.prefetch_related(
-      Prefetch('myuserskill_set', queryset=MyUserSkill.objects.select_related('skill')),
-      Prefetch('myusertag_set', queryset=MyUserTag.objects.select_related('tag'))
-   )
+    users = MyUser.objects.prefetch_related(
+        Prefetch('myuserskill_set', queryset=MyUserSkill.objects.select_related('skill')),
+        Prefetch('myusertag_set', queryset=MyUserTag.objects.select_related('tag'))
+    ).exclude(is_superuser=True)
 
-   user_data = []
-   for user in users:
-      skills = [user_skill.skill.name for user_skill in user.myuserskill_set.all()]
-      tags = [user_tag.tag.name for user_tag in user.myusertag_set.all()]
+    user_data = []
+    for user in users:
+        skills = [user_skill.skill.name for user_skill in user.myuserskill_set.all()]
+        tags = [user_tag.tag.name for user_tag in user.myusertag_set.all()]
 
-      user_data.append({
-         'id': user.id,
-         'skills': skills,
-         'tags': tags
-      })
-   
-   return pd.DataFrame(user_data)
+        user_data.append({
+            'id': user.id,
+            'skills': skills,
+            'tags': tags
+        })
 
+    return pd.DataFrame(user_data)
 
 def feature_engineering(user_profiles):
-   mlb_skills = MultiLabelBinarizer()
-   mlb_tags = MultiLabelBinarizer()
+    mlb_skills = MultiLabelBinarizer()
+    mlb_tags = MultiLabelBinarizer()
 
-   user_profiles = user_profiles.join(pd.DataFrame(mlb_skills.fit_transform(user_profiles.pop('skills')),columns=[f"skill_{skill}" for skill in mlb_skills.classes_], index=user_profiles.index))
-   user_profiles = user_profiles.join(pd.DataFrame(mlb_tags.fit_transform(user_profiles.pop('tags')),columns=[f"tag_{tag}" for tag in mlb_tags.classes_], index=user_profiles.index))
-   
-   print(user_profiles)
-   
-   return user_profiles
+    user_profiles = user_profiles.join(pd.DataFrame(mlb_skills.fit_transform(user_profiles.pop('skills')), columns=[f"skill_{skill}" for skill in mlb_skills.classes_], index=user_profiles.index))
+    user_profiles = user_profiles.join(pd.DataFrame(mlb_tags.fit_transform(user_profiles.pop('tags')), columns=[f"tag_{tag}" for tag in mlb_tags.classes_], index=user_profiles.index))
 
+    print(user_profiles)
+
+    return user_profiles
 
 def train_model(interaction_matrix):
-   svd = TruncatedSVD(n_components=10)
-   user_factors = svd.fit_transform(interaction_matrix)
-   user_similarity = cosine_similarity(user_factors)
+    svd = TruncatedSVD(n_components=10)
+    user_factors = svd.fit_transform(interaction_matrix)
+    user_similarity = cosine_similarity(user_factors)
 
-   return user_similarity
+    return user_similarity
 
+def get_existing_relationships(user_id):
+    existing_relationships = Relationship.objects.filter(follower_id=user_id).values_list('following_id', flat=True)
+    return set(existing_relationships)
 
-def get_user_recommendations(user_id, user_similarity, user_profiles, top_n=5):
-   user_idx = user_profiles.index[user_profiles['id'] == user_id].tolist()[0]
-   similarity_scores = list(enumerate(user_similarity[user_idx]))
-   similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
-   similar_user_indices = [score[0] for score in similarity_scores[1:top_n+1]]
+def get_user_recommendations(user_id, user_similarity, user_profiles, existing_relationships, top_n=5):
+    user_idx = user_profiles.index[user_profiles['id'] == user_id].tolist()[0]
+    similarity_scores = list(enumerate(user_similarity[user_idx]))
+    similarity_scores = sorted(similarity_scores, key=lambda x: x[1], reverse=True)
+    similar_user_indices = [score[0] for score in similarity_scores[1:top_n+1]]
 
-   similar_users = user_profiles.iloc[similar_user_indices]['id'].tolist()
+    similar_users = user_profiles.iloc[similar_user_indices]['id'].tolist()
 
-   return similar_users
+    recommended_users = [user for user in similar_users if user not in existing_relationships]
+
+    return recommended_users
 
 def recommend_users(user_id, top_n=5):
-   user_profiles = load_user_data()
-   interaction_matrix = feature_engineering(user_profiles)
-   user_similarity = train_model(interaction_matrix)
-   recommendations = get_user_recommendations(user_id, user_similarity, user_profiles, top_n)
+    user_profiles = load_user_data()
+    interaction_matrix = feature_engineering(user_profiles)
+    user_similarity = train_model(interaction_matrix)
+    
+    existing_relationships = get_existing_relationships(user_id)
+    recommendations = get_user_recommendations(user_id, user_similarity, user_profiles, existing_relationships, top_n)
 
-   return recommendations
+    return recommendations
 

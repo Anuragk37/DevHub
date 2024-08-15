@@ -17,5 +17,5 @@ urlpatterns = [
    path('reported-articles/', views.ReportedArticleListView.as_view()),
    path('search/', views.SearchView.as_view()),
    path('flag-article/', views.FlagedArticleView.as_view()),
-   
+   path('recently-viewed/', views.RecentlyViewedArticleView.as_view()),
 ]

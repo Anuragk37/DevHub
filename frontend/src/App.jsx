@@ -50,6 +50,7 @@ import ReportedUserList from './pages/Admin/User Management/ReportedUserList.jsx
 import TeamManagement from './pages/Admin/TeamManagement/TeamManagement.jsx'
 import VideoConferencePage from './pages/User/Team/VideoConferencePage.jsx'
 import FlaggedArticle from './pages/Admin/Article/FlaggedArticle.jsx'
+import AboutPage from './pages/User/About/AboutPage.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -160,6 +161,10 @@ function App() {
     {
       path:'/user/profile/:id',
       element:<UserProfile />
+    },
+    {
+      path:'/about/',
+      element:<AboutPage />
     },
     {
       path:'/admin-login',

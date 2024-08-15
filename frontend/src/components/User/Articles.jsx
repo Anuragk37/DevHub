@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FaLink, FaBookmark, FaEllipsisV, FaComment, FaHeart } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
 
 const Articles = ({ article, from_profile = false, deleteArticle, isOwnProfile }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const navigate = useNavigate();
+  console.log("article", article);
+  
 
   const handleToggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
 
   const handleEditArticle = () => {
-    // Navigate to edit page
+    navigate('/user/create-article', { state: { initialData: article, fromEdit: true } });
   };
 
   const handleDeleteArticle = () => {
@@ -26,7 +30,10 @@ const Articles = ({ article, from_profile = false, deleteArticle, isOwnProfile }
               {article.title}
             </Link>
             {isOwnProfile && (
-              <div className="relative">
+              <div className="relative flex">
+                {article.flaged && (
+                  <h1 className='bg-red-500 text-sm text-white p-1 px-2 m-1 rounded-full flex items-center space-x-2'>on review</h1>
+                )}
                 <button onClick={handleToggleDropdown} className="text-gray-500 hover:text-purple-700 transition-colors duration-200">
                   <FaEllipsisV />
                 </button>

@@ -8,11 +8,15 @@ import axios from 'axios'
 const Skills = () => {
    const [skills, setSkills] = useState([])
    const [error, setError] = useState('')
+   const [currentPage, setCurrentPage] = useState(1)
+   const [totalPages, setTotalPages] = useState(1)
 
-   const getSkills = async () => {
+   const getSkills = async (page = 1) => {
       try {
-         const response = await axios.get('http://127.0.0.1:8000/api/admin/skills/')
-         setSkills(response.data)
+         const response = await axios.get(`http://127.0.0.1:8000/api/admin/skills/?page=${page}`)
+         setSkills(response.data.results)
+         setCurrentPage(page)
+         setTotalPages(Math.ceil(response.data.count / 10)) // Assuming 10 items per page
       } catch (error) {
          console.log(error)
       }
@@ -47,6 +51,10 @@ const Skills = () => {
       }
    }
 
+   const handlePageChange = (newPage) => {
+      getSkills(newPage)
+   }
+
    return (
       <div className="w-full min-h-screen bg-gray-100 flex flex-col lg:flex-row">
          <div className="w-full lg:w-64 lg:min-h-screen">
@@ -60,7 +68,13 @@ const Skills = () => {
             
             <div className="flex flex-col lg:flex-row p-4 lg:p-8 space-y-8 lg:space-y-0 lg:space-x-8">
                <div className='w-full lg:w-3/5 order-2 lg:order-1'>
-                  <Table list={skills} onDelete={deleteSkill}/>
+                  <Table 
+                     list={skills} 
+                     onDelete={deleteSkill}
+                     currentPage={currentPage}
+                     totalPages={totalPages}
+                     onPageChange={handlePageChange}
+                  />
                </div>
                <div className='w-full lg:w-2/5 order-1 lg:order-2'>
                   <Add add={addSkill} error={error}/>

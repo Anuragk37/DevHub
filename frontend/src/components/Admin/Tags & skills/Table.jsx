@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Table = ({ list, onDelete }) => {
+const Table = ({ list, onDelete, currentPage, totalPages, onPageChange }) => {
   return (
     <div className="w-full overflow-x-auto bg-white rounded-lg shadow-lg">
       <table className="w-full text-sm text-left text-gray-500">
@@ -15,7 +15,7 @@ const Table = ({ list, onDelete }) => {
           {list.map((skill, index) => (
             <tr className="bg-white border-b hover:bg-gray-100" key={skill.id}>
               <th scope="row" className="px-4 py-3 font-medium text-gray-900 whitespace-nowrap">
-                {index + 1}
+                {(currentPage - 1) * 10 + index + 1}
               </th>
               <td className="px-4 py-3">{skill.name}</td>
               <td className="px-4 py-3">
@@ -30,6 +30,23 @@ const Table = ({ list, onDelete }) => {
           ))}
         </tbody>
       </table>
+      <div className="flex justify-between items-center p-4">
+        <button 
+          onClick={() => onPageChange(currentPage - 1)} 
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          Previous
+        </button>
+        <span>Page {currentPage} of {totalPages}</span>
+        <button 
+          onClick={() => onPageChange(currentPage + 1)} 
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-300"
+        >
+          Next
+        </button>
+      </div>
     </div>
   );
 };

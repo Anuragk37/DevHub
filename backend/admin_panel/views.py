@@ -18,6 +18,14 @@ from team.models import *
 from django.utils import timezone
 from datetime import timedelta
 from django.db.models import Count
+from rest_framework.pagination import PageNumberPagination
+
+
+
+class CustomPageNumberPagination(PageNumberPagination):
+    page_size = 10  # Number of items per page
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 
@@ -39,6 +47,7 @@ class AdminLoginView(APIView):
 class SkillView(generics.ListCreateAPIView):
    queryset = Skill.objects.all()
    serializer_class = SkillSerializer
+   pagination_class = CustomPageNumberPagination
 
    def create(self, request, *args, **kwargs):
         try:
@@ -54,11 +63,14 @@ class SkillRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
    serializer_class = SkillSerializer
    
 
-class TagView(generics.ListCreateAPIView):
-   queryset = Tag.objects.all()
-   serializer_class = TagSerializer
 
-   def create(self, request, *args, **kwargs):
+
+class TagView(generics.ListCreateAPIView):
+    queryset = Tag.objects.all()
+    serializer_class = TagSerializer
+   #  pagination_class = CustomPageNumberPagination
+
+    def create(self, request, *args, **kwargs):
         try:
             serializer = self.get_serializer(data=request.data)
             serializer.is_valid(raise_exception=True)
@@ -87,27 +99,44 @@ def unblockUser(request,pk):
 
 
 
-class AdminDashBoardView(APIView):
+class AdminDashboardView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        now = timezone.now()
-        past_month = now - timedelta(days=30)
+        time_period = request.query_params.get('period', 'month')
+        
+        if time_period == 'today':
+            start_date = timezone.now().replace(hour=0, minute=0, second=0, microsecond=0)
+        elif time_period == 'month':
+            start_date = timezone.now() - timedelta(days=30)
+        elif time_period == 'year':
+            start_date = timezone.now() - timedelta(days=365)
+        else:
+            return Response({"error": "Invalid time period"}, status=400)
 
         user_count = MyUser.objects.count()
         article_count = Article.objects.count()
         community_count = Community.objects.count()
         team_count = Team.objects.count()
 
-        # User and Article data over the past month
-        users_by_date = MyUser.objects.filter(date_joined__gte=past_month).extra({'date': "date(date_joined)"}).values('date').annotate(count=Count('id')).order_by('date')
-        articles_by_date = Article.objects.filter(create_at__gte=past_month).extra({'date': "date(create_at)"}).values('date').annotate(count=Count('id')).order_by('date')
+        users_by_date = MyUser.objects.filter(date_joined__gte=start_date) \
+            .extra({'date': "date(date_joined)"}) \
+            .values('date') \
+            .annotate(count=Count('id')) \
+            .order_by('date')
+
+        articles_by_date = Article.objects.filter(create_at__gte=start_date) \
+            .extra({'date': "date(create_at)"}) \
+            .values('date') \
+            .annotate(count=Count('id')) \
+            .order_by('date')
 
         return Response({
             "user_count": user_count,
             "article_count": article_count,
             "community_count": community_count,
             "team_count": team_count,
-            "users_by_date": users_by_date,
-            "articles_by_date": articles_by_date,
+            "users_by_date": list(users_by_date),
+            "articles_by_date": list(articles_by_date),
+            "period": time_period
         })

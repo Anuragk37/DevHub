@@ -56,10 +56,9 @@ class ArticleView(generics.ListCreateAPIView):
       if serializer.is_valid():
          article = serializer.save()
          
-         check_toxicity.delay(article.id)
+         check_toxicity.delay(article.id,is_new=True)
         
          return Response(serializer.data)
-      print(serializer.errors)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
    
    def get(self, request):
@@ -72,9 +71,9 @@ class ArticleView(generics.ListCreateAPIView):
             return Response(cached_data, status=status.HTTP_200_OK)
 
         if request.user.is_authenticated and not request.user.is_superuser:
-            articles = Article.objects.exclude(auther=request.user)
+            articles = Article.objects.exclude(auther=request.user).exclude(flaged=True)
         else:
-            articles = Article.objects.all()
+            articles = Article.objects.exclude(flaged=True)
 
         paginator = self.pagination_class()
         page_obj = paginator.paginate_queryset(articles, request)
@@ -129,7 +128,8 @@ class ArticleDetailView(generics.RetrieveUpdateDestroyAPIView):
 
         serializer = self.get_serializer(article, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            article = serializer.save()
+            check_toxicity.delay(article.id,is_new=False)
             return Response(serializer.data)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -288,6 +288,12 @@ class SearchView(APIView):
             'communities': community_serializer.data
         }
         return Response(response_data, status=status.HTTP_200_OK)
+
+class RecentlyViewedArticleView(APIView):
+    def get(self, request):
+        articles = ViewedArticle.objects.order_by('-viewed_at')[:3]
+        serializer = ViewedArticleSerializer(articles, many=True,context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 

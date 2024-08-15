@@ -16,7 +16,7 @@ class ArticleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Article
-        fields = ['id', 'title', 'content', 'thumbnail', 'auther', 'auther_id', 'create_at', 'like_count', 'liked','is_saved', 'comment_count', 'tags', 'thumbnail_url']
+        fields = ['id', 'title', 'content', 'thumbnail', 'auther', 'auther_id', 'create_at', 'like_count', 'liked','is_saved', 'comment_count', 'tags', 'thumbnail_url','flaged']
 
     def create(self, validated_data):
         auther_id = validated_data.pop('auther')
@@ -105,6 +105,7 @@ class ReportArticleSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'article', 'reason', 'reported_at']
 
 class ViewedArticleSerializer(serializers.ModelSerializer):
+    article = ArticleSerializer(read_only=True)
     class Meta:
         model = ViewedArticle
         fields = ['id', 'user', 'article', 'viewed_at']

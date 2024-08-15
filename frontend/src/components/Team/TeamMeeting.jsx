@@ -4,6 +4,7 @@ import axiosInstance from '../../utils/axiosInstance';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
+import { toast } from 'react-hot-toast';
 
 const TeamMeeting = ({ teamId, isCreator }) => {
   const [meetings, setMeetings] = useState([]);
@@ -49,6 +50,34 @@ const TeamMeeting = ({ teamId, isCreator }) => {
 
   const handleScheduleMeeting = async (e) => {
     e.preventDefault();
+    
+    // Create Date objects for validation
+    const currentDate = new Date();
+    const currentTime = new Date();
+    const meetingDate = new Date(newMeeting.date);
+    const startTime = new Date(`${newMeeting.date}T${newMeeting.start_time}`);
+    const endTime = new Date(`${newMeeting.date}T${newMeeting.end_time}`);
+
+    console.log(meetingDate, startTime, endTime);
+
+    // Validate meeting date and time
+    if (meetingDate.setHours(0, 0, 0, 0) < currentDate.setHours(0, 0, 0, 0)) {
+      toast.error("You can't schedule a meeting for a past date.");
+      return;
+    }
+
+    // Validate that the meeting start time is not in the past
+    if (startTime < currentTime) {
+      toast.error("The meeting start time has already passed.");
+      return;
+    }
+
+    // Validate that the meeting end time is after the start time
+    if (endTime <= startTime) {
+      toast.error("The meeting end time must be after the start time.");
+      return;
+    }
+      
     try {
       await axiosInstance.post(`/team/meeting/`, {
         ...newMeeting,
@@ -61,6 +90,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
       fetchMeetings();
     } catch (error) {
       console.error('Error scheduling meeting:', error);
+      alert("There was an error scheduling the meeting. Please try again.");
     }
   };
 
