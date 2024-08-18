@@ -8,6 +8,7 @@ import { jwtDecode } from 'jwt-decode';
 import { useLocation, useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../utils/axiosInstance';
 import toast from 'react-hot-toast';
+import useDebounce from '../../../CustomHooks/useDebounce';
 
 const CreateArticle = () => {
   const location = useLocation();
@@ -18,6 +19,7 @@ const CreateArticle = () => {
   const [selectedTags, setSelectedTags] = useState(initialData?.tags || []);
   const [displayTags, setDisplayTags] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
   const [thumbnail, setThumbnail] = useState(initialData?.thumbnail || null);
   const [thumbnailPreview, setThumbnailPreview] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -26,31 +28,27 @@ const CreateArticle = () => {
   const accessToken = useSelector((state) => state.auth.userAccessToken);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const getTags = async () => {
-      console.log("initial", initialData);
-      
-      try {
-        const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/');
-        setTags(response.data);
-      } catch (error) {
-        console.error('Failed to fetch tags:', error);
-        setError('Failed to load tags. Please try again later.');
-      }
-    };
-    getTags();
-  }, []);
+  const getTags = async () => {
+    try {
+      const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/', {
+        params: { search: searchTerm }
+      });
+      setTags(response.data.results);
+      setDisplayTags(response.data.results);
+    } catch (error) {
+      console.error('Failed to fetch tags:', error);
+      setError('Failed to load tags. Please try again later.');
+    }
+  };
+
 
   useEffect(() => {
-    setDisplayTags(
-      tags.filter((tag) =>
-        tag.name.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    );
-    if (searchTerm === '') {
+    if (debouncedSearchTerm) {
+      getTags(debouncedSearchTerm);
+    } else {
       setDisplayTags([]);
     }
-  }, [searchTerm, tags]);
+  }, [debouncedSearchTerm]);
 
   const handleTagSelect = (tag) => {
     if (!selectedTags.some(t => t.id === tag.id)) {
