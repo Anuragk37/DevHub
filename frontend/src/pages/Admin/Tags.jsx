@@ -16,7 +16,7 @@ const Tags = () => {
          const response = await axios.get(`http://127.0.0.1:8000/api/admin/tags/?page=${page}`);
          setTags(response.data.results);
          setCurrentPage(page);
-         setTotalPages(Math.ceil(response.data.count / 10)); 
+         setTotalPages(Math.ceil(response.data.count / 10)); // Assuming 10 items per page
       } catch (error) {
          console.log(error);
       }
@@ -31,13 +31,13 @@ const Tags = () => {
          const response = await axios.post('http://127.0.0.1:8000/api/admin/tags/', {
             name: name
          });
-         setTags([...tags, response.data]);
+         setTags(prevTags => [response.data, ...prevTags.slice(0, 9)]); // Add to start, maintain 10 items
          setError('');
       } catch (error) {
          if (error.response) {
             setError(error.response.data.message);
          } else {
-            console.log("something happened");
+            console.log("Something happened");
          }
       }
    };
@@ -46,6 +46,11 @@ const Tags = () => {
       try {
          await axios.delete(`http://127.0.0.1:8000/api/admin/tags/${id}/`);
          setTags(tags.filter(tag => tag.id !== id));
+         if (tags.length === 1 && currentPage > 1) {
+            getTags(currentPage - 1);
+         } else {
+            getTags(currentPage);
+         }
       } catch (error) {
          console.log(error);
       }

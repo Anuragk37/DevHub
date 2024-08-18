@@ -14,6 +14,8 @@ const Skills = () => {
    const getSkills = async (page = 1) => {
       try {
          const response = await axios.get(`http://127.0.0.1:8000/api/admin/skills/?page=${page}`)
+         console.log("skilsssssssssssssssssssss",response.data);
+         
          setSkills(response.data.results)
          setCurrentPage(page)
          setTotalPages(Math.ceil(response.data.count / 10)) // Assuming 10 items per page

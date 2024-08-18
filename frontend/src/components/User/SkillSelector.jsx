@@ -3,22 +3,28 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
+import toast from 'react-hot-toast';
 
 const SkillsSelector = ({ fromProfile = false, onClose }) => {
   const [skills, setSkills] = useState([]);
   const [filteredSkills, setFilteredSkills] = useState([]);
   const [selectedSkills, setSelectedSkills] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
+  const [nextPage, setNextPage] = useState(null);
+  const [prevPage, setPrevPage] = useState(null);
 
   const accessToken = useSelector((state) => state.auth.userAccessToken);
   const navigate = useNavigate();
 
-  const getSkills = async () => {
+  const getSkills = async (url = 'http://127.0.0.1:8000/api/admin/skills/') => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/skills/');
-      setSkills(response.data);
+      const response = await axios.get(url);
+      setSkills(prevSkills => [...prevSkills, ...response.data.results]);
+      setNextPage(response.data.next);
+      setPrevPage(response.data.previous);
     } catch (error) {
       console.log(error);
+      toast.error("Failed to fetch skills");
     }
   };
 
@@ -35,26 +41,46 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
   }, [searchTerm, skills]);
 
   const handleSkillSelect = (skill) => {
-    if (!selectedSkills.includes(skill)) {
+    if (!selectedSkills.some(s => s.id === skill.id)) {
       setSelectedSkills([...selectedSkills, skill]);
     }
   };
 
   const handleSkillRemove = (skill) => {
-    setSelectedSkills(selectedSkills.filter((s) => s !== skill));
+    setSelectedSkills(selectedSkills.filter((s) => s.id !== skill.id));
   };
 
   const handleSubmit = async () => {
-    const decodedToken = jwtDecode(accessToken);
-    const user_id = decodedToken.user_id;
-    await axios.post('http://127.0.0.1:8000/api/account/user-skill/', {
-      user_id,
-      selectedSkills,
-    });
-    if (fromProfile) {
-      onClose(); // Close the modal if submitted from profile
-    } else {
-      navigate('/tag-selection'); // Navigate to tag selection page if submitted not from profile
+    try {
+      const decodedToken = jwtDecode(accessToken);
+      const user_id = decodedToken.user_id;
+      await axios.post('http://127.0.0.1:8000/api/account/user-skill/', {
+        user_id,
+        selectedSkills,
+      });
+      if (fromProfile) {
+        onClose();
+        toast.success("Skills updated successfully");
+      } else {
+        toast.success("Skills saved successfully");
+        navigate('/tag-selection');
+      }
+    } catch (error) {
+      console.log(error);
+      toast.error("An error occurred while updating skills");
+    }
+  };
+
+  const loadMore = () => {
+    if (nextPage) {
+      getSkills(nextPage);
+    }
+  };
+
+  const loadPrevious = () => {
+    if (prevPage) {
+      setSkills([]);
+      getSkills(prevPage);
     }
   };
 
@@ -105,18 +131,36 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
             </div>
           )}
           <div className="mb-4 max-h-60 overflow-y-auto rounded">
-          <div className="p-2 flex flex-wrap gap-2">
-            {filteredSkills.map(skill => (
-              <div
-                key={skill.id}
-                className="cursor-pointer p-1 px-2 bg-purple-500 text-sm text-white rounded-full hover:bg-purple-900"
-                onClick={() => handleSkillSelect(skill)}
-              >
-                {skill.name}
-              </div>
-            ))}
+            <div className="p-2 flex flex-wrap gap-2">
+              {filteredSkills.map(skill => (
+                <div
+                  key={skill.id}
+                  className="cursor-pointer p-1 px-2 bg-purple-500 text-sm text-white rounded-full hover:bg-purple-900"
+                  onClick={() => handleSkillSelect(skill)}
+                >
+                  {skill.name}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+          <div className="flex justify-between mb-4">
+            {prevPage && (
+              <button
+                className="bg-purple-500 text-white p-1 rounded hover:bg-purple-700 transition duration-200"
+                onClick={loadPrevious}
+              >
+                Previous
+              </button>
+            )}
+            {nextPage && (
+              <button
+                className="bg-purple-500 text-white p-1 rounded hover:bg-purple-700 transition duration-200"
+                onClick={loadMore}
+              >
+                Load More
+              </button>
+            )}
+          </div>
           <button
             className="bg-purple-900 text-white p-1 rounded w-1/4 hover:bg-purple-950 transition duration-200"
             onClick={handleSubmit}

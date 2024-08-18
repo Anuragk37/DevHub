@@ -5,7 +5,7 @@ import axiosInstance from '../../../../utils/axiosInstance';
 import WS_URL from '../../../../utils/BaseUrls';
 import useWebSocket from 'react-use-websocket';
 import { useSelector } from 'react-redux';
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode'; // Corrected import
 import DetailSideBar from '../../../../components/User/Chat/DetailSideBar';
 import ChatWindow from '../../../../components/User/Chat/ChatWindow';
 
@@ -26,6 +26,7 @@ const ChatPage = () => {
   const userId = decodedToken ? decodedToken.user_id : null;
 
   const { sendMessage, lastMessage, readyState } = useWebSocket(`${WS_URL}/teamchat/${team?.id}/?token=${accessToken}`);
+  
 
   useEffect(() => {
     if (lastMessage !== null) {
@@ -42,7 +43,7 @@ const ChatPage = () => {
       } catch (error) {
         console.error('Error fetching messages:', error);
       }
-    }
+    };
     getMessages();
   }, [team?.id]);
 
@@ -50,7 +51,7 @@ const ChatPage = () => {
     if (team?.id) {
       axiosInstance.get(`/team/team-member/${team.id}/`)
         .then(response => {
-          const memberList=response.data.map(data => data.user);
+          const memberList = response.data.map(data => data.user);
           setMembers(memberList);
         })
         .catch(error => {

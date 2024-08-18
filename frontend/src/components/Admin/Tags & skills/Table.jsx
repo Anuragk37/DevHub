@@ -1,6 +1,8 @@
 import React from 'react';
 
 const Table = ({ list, onDelete, currentPage, totalPages, onPageChange }) => {
+  console.log("tagssssssssssssssss",list);
+  
   return (
     <div className="w-full overflow-x-auto bg-white rounded-lg shadow-lg">
       <table className="w-full text-sm text-left text-gray-500">

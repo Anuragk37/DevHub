@@ -155,13 +155,13 @@ const SideBar = () => {
                   </li>
                 </ul>
               </li>
-              <li>
+              {/* <li>
                 <Link to="/admin/comments">
                   <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/comments') ? 'bg-blue-700' : ''}`}>
                     <span className="flex-1 ml-3 whitespace-nowrap">Comments</span>
                   </p>
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link to="/admin/community-management">
                   <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/community-management') ? 'bg-blue-700' : ''}`}>

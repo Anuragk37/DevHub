@@ -66,9 +66,9 @@ class SkillRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class TagView(generics.ListCreateAPIView):
-    queryset = Tag.objects.all()
+    queryset = Tag.objects.all().order_by('-id')  # Order by newest first
     serializer_class = TagSerializer
-   #  pagination_class = CustomPageNumberPagination
+    pagination_class = CustomPageNumberPagination
 
     def create(self, request, *args, **kwargs):
         try:
@@ -77,8 +77,16 @@ class TagView(generics.ListCreateAPIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response({'message': "tag already exist"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message': "Tag already exists"}, status=status.HTTP_400_BAD_REQUEST)
 
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
 class TagRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
    queryset = Tag.objects.all()
    serializer_class = TagSerializer

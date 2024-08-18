@@ -9,6 +9,7 @@ const MyCommunity = () => {
   const [activeTab, setActiveTab] = useState('created');
   const [createdCommunities, setCreatedCommunities] = useState([]);
   const [joinedCommunities, setJoinedCommunities] = useState([]);
+  const [allCommunities, setAllCommunities] = useState([]);
 
   const getCommunities = async () => {
     try {
@@ -19,9 +20,21 @@ const MyCommunity = () => {
       console.error(error);
     }
   };
+  const getAllCommunities = async () => {
+    try {
+      const response = await axiosInstance.get('community/');
+      console.log("all communities", response.data);
+      
+      setAllCommunities(response.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
 
   useEffect(() => {
     getCommunities();
+    getAllCommunities();
   }, []);
 
   const handleTabClick = (tab) => {
@@ -63,6 +76,16 @@ const MyCommunity = () => {
               >
                 Joined Communities
               </button>
+              <button
+                className={`py-2 px-4 font-semibold text-md focus:outline-none ${
+                  activeTab === 'all'
+                    ? 'border-b-2 border-purple-500 text-purple-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+                onClick={() => handleTabClick('all')}
+              >
+                All Communities
+              </button>
             </div>
 
             <Link to="/user/create-community">
@@ -96,6 +119,19 @@ const MyCommunity = () => {
                 ) : (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
                     {joinedCommunities.map((community) => (
+                      <CommunityCard key={community.id} community={community} fromMyCommunity={true} />
+                    ))}
+                  </div>
+                )}
+              </>
+            )}
+            {activeTab === 'all' && (
+              <>
+                {allCommunities.length === 0 ? (
+                  <p className="text-center text-gray-500">No communities found.</p>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 xl:gap-8">
+                    {allCommunities.map((community) => (
                       <CommunityCard key={community.id} community={community} fromMyCommunity={true} />
                     ))}
                   </div>

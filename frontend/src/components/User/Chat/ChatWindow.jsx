@@ -1,10 +1,10 @@
 // ChatWindow.js
 import React, { useEffect, useRef } from 'react';
-import { FaPaperclip, FaPaperPlane, FaPhoneAlt, FaVideo } from 'react-icons/fa';
+import { FaPaperclip, FaPaperPlane, FaTrash } from 'react-icons/fa';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
 
-const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessage, selectedMessageId, handleMessageClick, messageContainerRef }) => {
+const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessage, selectedMessageId, handleMessageClick, messageContainerRef, handleDeleteMessage }) => {
   const accessToken = useSelector(state => state.auth.userAccessToken);
   const decodedToken = accessToken ? jwtDecode(accessToken) : null;
   const userId = decodedToken ? decodedToken.user_id : null;
@@ -44,14 +44,6 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
             <p className="text-sm text-green-500 font-medium">Active now</p>
           </div>
         </div>
-        <div className="flex items-center space-x-3">
-          {/* <button className="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-150 ease-in-out">
-            <FaPhoneAlt className="text-purple-500" />
-          </button>
-          <button className="text-gray-600 hover:bg-gray-100 p-2 rounded-full transition duration-150 ease-in-out">
-            <FaVideo className="text-purple-500" />
-          </button> */}
-        </div>
       </div>
 
       {/* Messages */}
@@ -63,14 +55,29 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
               onClick={() => handleMessageClick(message.id)}
             >
               {message.sender.id !== userId && (
-                <img src={message.sender.profile_pic} alt={message.sender.fullname} className="w-8 h-8 rounded-full mr-2" />
+                <img src={message.sender.profile_pic} alt={message.sender.fullname} className="w-8 h-8 rounded-full mr-2 flex-shrink-0" />
               )}
-              <div className={`max-w-xs px-4 py-2 rounded-2xl shadow-md ${message.sender.id === userId ? 'bg-purple-600 text-white rounded-br-none' : 'bg-white rounded-bl-none'}`}>
-                <p>{message.message}</p>
+              <div className={`max-w-[70%] px-4 py-2 rounded-2xl shadow-md ${message.sender.id === userId ? 'bg-purple-600 text-white rounded-br-none' : 'bg-white rounded-bl-none'}`}>
+                <div className="break-words whitespace-pre-wrap">
+                  {message.message}
+                </div>
                 {selectedMessageId === message.id && (
-                  <span className={`text-xs ${message.sender.id === userId ? 'text-purple-200' : 'text-gray-500'} mt-1 block`}>
-                    {new Date(message.created_at).toLocaleTimeString()}
-                  </span>
+                  <div className="flex justify-between items-center mt-1">
+                    <span className={`text-xs ${message.sender.id === userId ? 'text-purple-200' : 'text-gray-500'}`}>
+                      {new Date(message.created_at).toLocaleTimeString()}
+                    </span>
+                    {message.sender.id === userId && (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteMessage(message.id);
+                        }}
+                        className="text-xs text-red-500 hover:text-red-700 ml-2"
+                      >
+                        <FaTrash />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
             </div>
@@ -81,7 +88,7 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
       {/* Message Input */}
       <div className="p-4 bg-white border-t">
         <form onSubmit={handleSendMessage} className="flex items-center bg-gray-100 rounded-lg p-2">
-          <button type="button" className="text-gray-500 hover:text-gray-700 mx-2">
+          <button type="button" className="text-gray-500 hover:text-gray-700 mx-2 flex-shrink-0">
             <FaPaperclip />
           </button>
           <textarea
@@ -91,9 +98,9 @@ const ChatWindow = ({ team, messages, handleSendMessage, newMessage, setNewMessa
             value={newMessage}
             onChange={handleTextareaChange}
             rows={1}
-            style={{ minHeight: '40px', maxHeight: '120px' }}
+            style={{ maxHeight: '100px' }}
           />
-          <button type="submit" className="text-white bg-purple-600 rounded-full p-2 hover:bg-purple-700 transition duration-150 ease-in-out ml-2">
+          <button type="submit" className="text-purple-500 hover:text-purple-700 mx-2 flex-shrink-0">
             <FaPaperPlane />
           </button>
         </form>

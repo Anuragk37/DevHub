@@ -12,15 +12,19 @@ const TagSelector = ({onClose, fromProfile = false, interests=null}) => {
    const [selectedTags, setSelectedTags] = useState([])
    const [searchTerm, setSearchTerm] = useState('')
    const [initialInterests, setInitialInterests] = useState([])
+   const [nextPage, setNextPage] = useState(null)
+   const [prevPage, setPrevPage] = useState(null)
 
    const navigate = useNavigate()
 
    const accessToken = useSelector((state) => state.auth.userAccessToken)
 
-   const getTags = async () => {
+   const getTags = async (url = 'http://127.0.0.1:8000/api/admin/tags/') => {
       try {
-         const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/')
-         setTags(response.data)
+         const response = await axios.get(url)
+         setTags(prevTags => [...prevTags, ...response.data.results])
+         setNextPage(response.data.next)
+         setPrevPage(response.data.previous)
       } catch(error) {
          console.log(error)
          toast.error("Failed to fetch tags")
@@ -32,7 +36,7 @@ const TagSelector = ({onClose, fromProfile = false, interests=null}) => {
    }, [])
 
    useEffect(() => {
-      if(interests ) {
+      if(interests) {
          setInitialInterests(interests)
          setSelectedTags([...interests])
       }
@@ -82,6 +86,19 @@ const TagSelector = ({onClose, fromProfile = false, interests=null}) => {
       } catch(error) {
          console.log(error);
          toast.error("An error occurred while updating interests")
+      }
+   }
+
+   const loadMore = () => {
+      if (nextPage) {
+         getTags(nextPage)
+      }
+   }
+
+   const loadPrevious = () => {
+      if (prevPage) {
+         setTags([])
+         getTags(prevPage)
       }
    }
 
@@ -136,6 +153,25 @@ const TagSelector = ({onClose, fromProfile = false, interests=null}) => {
                </div>
             </div>
             
+            <div className="flex justify-between mb-4">
+               {prevPage && (
+                  <button
+                     className="bg-purple-500 text-white p-1 rounded hover:bg-purple-700 transition duration-200"
+                     onClick={loadPrevious}
+                  >
+                     Previous
+                  </button>
+               )}
+               {nextPage && (
+                  <button
+                     className="bg-purple-500 text-white p-1 rounded hover:bg-purple-700 transition duration-200"
+                     onClick={loadMore}
+                  >
+                     Load More
+                  </button>
+               )}
+            </div>
+
             <button
                className="bg-purple-900 text-white p-1 rounded w-1/4 hover:bg-purple-950 transition duration-200"
                onClick={handleSubmit}

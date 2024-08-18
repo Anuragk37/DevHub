@@ -3,7 +3,6 @@ import React from 'react';
 import { FaSearch, FaUsers } from 'react-icons/fa';
 
 const DetailSideBar = ({team, members, isSidebarOpen, toggleSidebar, searchQuery, setSearchQuery }) => {
-   console.log("memberssssssssssssssssssssssssssssssss", members);
   return (
     <div className={`${isSidebarOpen ? 'block' : 'hidden'} lg:block w-full lg:w-1/4 bg-white rounded-xl shadow-lg overflow-hidden flex flex-col`}>
       <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
