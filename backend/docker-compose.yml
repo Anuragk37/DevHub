@@ -1,0 +1,64 @@
+services:
+  app:
+    build: .
+    image: devhub-backend
+    container_name: devhub-backend
+    command: python manage.py runserver 0.0.0.0:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+      - nltk_data:/root/nltk_data
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres
+    container_name: devhub_db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=postgres  
+      - POSTGRES_PASSWORD=12345678  
+      - POSTGRES_DB=devhub_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: "redis:alpine"
+    container_name: devhub_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+  
+  celery:
+     image : devhub-backend
+     container_name: devhub-celery
+     command: celery -A backend.celery worker -l INFO
+     volumes:
+       - .:/app
+     depends_on:
+       - redis
+       - postgres
+       - app
+  
+  beat:
+     image : devhub-backend
+     container_name: devhub-beat
+     command: celery -A backend.celery beat -l INFO
+     volumes:
+       - .:/app
+     depends_on:
+       - redis
+       - postgres
+       - app
+
+
+volumes:
+  postgres_data:
+  redis_data:
+  nltk_data:

@@ -21,6 +21,7 @@ def check_toxicity(self,article_id,is_new):
     if response.status_code == 200:
         result = response.json()
         score = result['attributeScores']['TOXICITY']['summaryScore']['value']
+        print("scoreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",score)
         if score > 0.7:
              article.flaged = True
              article.save()
