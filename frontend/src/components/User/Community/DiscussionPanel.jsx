@@ -16,7 +16,6 @@ const DiscussionPanel = ({ communityId }) => {
   const fetchDiscussions = async () => {
     try {
       const response = await axiosInstance.get(`/community/discussion/${communityId}/`);
-      console.log(response.data);
       
       setDiscussions(response.data);
     } catch (error) {
@@ -38,7 +37,6 @@ const DiscussionPanel = ({ communityId }) => {
   const handleSelectDiscussion = async (discussion) => {
     try {
       const response = await axiosInstance.get(`/community/discussion-comment/${discussion.id}/`);
-      console.log(response.data);
       setSelectedDiscussion(discussion);
       setSelectedDiscussionComments(response.data);
     } catch (error) {

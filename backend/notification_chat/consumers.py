@@ -21,23 +21,19 @@ class NotificationConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-        print(f"WebSocket connected for user {self.user_id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-        print(f"WebSocket disconnected for user {self.user_id}")
 
     async def receive(self, text_data):
         data = json.loads(text_data)
         message = data.get('message')
-        print(f"Received message: {message}")  # Debug print
 
     async def send_notification(self, event):
         message = event['message']
-        print(f"Sending notification: {message}") 
         await self.send(text_data=json.dumps({
             'message': message
         }))
@@ -53,14 +49,12 @@ class TeamChatConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-        print(f"WebSocket connected for team {self.team_id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
             self.room_group_name,
             self.channel_name
         )
-        print(f"WebSocket disconnected for team {self.team_id}")
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -111,7 +105,6 @@ class CommunityChatConsumer(AsyncWebsocketConsumer):
         )
 
         await self.accept()
-        print(f"WebSocket connected for community {self.community_id}")
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(

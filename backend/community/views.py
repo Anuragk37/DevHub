@@ -17,15 +17,12 @@ class CommunityView(APIView):
         mutable_data = request.data.copy()
         mutable_data["creator_id"] = creator.id
         try:
-            print(mutable_data)
             serializer = CommunitySerializer(data=mutable_data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
-            print(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def get(self, request):
@@ -117,7 +114,6 @@ class CommunityMemberView(APIView):
             community_member.delete()
             return Response(status=status.HTTP_204_NO_CONTENT)
         except Exception as e:
-            print(e)
             return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class CommunityDiscussionView(generics.ListCreateAPIView):

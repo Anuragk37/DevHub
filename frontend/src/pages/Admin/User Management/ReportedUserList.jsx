@@ -10,7 +10,6 @@ const ReportedUserList = () => {
   const getUsers = async () => {
     try {
       const response = await axiosInstance.get('account/reorted-users/');
-      console.log(response.data);
       setUsers(response.data);
     } catch (error) {
       console.log(error);

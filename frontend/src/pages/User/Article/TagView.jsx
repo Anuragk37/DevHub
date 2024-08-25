@@ -20,7 +20,6 @@ const TagView = () => {
      try{
         const response = await axiosInstance.get(`/article/taged-articles/${id}`);         
         const data =  response.data
-        console.log(data);
         
         setArticles(data);
         setIsLoading(false);

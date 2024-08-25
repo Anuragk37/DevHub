@@ -52,11 +52,9 @@ const CreateTeam = () => {
 
     try {
       const response = await axiosInstance.post("team/create-team/", formData);
-      console.log(response.data);
       toast.success("Team created successfully");
       navigate("/");
     } catch (error) {
-      console.error(error);
       if (error.response?.status === 400 && error.response.data.message) {
         toast.error(error.response.data.message);
       } else {

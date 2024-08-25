@@ -34,7 +34,6 @@ const MyArticle = ({fromSaved=false,isOwnProfile, userId}) => {
 
    const deleteArticle = async (article_id) =>{
       try{
-         console.log(typeof(article_id));
          const resposnse = await axiosInstance.delete(`/article/${article_id}`)
          toast.success("artilce deleted succussfully")
          getArticles()

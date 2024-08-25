@@ -15,4 +15,3 @@ def send_notification(user, message):
             'message': serializer.data
         }
     )
-    print(f"Notification sent to user {user.id}: {message}")

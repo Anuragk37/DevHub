@@ -28,7 +28,6 @@ const Notification = ({ lastMessage }) => {
     try {
       const response = await axiosInstance.get('/notification_chat/notifications/');
       setNotifications(response.data);
-      console.log(response.data);
     } catch (error) {
       console.error('Error fetching notifications:', error);
     }

@@ -11,7 +11,6 @@ const ReportedArticleList = () => {
   const getArticles = async () => {
     try {
       const response = await axiosInstance.get('/article/reported-articles/');
-      console.log('Fetched articles:', response.data);
       setReportedArticles(response.data);
     } catch (error) {
       console.log(error);

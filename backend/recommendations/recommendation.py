@@ -102,7 +102,6 @@ def feature_engineering(user_profiles):
     user_profiles = user_profiles.join(pd.DataFrame(mlb_skills.fit_transform(user_profiles.pop('skills')), columns=[f"skill_{skill}" for skill in mlb_skills.classes_], index=user_profiles.index))
     user_profiles = user_profiles.join(pd.DataFrame(mlb_tags.fit_transform(user_profiles.pop('tags')), columns=[f"tag_{tag}" for tag in mlb_tags.classes_], index=user_profiles.index))
 
-    print(user_profiles)
 
     return user_profiles
 

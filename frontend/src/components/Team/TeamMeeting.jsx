@@ -35,7 +35,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
       const response = await axiosInstance.get(`/team/meeting/${teamId}/`);
       setMeetings(response.data);
     } catch (error) {
-      console.error('Error fetching meetings:', error);
+      toast.error('Error fetching team meetings:', error);
     }
   };
 
@@ -44,7 +44,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
       const response = await axiosInstance.get(`/team/team-member/${teamId}/`);
       setTeamMembers(response.data);
     } catch (error) {
-      console.error('Error fetching team members:', error);
+      toast.error('Error fetching team members:', error); 
     }
   };
 
@@ -58,7 +58,6 @@ const TeamMeeting = ({ teamId, isCreator }) => {
     const startTime = new Date(`${newMeeting.date}T${newMeeting.start_time}`);
     const endTime = new Date(`${newMeeting.date}T${newMeeting.end_time}`);
 
-    console.log(meetingDate, startTime, endTime);
 
     // Validate meeting date and time
     if (meetingDate.setHours(0, 0, 0, 0) < currentDate.setHours(0, 0, 0, 0)) {
@@ -89,8 +88,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
       setSelectAllMembers(false);
       fetchMeetings();
     } catch (error) {
-      console.error('Error scheduling meeting:', error);
-      alert("There was an error scheduling the meeting. Please try again.");
+      toast.error('Error scheduling meeting:', error);
     }
   };
 
@@ -99,7 +97,7 @@ const TeamMeeting = ({ teamId, isCreator }) => {
       await axiosInstance.delete(`/team/meeting-detail/${meetingId}/`);
       fetchMeetings();
     } catch (error) {
-      console.error('Error deleting meeting:', error);
+      toast.error('Error deleting meeting:', error);
     }
   };
 

@@ -18,10 +18,8 @@ const VideoConference = ({ teamId, userId, userName = 'Anurag', onLeave }) => {
           userName
         );
     
-        console.log('Kit Token:', kitToken);
     
         const zc = ZegoUIKitPrebuilt.create(kitToken);
-        console.log('Zego instance created:', zc);
     
         await zc.joinRoom({
           container: conferenceContainer.current,
@@ -41,7 +39,6 @@ const VideoConference = ({ teamId, userId, userName = 'Anurag', onLeave }) => {
           onLeave: null
         });
     
-        console.log('Joined room successfully');
       } catch (error) {
         console.error('Error initializing conference:', error);
       }

@@ -24,7 +24,6 @@ const MyCommunity = () => {
   const getAllCommunities = async () => {
     try {
       const response = await axiosInstance.get('community/');
-      console.log("all communities", response.data);
       setAllCommunities(response.data);
     } catch (error) {
       console.error(error);

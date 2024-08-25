@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 const TeamInvitationCard = ({ invitation }) => {
 
    const navigate = useNavigate();
-   console.log("invitationsssssssssssssssssssssssssssssss");
   const handleViewTeam = () => {
    const team = { ...invitation.team };
     navigate('/user/team-invitation-detail/',{ state: { team }});

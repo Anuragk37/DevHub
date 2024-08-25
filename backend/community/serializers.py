@@ -19,7 +19,7 @@ class CommunitySerializer(serializers.ModelSerializer):
          community = Community.objects.create(creator=creator, **validated_data)
          return community
       except Exception as e:
-         print(e)
+         return e
    
    def get_profile_pic_url(self, obj):
         request = self.context.get('request')

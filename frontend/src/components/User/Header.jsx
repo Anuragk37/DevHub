@@ -88,7 +88,7 @@ function Header() {
       setSearchResults(response.data);
       setShowSuggestions(true);
     } catch (error) {
-      console.error('Error fetching search results:', error);
+      toast.error('Error searching articles:', error);
     }
   };
 

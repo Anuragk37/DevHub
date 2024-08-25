@@ -17,11 +17,7 @@ const SearchResult = () => {
 
   const location = useLocation();
   const SearchResult = location.state;
-  console.log(SearchResult);
-
   useEffect(() => {
-   console.log(typeof(SearchResult));
-   console.log(SearchResult);
    setResults(SearchResult.results)
   },[SearchResult])
 

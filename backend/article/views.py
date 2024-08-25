@@ -157,7 +157,6 @@ class CommentView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         else:
-            print(serializer.errors)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
       
       def get(self,request,article_id):
@@ -181,9 +180,7 @@ def likeArticle(request, article_id):
 
 class UserArticleView(APIView):
     def get(self, request, user_id):
-        print("user_id",user_id)
         articles = Article.objects.filter(auther=user_id)
-        print("articles",articles)
         serializer = ArticleSerializer(articles, many=True,context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
 

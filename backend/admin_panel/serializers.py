@@ -10,7 +10,6 @@ class AdminLoginSerializer(serializers.Serializer):
    def validate(self, data):
       identifier = data.get('identifier')
       password = data.get('password')
-      print(password,identifier)
       if identifier and password:
          user=authenticate(identifier=identifier, password=password)
          if user:

@@ -124,7 +124,6 @@ def verify_otp(request):
     otp = request.data.get('otp')
     is_signup = request.data.get('is_signup', False)  
     stored_otp = cache.get(email)
-    print("stored_otp",stored_otp,otp,email)
     if stored_otp is None or stored_otp != int(otp):
         return Response({"message": "Invalid OTP"}, status=status.HTTP_400_BAD_REQUEST)
 

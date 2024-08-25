@@ -93,7 +93,6 @@ class TeamInterestView(APIView):
             interest = TeamInterest.objects.filter(team=team, user=user).exists()
             if interest:
                serializer = TeamInterestSerializer(TeamInterest.objects.filter(team=team, user=user), many=True)
-               print(serializer.data)
                return Response(serializer.data,status=status.HTTP_200_OK)
             return Response(status=status.HTTP_404_NOT_FOUND)
         else:

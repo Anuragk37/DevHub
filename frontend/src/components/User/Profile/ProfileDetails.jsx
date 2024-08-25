@@ -30,7 +30,6 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
     try {
       setIsLoading(true);
       const response = await axiosInstance.get(`/account/user/${userId}/`);
-      console.log(response.data);
       setUserData({
         name: response.data.fullname,
         username: response.data.username,

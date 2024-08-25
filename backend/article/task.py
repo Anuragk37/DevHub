@@ -9,7 +9,6 @@ from .models import Article
 def check_toxicity(self,article_id,is_new):
 
     article = Article.objects.get(id=article_id)
-    print(article)
 
     url = f'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key={settings.PERSPECTIVE_API_KEY}'
     data = {
@@ -21,7 +20,6 @@ def check_toxicity(self,article_id,is_new):
     if response.status_code == 200:
         result = response.json()
         score = result['attributeScores']['TOXICITY']['summaryScore']['value']
-        print("scoreeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",score)
         if score > 0.7:
              article.flaged = True
              article.save()

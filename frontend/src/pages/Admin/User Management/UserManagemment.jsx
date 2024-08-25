@@ -9,7 +9,6 @@ const UserManagement = () => {
   const getUsers = async () => {
     try {
       const response = await axiosInstance.get('/account/user/');
-      console.log(response.data);
       setUsers(response.data);
     } catch (error) {
       console.log(error);

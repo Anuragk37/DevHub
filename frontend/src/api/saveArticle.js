@@ -15,7 +15,7 @@ const saveArticle = async (articleData, setArticleData) => {
     
     toast.success(message);
   } catch (error) {
-    console.log(error);
+    toast.error(error.response.data.message);
   }
 };
 

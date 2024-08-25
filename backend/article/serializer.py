@@ -35,7 +35,6 @@ class ArticleSerializer(serializers.ModelSerializer):
         if tags_data is not None:
             instance.articletag_set.all().delete()
             for tag_data in tags_data[0]:
-                print(tag_data)
                 tag_id = tag_data.get('id')
                 if tag_id:
                     tag = Tag.objects.get(id=tag_id)

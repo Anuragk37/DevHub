@@ -12,7 +12,6 @@ const TeamInvitations = () => {
     const fetchInvitations = async () => {
       try {
         const response = await axiosInstance.get('/team/team-invitation/');
-        console.log(response.data);
         setInvitations(response.data);
         setLoading(false);
       } catch (error) {
