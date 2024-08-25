@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from django.utils import timezone
 
 # Create your models here.
 class Skill(models.Model):
@@ -29,3 +30,16 @@ class Tag(models.Model):
 
    def __str__(self):
       return self.name
+
+
+class Feedback(models.Model):
+   user=models.ForeignKey('account.MyUser',on_delete=models.CASCADE)
+   feedback=models.TextField()
+   improvement=models.TextField()
+   image=models.ImageField(null=True,blank=True,upload_to='feedback_images')
+   rating=models.IntegerField()
+   date = models.DateTimeField(auto_now_add=True)
+
+
+   def __str__(self):
+      return f"{self.user} - {self.rating}"

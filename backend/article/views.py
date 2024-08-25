@@ -294,10 +294,19 @@ class RecentlyViewedArticleView(APIView):
         articles = ViewedArticle.objects.order_by('-viewed_at')[:3]
         serializer = ViewedArticleSerializer(articles, many=True,context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TrendingTagsView(APIView):
+    def get(self, request):
+        top_tags = Tag.objects.annotate(article_count=Count('articletag__article')).order_by('-article_count')[:5]
+        serializer = TagSerializer(top_tags, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class TagedArticlesView(APIView):
+    def get(self,request,id):
+        tag = Tag.objects.get(id=id)
+        articles = Article.objects.filter(articletag__tag=tag)
+        serializer = ArticleSerializer(articles, many=True,context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
     
-
-
-
-
-
-   

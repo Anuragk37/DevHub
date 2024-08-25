@@ -15,17 +15,21 @@ class TeamSkillSerializer(serializers.ModelSerializer):
 class TeamSerializer(serializers.ModelSerializer):
     skills_required = serializers.SerializerMethodField(read_only=True)
     profile_pic_url = serializers.SerializerMethodField()
+    member_count = serializers.SerializerMethodField()
     creator = UserSerializer(read_only=True)
 
     class Meta:
         model = Team
-        fields = ['id', 'name', 'description', 'creator', 'members_required', 'created_date', 'skills_required', 'profile_pic', 'profile_pic_url',"github_link","other_link"]
+        fields = ['id', 'name', 'description', 'creator', 'members_required', 'created_date', 'skills_required', 'profile_pic', 'profile_pic_url',"github_link","other_link","member_count"]
         read_only_fields = ['creator', 'created_date']
 
     def get_skills_required(self, obj):
         team_skills = TeamSkill.objects.filter(team=obj)
         skills = Skill.objects.filter(id__in=[ts.skill.id for ts in team_skills])
         return SkillSerializer(skills, many=True).data
+
+    def get_member_count(self, obj):
+        return TeamMember.objects.filter(team=obj).count()
 
     def get_profile_pic_url(self, obj):
         request = self.context.get('request')

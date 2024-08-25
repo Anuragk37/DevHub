@@ -1,74 +1,55 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback } from "react";
 import { FaUsers, FaBookOpen, FaShieldAlt } from "react-icons/fa";
+import { useForm, Controller } from "react-hook-form";
 import axiosInstance from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
-import Select from "react-select";
+import AsyncSelect from 'react-select/async';
+import useDebounce from "../../../CustomHooks/useDebounce";
 
 const CreateTeam = () => {
-  const [teamName, setTeamName] = useState("");
-  const [description, setDescription] = useState("");
-  const [membersRequired, setMembersRequired] = useState("");
-  const [skills, setSkills] = useState([]);
-  const [availableSkills, setAvailableSkills] = useState([]);
+  const { control, handleSubmit, formState: { errors } } = useForm();
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchSkills = async () => {
-      try {
-        const response = await axiosInstance.get("admin/skills/");
-        setAvailableSkills(response.data.map(skill => ({ value: skill.id, label: skill.name })));
-      } catch (error) {
-        console.error("Error fetching skills:", error);
-      }
-    };
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-    fetchSkills();
+  const loadOptions = useCallback(async (inputValue, callback) => {
+    try {
+      const response = await axiosInstance.get(`admin/skills/?search=${inputValue}`);
+      const options = response.data.results.map(skill => ({
+        value: skill.id,
+        label: skill.name
+      }));
+      callback(options);
+    } catch (error) {
+      console.error("Error fetching skills:", error);
+      callback([]);
+    }
   }, []);
-
-  const handleTeamNameChange = (e) => {
-    setTeamName(e.target.value);
-  };
-
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
-  };
-
-  const handleMembersRequiredChange = (e) => {
-    setMembersRequired(e.target.value);
-  };
 
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
     if (selectedImage) {
       setProfileImage(selectedImage);
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
+      reader.onloadend = () => setImagePreview(reader.result);
       reader.readAsDataURL(selectedImage);
     }
   };
 
-  const handleSkillsChange = (selectedOptions) => {
-    setSkills(selectedOptions || []);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    console.log(skills);
-
+  const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("name", teamName);
-    formData.append("description", description);
-    formData.append("members_required", membersRequired);
-    skills.forEach(skill => formData.append("skills_required", skill.value))
-     if (profileImage) {
+    formData.append("name", data.teamName);
+    formData.append("description", data.description);
+    formData.append("members_required", data.membersRequired);
+    data.skills.forEach(skill => formData.append("skills_required", skill.value));
+    if (profileImage) {
       formData.append("profile_pic", profileImage);
     }
+
     try {
       const response = await axiosInstance.post("team/create-team/", formData);
       console.log(response.data);
@@ -76,29 +57,16 @@ const CreateTeam = () => {
       navigate("/");
     } catch (error) {
       console.error(error);
-      
-      if (error.response) {
-        // The request was made and the server responded with a status code
-        // that falls out of the range of 2xx
-        if (error.response.status === 400 && error.response.data.message) {
-          // This is likely our validation error
-          toast.error(error.response.data.message);
-        } else {
-          // Handle other types of errors
-          toast.error("An error occurred while creating the team");
-        }
-      } else if (error.request) {
-        // The request was made but no response was received
-        toast.error("No response received from the server");
+      if (error.response?.status === 400 && error.response.data.message) {
+        toast.error(error.response.data.message);
       } else {
-        // Something happened in setting up the request that triggered an Error
-        toast.error("Error setting up the request");
+        toast.error("An error occurred while creating the team");
       }
     }
   };
 
   return (
-   <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-purple-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-lg shadow-xl w-full max-w-5xl overflow-hidden">
         <div className="md:flex">
           <div className="md:w-5/12 bg-purple-700 p-8 text-white flex flex-col justify-center">
@@ -122,71 +90,107 @@ const CreateTeam = () => {
             </div>
           </div>
           <div className="md:w-7/12 p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="mb-3">
-                <label htmlFor="name" className="block text-sm font-medium text-purple-700 mb-1">
+                <label htmlFor="teamName" className="block text-sm font-medium text-purple-700 mb-1">
                   Team Name
                 </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={teamName}
-                  onChange={handleTeamNameChange}
-                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Enter team name"
+                <Controller
+                  name="teamName"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Team name is required" }}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      id="teamName"
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Enter team name"
+                    />
+                  )}
                 />
+                {errors.teamName && <p className="text-red-500 text-sm mt-1">{errors.teamName.message}</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="description" className="block text-sm font-medium text-purple-700 mb-1">
                   Description
                 </label>
-                <textarea
-                  id="description"
+                <Controller
                   name="description"
-                  value={description}
-                  onChange={handleDescriptionChange}
-                  rows="3"
-                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Describe your team's purpose and goals"
-                ></textarea>
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Description is required" }}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      id="description"
+                      rows="3"
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Describe your team's purpose and goals"
+                    ></textarea>
+                  )}
+                />
+                {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="membersRequired" className="block text-sm font-medium text-purple-700 mb-1">
                   Number of Members Required
                 </label>
-                <input
-                  type="number"
-                  id="membersRequired"
+                <Controller
                   name="membersRequired"
-                  value={membersRequired}
-                  onChange={handleMembersRequiredChange}
-                  className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Enter number of members needed"
-                  min="1"
+                  control={control}
+                  defaultValue=""
+                  rules={{ 
+                    required: "Number of members is required",
+                    min: { value: 1, message: "Minimum 1 member required" }
+                  }}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="number"
+                      id="membersRequired"
+                      className="w-full px-4 py-2 border border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Enter number of members needed"
+                      min="1"
+                    />
+                  )}
                 />
+                {errors.membersRequired && <p className="text-red-500 text-sm mt-1">{errors.membersRequired.message}</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="skills" className="block text-sm font-medium text-purple-700 mb-1">
                   Skills Required
                 </label>
-                <Select
-                  isMulti
-                  options={availableSkills}
-                  onChange={handleSkillsChange}
-                  className="basic-multi-select"
-                  classNamePrefix="select"
-                  theme={(theme) => ({
-                    ...theme,
-                    colors: {
-                      ...theme.colors,
-                      primary: '#8B5CF6',
-                      primary25: '#EDE9FE',
-                      primary50: '#DDD6FE',
-                      primary75: '#C4B5FD',
-                    },
-                  })}
+                <Controller
+                  name="skills"
+                  control={control}
+                  defaultValue={[]}
+                  rules={{ required: "At least one skill is required" }}
+                  render={({ field }) => (
+                    <AsyncSelect
+                      {...field}
+                      isMulti
+                      cacheOptions
+                      defaultOptions
+                      loadOptions={loadOptions}
+                      placeholder="Search and select skills..."
+                      className="basic-multi-select"
+                      classNamePrefix="select"
+                      theme={(theme) => ({
+                        ...theme,
+                        colors: {
+                          ...theme.colors,
+                          primary: '#8B5CF6',
+                          primary25: '#EDE9FE',
+                          primary50: '#DDD6FE',
+                          primary75: '#C4B5FD',
+                        },
+                      })}
+                    />
+                  )}
                 />
+                {errors.skills && <p className="text-red-500 text-sm mt-1">{errors.skills.message}</p>}
               </div>
               <div className="mb-3">
                 <label htmlFor="profileImage" className="block text-sm font-medium text-purple-700 mb-1">

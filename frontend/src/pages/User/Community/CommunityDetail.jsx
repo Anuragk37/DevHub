@@ -182,33 +182,33 @@ const CommunityDetail = () => {
   if (!community) return null;
 
   return (
-    <div className="min-h-screen bg-background py-10 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-background py-5 px-4 sm:px-6 lg:px-8">
       <Header />
-      <div className="max-w-6xl mx-auto mt-12">
+      <div className="max-w-6xl mx-auto mt-16">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
-          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-48 relative">
+          <div className="bg-gradient-to-r from-purple-600 to-indigo-600 h-32 sm:h-48 relative">
             <img src={community.banner_url || "/default-banner.jpg"} alt="Community Banner" className="w-full h-full object-cover opacity-50" />
             <div className="absolute inset-0 bg-black opacity-40"></div>
             <img
               src={community.profile_pic_url || "/default-profile.jpg"}
               alt={`${community.name} logo`}
-              className="absolute -bottom-12 left-6 w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+              className="absolute -bottom-10 sm:-bottom-12 left-4 sm:left-6 w-24 h-24 sm:w-32 sm:h-32 rounded-full object-cover border-4 border-white shadow-lg"
             />
           </div>
-          <div className="pt-16 pb-8 px-6">
-            <div className="flex justify-between items-center mb-6">
-              <h1 className="text-4xl font-bold text-gray-900">{community.name}</h1>
-              <div className="flex space-x-4 items-center">
+          <div className="pt-14 sm:pt-16 pb-6 sm:pb-8 px-4 sm:px-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4 sm:mb-0">{community.name}</h1>
+              <div className="flex flex-wrap gap-2 sm:space-x-4 items-center">
                 {community.is_member && (
                   <Link to={`/community/chat`} state={{ community }}>
-                    <button className="bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300">
+                    <button className="bg-purple-600 text-white px-4 py-2 rounded-full text-sm sm:text-base flex items-center hover:bg-purple-700 transition duration-300">
                       Chat
                     </button>
                   </Link>
                 )}
                 {community.is_member ? (
                   <button 
-                    className={`bg-red-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-red-700 transition duration-300 ${isLeaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-red-600 text-white px-4 py-2 rounded-full text-sm sm:text-base flex items-center hover:bg-red-700 transition duration-300 ${isLeaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={handleLeaveCommunity}
                     disabled={isLeaving}
                   >
@@ -216,7 +216,7 @@ const CommunityDetail = () => {
                   </button>
                 ) : (
                   <button 
-                    className={`bg-purple-600 text-white px-5 py-2 rounded-full text-base flex items-center hover:bg-purple-700 transition duration-300 ${isJoining ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`bg-purple-600 text-white px-4 py-2 rounded-full text-sm sm:text-base flex items-center hover:bg-purple-700 transition duration-300 ${isJoining ? 'opacity-50 cursor-not-allowed' : ''}`}
                     onClick={handleJoinCommunity}
                     disabled={isJoining}
                   >
@@ -251,8 +251,8 @@ const CommunityDetail = () => {
                 )}
               </div>
             </div>
-            <p className="text-gray-600 mt-2 text-lg">{community.description}</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 mt-6 text-sm text-gray-600">
+            <p className="text-gray-600 mt-2 text-base sm:text-lg">{community.description}</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6 mt-4 sm:mt-6 text-sm text-gray-600">
               <div className="flex items-center bg-purple-50 p-3 rounded-lg">
                 <FaUsers className="mr-3 text-purple-600 text-xl" />
                 <span><strong className="block text-gray-900">Members</strong> {community.member_count || 0}</span>
@@ -269,12 +269,12 @@ const CommunityDetail = () => {
           </div>
         </div>
 
-        <Tabs selectedIndex={activeTab} onSelect={handleTabSelect} className="bg-white rounded-xl shadow-lg p-6">
-          <TabList className="flex flex-wrap border-b mb-6">
+        <Tabs selectedIndex={activeTab} onSelect={handleTabSelect} className="bg-white rounded-xl shadow-lg p-4 sm:p-6">
+          <TabList className="flex flex-wrap border-b mb-4 sm:mb-6">
             {['About', 'Rules', 'Discussions', 'Members'].map((tabName, index) => (
               <Tab
                 key={tabName}
-                className={`px-6 py-3 text-base font-medium cursor-pointer transition duration-300 ${
+                className={`px-3 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-medium cursor-pointer transition duration-300 ${
                   activeTab === index
                     ? 'text-purple-600 border-b-2 border-purple-600'
                     : 'text-gray-500 hover:text-gray-800'
@@ -286,14 +286,14 @@ const CommunityDetail = () => {
           </TabList>
 
           <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 flex items-center">
               <FaInfoCircle className="mr-3 text-purple-600" />
               About {community.name}
             </h2>
-            <p className="text-base text-gray-700 leading-relaxed mb-6">{community.long_description || community.description}</p>
+            <p className="text-sm sm:text-base text-gray-700 leading-relaxed mb-4 sm:mb-6">{community.long_description || community.description}</p>
             <div className="bg-purple-50 p-4 rounded-lg">
-              <h3 className="font-semibold text-lg mb-2">Quick Info</h3>
-              <ul className="space-y-2">
+              <h3 className="font-semibold text-base sm:text-lg mb-2">Quick Info</h3>
+              <ul className="space-y-2 text-sm sm:text-base">
                 <li className="flex items-center">
                   <FaUsers className="mr-2 text-purple-600" />
                   <span><strong>{community.member_count || 0}</strong> active members</span>
@@ -313,24 +313,24 @@ const CommunityDetail = () => {
           </TabPanel>
 
           <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 flex items-center">
               <FaBook className="mr-3 text-purple-600" />
               Community Guidelines
             </h2>
             <div className="space-y-4">
-              {community.rules && community.rules.split('\n').map((rule, index) => (
-                <div key={index} className="flex items-start bg-purple-50 p-4 rounded-lg">
-                  <div className="bg-purple-600 text-white rounded-full w-6 h-6 flex items-center justify-center mr-3 mt-1 flex-shrink-0">
+            {community.rules && community.rules.split('\n').map((rule, index) => (
+                <div key={index} className="flex items-start bg-purple-50 p-3 sm:p-4 rounded-lg">
+                  <div className="bg-purple-600 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center mr-2 sm:mr-3 mt-1 flex-shrink-0 text-xs sm:text-sm">
                     {index + 1}
                   </div>
-                  <p className="text-gray-700">{rule}</p>
+                  <p className="text-gray-700 text-sm sm:text-base">{rule}</p>
                 </div>
               ))}
             </div>
           </TabPanel>
 
           <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-4 flex items-center">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 flex items-center">
               <FaComments className="mr-3 text-purple-600" />
               Recent Discussions
             </h2>
@@ -338,20 +338,20 @@ const CommunityDetail = () => {
           </TabPanel>
 
           <TabPanel>
-            <h2 className="text-2xl font-semibold text-gray-800 mb-6 flex items-center">
+            <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-4 sm:mb-6 flex items-center">
               <FaUserFriends className="mr-3 text-purple-600" />
               Community Members
             </h2>
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {members.map((member) => (
                 <div key={member.id} className="bg-white p-3 rounded-lg shadow-sm border border-gray-200 flex items-center space-x-3">
                   <img 
                     src={member.profile_pic || "/default-avatar.jpg"} 
                     alt={member.username} 
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover"
                   />
                   <div className="overflow-hidden">
-                    <p className="font-medium text-gray-900 truncate">{member.username}</p>
+                    <p className="font-medium text-gray-900 truncate text-sm sm:text-base">{member.username}</p>
                     <p className="text-xs text-gray-500 truncate">@{member.username.toLowerCase()}</p>
                   </div>
                 </div>

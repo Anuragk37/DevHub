@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import Header from '../../../components/Admin/Header';
 import SideBar from '../../../components/Admin/SideBar';
-import axios from 'axios';
+import axiosInstance from '../../../utils/axiosInstance';
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
 
   const getUsers = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/account/user/');
+      const response = await axiosInstance.get('/account/user/');
       console.log(response.data);
       setUsers(response.data);
     } catch (error) {
@@ -22,7 +22,7 @@ const UserManagement = () => {
 
   const handleBlock = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/api/admin/block-user/${id}/`);
+      await axiosInstance.post(`/admin/block-user/${id}/`);
       getUsers();
     } catch (error) {
       console.log(error);
@@ -31,7 +31,7 @@ const UserManagement = () => {
 
   const handleUnblock = async (id) => {
     try {
-      await axios.post(`http://127.0.0.1:8000/api/admin/unblock-user/${id}/`);
+      await axiosInstance.post(`/admin/unblock-user/${id}/`);
       getUsers();
     } catch (error) {
       console.log(error);

@@ -45,11 +45,10 @@ const MyTeam = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <Header />
-      <div className="flex pt-16">
+      <div className="flex pt-16 px-4 md:px-10 lg:px-16">
         <SideBar />
-        <main className="flex-1 px-4 sm:px-6 lg:px-4 py-8 md:ml-96">
+        <main className="flex-1 px-4 sm:px-6 lg:px-4 py-8 ">
           <div className="max-w-5xl mx-auto">
-            <h2 className="text-3xl font-bold text-purple-700 mb-6">My Teams</h2>
             <div className="flex flex-wrap justify-between border-b border-gray-200 mb-6">
               <div className="flex flex-wrap">
                 {['my-team', 'joined-team', 'all-team'].map((tab) => (

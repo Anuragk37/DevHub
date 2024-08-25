@@ -3,7 +3,7 @@ import Headers from '../../components/Admin/Header';
 import SideBar from '../../components/Admin/SideBar';
 import Table from '../../components/Admin/Tags & skills/Table';
 import Add from '../../components/Admin/Tags & skills/Add';
-import axios from 'axios';
+import axiosInstance from '../../utils/axiosInstance';
 
 const Tags = () => {
    const [tags, setTags] = useState([]);
@@ -13,7 +13,7 @@ const Tags = () => {
 
    const getTags = async (page = 1) => {
       try {
-         const response = await axios.get(`http://127.0.0.1:8000/api/admin/tags/?page=${page}`);
+         const response = await axiosInstance.get(`/admin/tags/?page=${page}`);
          setTags(response.data.results);
          setCurrentPage(page);
          setTotalPages(Math.ceil(response.data.count / 10)); // Assuming 10 items per page
@@ -28,7 +28,7 @@ const Tags = () => {
 
    const addTag = async (name) => {
       try {
-         const response = await axios.post('http://127.0.0.1:8000/api/admin/tags/', {
+         const response = await axiosInstance.post('/admin/tags/', {
             name: name
          });
          setTags(prevTags => [response.data, ...prevTags.slice(0, 9)]); // Add to start, maintain 10 items
@@ -44,7 +44,7 @@ const Tags = () => {
 
    const deleteTag = async (id) => {
       try {
-         await axios.delete(`http://127.0.0.1:8000/api/admin/tags/${id}/`);
+         await axiosInstance.delete(`/admin/tags/${id}/`);
          setTags(tags.filter(tag => tag.id !== id));
          if (tags.length === 1 && currentPage > 1) {
             getTags(currentPage - 1);

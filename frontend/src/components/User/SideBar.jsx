@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaRss, FaStar, FaUsers, FaInfoCircle, FaClipboardList, FaBars, FaTimes,FaAngleRight } from 'react-icons/fa';
+import { FaRss, FaStar, FaUsers, FaInfoCircle, FaClipboardList, FaBars, FaTimes, FaAngleRight } from 'react-icons/fa';
 import { Link, useLocation } from 'react-router-dom';
 
 const SideBar = () => {
@@ -12,25 +12,34 @@ const SideBar = () => {
     { icon: FaUsers, text: 'Teams', link: '/user/my-team' },
     { icon: FaUsers, text: 'Community', link: '/user/your-communities' },
     { icon: FaInfoCircle, text: 'About', link: '/about' },
-    { icon: FaClipboardList, text: 'Feedback', link: '/feedback' },
+    { icon: FaClipboardList, text: 'Feedback', link: 'user/feedback' },
   ];
 
   const toggleSidebar = () => setIsOpen(!isOpen);
 
   return (
     <>
-      <button
+      {!isOpen && (
+        <button
         className="fixed top-16 left-1 p-3 bg-purple-600 text-white rounded-full shadow-lg z-50 md:hidden"
         onClick={toggleSidebar}
       >
-        {isOpen ? <FaTimes /> : <FaAngleRight />}
+        <FaAngleRight />
       </button>
+      )}
       <div
         className={`${
           isOpen ? 'translate-x-0' : '-translate-x-full'
-        } fixed  top-24 h-[85vh] w-72 bg-white text-purple-900 shadow-2xl rounded-lg p-6 transition-all duration-300 ease-in-out z-40 overflow-y-auto md:left-[23rem] flex flex-col`}
+        } mt-0 lg:mt-4 fixed left-0  h-screen w-72 bg-white text-purple-900 shadow-4xl rounded-md px-5 transition-all duration-300 ease-in-out z-40 overflow-y-auto lg:translate-x-0 lg:static lg:h-[86vh] lg:shadow-none flex flex-col`}
       >
-        <h2 className="text-2xl font-bold mb-8 text-purple-700">DevHub Menu</h2>
+        <div className="flex justify-between items-center mb-8">
+          <button
+            className="text-purple-600 md:hidden"
+            onClick={toggleSidebar}
+          >
+            <FaTimes />
+          </button>
+        </div>
         <nav className="flex-grow">
           <ul className="space-y-2">
             {menuItems.map((item, index) => {
@@ -54,8 +63,8 @@ const SideBar = () => {
             })}
           </ul>
         </nav>
-        <div className="mt-auto pt-4 border-t border-purple-100">
-          <p className="text-sm text-purple-600">© 2024 DevHub</p>
+        <div className="mt-auto mb-4 pt-4 border-t border-purple-200 ">
+          <p className="text-sm text-purple-600 text-center">© 2024 DevHub</p>
         </div>
       </div>
     </>

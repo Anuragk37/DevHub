@@ -30,7 +30,7 @@ const CreateArticle = () => {
 
   const getTags = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/tags/', {
+      const response = await axiosInstance.get('/admin/tags/', {
         params: { search: searchTerm }
       });
       setTags(response.data.results);

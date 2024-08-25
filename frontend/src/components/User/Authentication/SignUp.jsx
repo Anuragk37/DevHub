@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import toast, { Toaster } from 'react-hot-toast'
 import { userSignIn } from '../../../features/authSlice'
+import axiosInstance  from '../../../utils/axiosInstance'
 
 const SignUp = () => {
   const navigate = useNavigate()
@@ -34,7 +35,7 @@ const SignUp = () => {
       formDatatoSend.append('phone_number', data.phone_number)
       formDatatoSend.append('password', data.password)
 
-      const response = await axios.post('http://127.0.0.1:8000/api/account/user/', formDatatoSend)
+      const response = await axiosInstance.post('/account/user/', formDatatoSend)
       toast.success(response.data.message)
       navigate('/verify-otp', { state: { isSignup: true, email: data.email } })
       

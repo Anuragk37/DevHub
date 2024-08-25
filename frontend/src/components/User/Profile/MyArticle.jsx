@@ -16,7 +16,7 @@ const MyArticle = ({fromSaved=false,isOwnProfile, userId}) => {
       try{
 
          if(fromSaved) {
-            const response = await axiosInstance.get(`/article/saved-articles/`)
+            const response = await axiosInstance.get(`/article/saved-articles/`)            
             setArticles(response.data)
          }else{
             const response = await axiosInstance.get(`/article/user-article/${userId}/`)
@@ -48,7 +48,7 @@ const MyArticle = ({fromSaved=false,isOwnProfile, userId}) => {
    }
 
   return (
-    <div className="px-8">
+    <div className="lg:px-8">
       {articles.map((article) => (
         <Articles key={article.id} article={article} from_profile={true} deleteArticle={deleteArticle} editArticle={editArticle} isOwnProfile={isOwnProfile}/>
       ))}

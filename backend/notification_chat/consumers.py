@@ -6,6 +6,7 @@ from .serializers import*
 from channels.db import database_sync_to_async
 from django.core.serializers.json import DjangoJSONEncoder
 from community.models import*
+from asgiref.sync import sync_to_async
 
 
 

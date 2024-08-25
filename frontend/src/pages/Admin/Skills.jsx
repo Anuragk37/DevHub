@@ -4,6 +4,7 @@ import SideBar from '../../components/Admin/SideBar'
 import Table from '../../components/Admin/Tags & skills/Table'
 import Add from '../../components/Admin/Tags & skills/Add'
 import axios from 'axios'
+import axiosInstance from '../../utils/axiosInstance'
 
 const Skills = () => {
    const [skills, setSkills] = useState([])
@@ -13,12 +14,10 @@ const Skills = () => {
 
    const getSkills = async (page = 1) => {
       try {
-         const response = await axios.get(`http://127.0.0.1:8000/api/admin/skills/?page=${page}`)
-         console.log("skilsssssssssssssssssssss",response.data);
-         
+         const response = await axiosInstance.get(`/admin/skills/?page=${page}`)
          setSkills(response.data.results)
          setCurrentPage(page)
-         setTotalPages(Math.ceil(response.data.count / 10)) // Assuming 10 items per page
+         setTotalPages(Math.ceil(response.data.count / 10)) 
       } catch (error) {
          console.log(error)
       }
@@ -30,7 +29,7 @@ const Skills = () => {
 
    const addSkill = async (name) => {
       try {
-         const response = await axios.post('http://127.0.0.1:8000/api/admin/skills/', {
+         const response = await axiosInstance.post('/admin/skills/', {
             name: name
          })
          setError('')
@@ -46,7 +45,7 @@ const Skills = () => {
 
    const deleteSkill = async (id) => {
       try {
-         await axios.delete(`http://127.0.0.1:8000/api/admin/skills/${id}/`)
+         await axiosInstance.delete(`/admin/skills/${id}/`)
          setSkills(skills.filter(skill => skill.id !== id))
       } catch (error) {
          console.log(error)

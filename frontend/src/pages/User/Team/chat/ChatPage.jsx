@@ -5,7 +5,7 @@ import axiosInstance from '../../../../utils/axiosInstance';
 import WS_URL from '../../../../utils/BaseUrls';
 import useWebSocket from 'react-use-websocket';
 import { useSelector } from 'react-redux';
-import {jwtDecode} from 'jwt-decode'; // Corrected import
+import {jwtDecode} from 'jwt-decode'; 
 import DetailSideBar from '../../../../components/User/Chat/DetailSideBar';
 import ChatWindow from '../../../../components/User/Chat/ChatWindow';
 
@@ -65,6 +65,7 @@ const ChatPage = () => {
     if (newMessage.trim() && readyState === WebSocket.OPEN) {
       sendMessage(JSON.stringify({
         message: newMessage.trim(),
+        user: userId,
       }));
       setNewMessage('');
     }

@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { adminSignIn } from '../../features/authSlice'
-import axios from 'axios'
+import axiosInstance from '../../utils/axiosInstance'
 
 const AdminLogin = () => {
   const[identifier,setIdentifier] = useState('')
@@ -16,7 +16,7 @@ const AdminLogin = () => {
     e.preventDefault()
 
     try{
-      const response = await axios.post("http://127.0.0.1:8000/api/admin/admin-login/",{
+      const response = await axiosInstance.post("/admin/admin-login/",{
         identifier:identifier,
         password:password
       })

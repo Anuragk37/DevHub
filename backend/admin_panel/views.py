@@ -6,7 +6,7 @@ from .serializers import AdminLoginSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import generics
 from .models import Skill,Tag
-from .serializers import SkillSerializer,TagSerializer
+from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import get_object_or_404
 from account.models import MyUser
@@ -48,6 +48,14 @@ class SkillView(generics.ListCreateAPIView):
    queryset = Skill.objects.all()
    serializer_class = SkillSerializer
    pagination_class = CustomPageNumberPagination
+
+
+   def get_queryset(self):
+        queryset = Skill.objects.all()
+        search_term = self.request.query_params.get('search', None)
+        if search_term:
+            queryset = queryset.filter(name__icontains=search_term)
+        return queryset.order_by('name')
 
    def create(self, request, *args, **kwargs):
         try:
@@ -155,3 +163,28 @@ class AdminDashboardView(APIView):
             "articles_by_date": list(articles_by_date),
             "period": time_period
         })
+    
+
+class TredingTagView(APIView):
+
+    def get(self, request):
+        tags = Tag.objects.annotate(count=Count('article')).order_by('-count')[:5]
+        serializer = TagSerializer(tags, many=True)
+        return Response(serializer.data)
+    
+
+class FeedbackView(generics.ListCreateAPIView):
+    queryset = Feedback.objects.all().order_by('-id') 
+    serializer_class = FeedbackSerializer
+    pagination_class = CustomPageNumberPagination
+
+    def create(self, request, *args, **kwargs):
+        user = request.user
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save(user=user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class FeedbackRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+   queryset = Feedback.objects.all()
+   serializer_class = FeedbackSerializer

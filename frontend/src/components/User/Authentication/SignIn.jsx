@@ -4,6 +4,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { userSignIn } from "../../../features/authSlice";
+import axiosInstance from "../../../utils/axiosInstance";
 
 const SignIn = () => {
   const [identifier, setIdentifier] = useState('')
@@ -15,7 +16,7 @@ const SignIn = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/account/signin/', {
+      const response = await axiosInstance.post('/account/signin/', {
         identifier: identifier,
         password: password
       })

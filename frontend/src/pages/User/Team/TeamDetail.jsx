@@ -34,6 +34,8 @@ const TeamDetails = () => {
 
   useEffect(() => {
     if (team) {
+      console.log(team);
+      
       fetchMembersAndPendingRequests();
       fetchTasks();
       setIsCreator(userId === team.creator.id);
@@ -226,7 +228,7 @@ const TeamDetails = () => {
             </div>
             <nav className="flex-grow py-4 px-4 overflow-y-auto">
               {[
-                { name: 'About', icon: FaInfoCircle, hash: '' },
+                { name: 'Dashboard', icon: FaInfoCircle, hash: '' },
                 { name: 'Tasks', icon: FaTasks, hash: '#tasks' },
                 { name: 'Members', icon: FaUsers, hash: '#members' },
                 { name: 'Meetings', icon: FaCalendarAlt, hash: '#meetings' },

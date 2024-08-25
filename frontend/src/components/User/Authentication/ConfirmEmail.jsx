@@ -1,7 +1,6 @@
 import React,{useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import axiosInstance from '../../../utils/axiosInstance'
-import axios from 'axios'
 
 const ConfirmEmail = () => {
    const [email, setEmail] = useState('')
@@ -11,7 +10,7 @@ const ConfirmEmail = () => {
    const handleSubmit = async (e) => {
       e.preventDefault()
       try {
-         const response = await axios.post('http://127.0.0.1:8000/api/account/resend-otp/', {
+         const response = await axiosInstance.post('/account/resend-otp/', {
          email: email,
          })
          navigate('/verify-otp', { state: { isSignup: false, email: email } })

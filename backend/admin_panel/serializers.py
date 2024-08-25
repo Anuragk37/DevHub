@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from account.models import MyUser
-from .models import Skill,Tag
+from .models import *
 from django.contrib.auth import authenticate
 
 class AdminLoginSerializer(serializers.Serializer):
@@ -38,3 +38,17 @@ class TagSerializer(serializers.ModelSerializer):
    class Meta:
       model = Tag
       fields = '__all__'
+
+# admin_panel/serializers.py
+
+
+class FeedbackSerializer(serializers.ModelSerializer):
+    user = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Feedback
+        fields = '__all__'
+
+    def get_user(self, obj):
+        from account.serializers import UserSerializer
+        return UserSerializer(obj.user).data

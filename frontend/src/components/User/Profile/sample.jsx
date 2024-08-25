@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { jwtDecode } from 'jwt-decode';
+import axiosInstance from '../../../utils/axiosInstance';
 
 const SkillsSelector = ({ fromProfile = false, onClose }) => {
   const [skills, setSkills] = useState([]);
@@ -15,7 +16,7 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
 
   const getSkills = async () => {
     try {
-      const response = await axios.get('http://127.0.0.1:8000/api/admin/skills/');
+      const response = await axiosInstance.get('/admin/skills/');
       setSkills(response.data);
     } catch (error) {
       console.log(error);
@@ -47,7 +48,7 @@ const SkillsSelector = ({ fromProfile = false, onClose }) => {
   const handleSubmit = async () => {
     const decodedToken = jwtDecode(accessToken);
     const user_id = decodedToken.user_id;
-    await axios.post('http://127.0.0.1:8000/api/account/user-skill/', {
+    await axiosInstance.post('/account/user-skill/', {
       user_id,
       selectedSkills,
     });

@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import {jwtDecode} from 'jwt-decode';
 import toast from 'react-hot-toast';
 import { FiSearch, FiX } from 'react-icons/fi';
+import axiosInstance from '../../utils/axiosInstance';
 
 const TagSelector = ({ onClose, fromProfile = false, interests = null }) => {
   const [tags, setTags] = useState([]);
@@ -20,7 +21,7 @@ const TagSelector = ({ onClose, fromProfile = false, interests = null }) => {
 
   const getTags = async (page = 1) => {
     try {
-      const response = await axios.get(`http://127.0.0.1:8000/api/admin/tags/?page=${page}`);
+      const response = await axiosInstance.get(`/admin/tags/?page=${page}`);
       setTags(response.data.results);
       setCurrentPage(page);
       setTotalPages(Math.ceil(response.data.count / 10)); // Assuming 10 items per page
@@ -67,7 +68,7 @@ const TagSelector = ({ onClose, fromProfile = false, interests = null }) => {
       const tagsToAdd = selectedTags.filter(tag => !initialInterests.some(i => i.id === tag.id));
       const tagsToRemove = initialInterests.filter(tag => !selectedTags.some(s => s.id === tag.id));
 
-      await axios.post("http://127.0.0.1:8000/api/account/user-tag/", {
+      await axiosInstance.post("/account/user-tag/", {
         user_id,
         tagsToAdd,
         tagsToRemove

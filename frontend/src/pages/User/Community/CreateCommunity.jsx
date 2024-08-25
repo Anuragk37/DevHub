@@ -1,34 +1,16 @@
 import React, { useState } from "react";
 import { FaUsers, FaBookOpen, FaShieldAlt } from "react-icons/fa";
+import { useForm, Controller } from "react-hook-form";
 import axiosInstance from "../../../utils/axiosInstance";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
 const CreateCommunity = () => {
-  const [communityName, setCommunityName] = useState("");
-  const [description, setDescription] = useState("");
-  const [rules, setRules] = useState("");
+  const { control, handleSubmit, formState: { errors } } = useForm();
   const [profileImage, setProfileImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-
   const navigate = useNavigate();
 
-  // Handle community name input change
-  const handleCommunityNameChange = (e) => {
-    setCommunityName(e.target.value);
-  };
-
-  // Handle description input change
-  const handleDescriptionChange = (e) => {
-    setDescription(e.target.value);
-  };
-
-  // Handle rules input change
-  const handleRulesChange = (e) => {
-    setRules(e.target.value);
-  };
-
-  // Handle profile image selection
   const handleImageChange = (e) => {
     const selectedImage = e.target.files[0];
     if (selectedImage) {
@@ -41,14 +23,11 @@ const CreateCommunity = () => {
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
+  const onSubmit = async (data) => {
     const formData = new FormData();
-    formData.append("name", communityName);
-    formData.append("description", description);
-    formData.append("rules", rules);
+    formData.append("name", data.communityName);
+    formData.append("description", data.description);
+    formData.append("rules", data.rules);
     if (profileImage) {
       formData.append("profile_pic", profileImage);
     }
@@ -58,6 +37,7 @@ const CreateCommunity = () => {
       navigate("/");
     } catch (error) {
       console.log(error);
+      toast.error("An error occurred while creating the community");
     }
   };
 
@@ -86,63 +66,72 @@ const CreateCommunity = () => {
             </div>
           </div>
           <div className="md:w-3/5 p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="mb-3">
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="communityName" className="block text-sm font-medium text-gray-700 mb-1">
                   Community Name
                 </label>
-                <input
-                  type="text"
-                  id="name"
-                  name="name"
-                  value={communityName}
-                  onChange={handleCommunityNameChange}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Enter community name"
+                <Controller
+                  name="communityName"
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Community name is required" }}
+                  render={({ field }) => (
+                    <input
+                      {...field}
+                      type="text"
+                      id="communityName"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Enter community name"
+                    />
+                  )}
                 />
+                {errors.communityName && <p className="text-red-500 text-sm mt-1">{errors.communityName.message}</p>}
               </div>
               <div className="mb-3">
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">
                   Description
                 </label>
-                <textarea
-                  id="description"
+                <Controller
                   name="description"
-                  value={description}
-                  onChange={handleDescriptionChange}
-                  rows="3"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Describe your community"
-                ></textarea>
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Description is required" }}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      id="description"
+                      rows="3"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Describe your community"
+                    ></textarea>
+                  )}
+                />
+                {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description.message}</p>}
               </div>
               <div className="mb-3">
-                <label
-                  htmlFor="rules"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="rules" className="block text-sm font-medium text-gray-700 mb-1">
                   Community Rules
                 </label>
-                <textarea
-                  id="rules"
+                <Controller
                   name="rules"
-                  value={rules}
-                  onChange={handleRulesChange}
-                  rows="4"
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
-                  placeholder="Enter community rules "
-                ></textarea>
+                  control={control}
+                  defaultValue=""
+                  rules={{ required: "Community rules are required" }}
+                  render={({ field }) => (
+                    <textarea
+                      {...field}
+                      id="rules"
+                      rows="4"
+                      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition duration-200"
+                      placeholder="Enter community rules"
+                    ></textarea>
+                  )}
+                />
+                {errors.rules && <p className="text-red-500 text-sm mt-1">{errors.rules.message}</p>}
               </div>
               <div className="mb-3">
-                <label
-                  htmlFor="profileImage"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label htmlFor="profileImage" className="block text-sm font-medium text-gray-700 mb-1">
                   Profile Image
                 </label>
                 <input
@@ -161,9 +150,7 @@ const CreateCommunity = () => {
                 </label>
                 {imagePreview && (
                   <div className="mt-4">
-                    <p className="block text-sm font-medium text-gray-700 mb-1">
-                      Preview:
-                    </p>
+                    <p className="block text-sm font-medium text-gray-700 mb-1">Preview:</p>
                     <img
                       src={imagePreview}
                       alt="Profile Preview"

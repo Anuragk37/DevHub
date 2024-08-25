@@ -24,9 +24,11 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
   const [isFollowingModalOpen, setIsFollowingModalOpen] = useState(false);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   const getUser = async () => {
     try {
+      setIsLoading(true);
       const response = await axiosInstance.get(`/account/user/${userId}/`);
       console.log(response.data);
       setUserData({
@@ -44,6 +46,8 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
       });
     } catch (error) {
       console.error('Error fetching user:', error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -88,6 +92,37 @@ const ProfileDetails = ({ isOwnProfile, userId, handleFollowUnfollow }) => {
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl animate-pulse">
+        <div className="h-48 bg-gradient-to-r from-purple-300 to-indigo-300"></div>
+        <div className="relative px-6 py-8">
+          <div className="flex items-start">
+            <div className="h-32 w-32 rounded-full bg-gray-300 -mt-20"></div>
+            <div className="ml-auto flex space-x-2">
+              <div className="w-24 h-10 bg-gray-300 rounded-full"></div>
+              <div className="w-10 h-10 bg-gray-300 rounded-full"></div>
+            </div>
+          </div>
+          <div className="mt-4 space-y-4">
+            <div className="h-8 bg-gray-300 rounded w-3/4"></div>
+            <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+            <div className="h-16 bg-gray-300 rounded"></div>
+            <div className="flex flex-wrap space-y-2">
+              <div className="h-6 bg-gray-300 rounded w-1/3 mr-4"></div>
+              <div className="h-6 bg-gray-300 rounded w-1/4 mr-4"></div>
+              <div className="h-6 bg-gray-300 rounded w-1/5"></div>
+            </div>
+            <div className="flex items-center space-x-8">
+              <div className="h-8 bg-gray-300 rounded w-24"></div>
+              <div className="h-8 bg-gray-300 rounded w-24"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white shadow-xl rounded-lg overflow-hidden transition-all duration-300 hover:shadow-2xl">

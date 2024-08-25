@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { FaSearch, FaBell } from 'react-icons/fa';
+import { FaSearch, FaBell ,FaPlus } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { userSignOut } from '../../features/authSlice';
@@ -99,7 +99,7 @@ function Header() {
   const getUser = async () => {
     if (accessToken && userId) {
       try {
-        const response = await axios.get(`http://127.0.0.1:8000/api/account/user/${userId}/`);
+        const response = await axiosInstance.get(`/account/user/${userId}/`);
         setProfilePic(response.data.profile_pic);
       } catch (error) {
         console.error('Error fetching user profile:', error);
@@ -117,8 +117,8 @@ function Header() {
   };
 
   return (
-    <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md'>
-      <div className='max-w-screen h-16 px-4 md:px-20 flex items-center justify-between relative'>
+    <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-10'>
+      <div className='max-w-screen h-16 md:px-20 flex items-center justify-between relative'>
         <div>
           <Link to={'/'}><h1 className='text-2xl md:text-3xl font-bold text-purple-900'>DevHub</h1></Link>
         </div>
@@ -202,10 +202,13 @@ function Header() {
           </div>
         ) : (
           <div className='relative flex items-center space-x-4'>
-            <Link to={'/user/create-article/'}>
+            <Link className='hidden md:block' to={'/user/create-article/'}>
               <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
                 Create post
               </button>
+            </Link>
+            <Link className='md:hidden'  to={'/user/create-article'}>
+              <FaPlus className='text-xl text-purple-900 hover:text-purple-700' />
             </Link>
             <div className='relative'>
               <FaBell

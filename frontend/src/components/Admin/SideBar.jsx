@@ -177,9 +177,9 @@ const SideBar = () => {
                 </Link>
               </li>
               <li>
-                <Link to="/admin/help">
+                <Link to="/admin/feedback-list/">
                   <p className={`flex items-center p-2 text-white rounded-lg hover:bg-blue-700 group ${isActive('/admin/help') ? 'bg-blue-700' : ''}`}>
-                    <span className="flex-1 ml-3 whitespace-nowrap">Help</span>
+                    <span className="flex-1 ml-3 whitespace-nowrap">feedbacks</span>
                   </p>
                 </Link>
               </li>

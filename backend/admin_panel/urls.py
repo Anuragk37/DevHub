@@ -10,4 +10,6 @@ urlpatterns = [
    path('tags/<int:pk>/',views.TagRetrieveUpdateDestroyView.as_view()),
    path('block-user/<int:pk>/',views.blockUser),
    path('unblock-user/<int:pk>/',views.unblockUser),
+   path('feedback/',views.FeedbackView.as_view()),
+   path('feedback/<int:pk>/',views.FeedbackRetrieveUpdateDestroyView.as_view()),
 ]

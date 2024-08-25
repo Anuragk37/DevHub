@@ -51,6 +51,10 @@ import TeamManagement from './pages/Admin/TeamManagement/TeamManagement.jsx'
 import VideoConferencePage from './pages/User/Team/VideoConferencePage.jsx'
 import FlaggedArticle from './pages/Admin/Article/FlaggedArticle.jsx'
 import AboutPage from './pages/User/About/AboutPage.jsx'
+import TagView from './pages/User/Article/TagView.jsx'
+import Feedback from './pages/User/Feedback/Feedback.jsx'
+import FeedbackList from './pages/Admin/Feedback/FeedbackList.jsx'
+import FeedbackDetail from './pages/Admin/Feedback/FeedbackDetail.jsx'
 function App() {
 
   const router = createBrowserRouter([
@@ -97,6 +101,10 @@ function App() {
     {
       path:'/user/view-article/:id',
       element:<ArticleView />
+    },
+    {
+      path:'/user/tag/:id',
+      element:<UserProtecredRoute><TagView /></UserProtecredRoute>
     },
     {
       path:'/user/search-results',
@@ -163,6 +171,10 @@ function App() {
       element:<UserProfile />
     },
     {
+      path:'/user/feedback',
+      element:<UserProtecredRoute><Feedback /></UserProtecredRoute>
+    },
+    {
       path:'/about/',
       element:<AboutPage />
     },
@@ -215,7 +227,15 @@ function App() {
     {
       path: '/admin/team-management/',
       element: <AdminProtectedRoute><TeamManagement /></AdminProtectedRoute>
-    }
+    },
+    {
+      path: '/admin/feedback-list/',
+      element: <AdminProtectedRoute><FeedbackList /></AdminProtectedRoute>
+    },
+    {
+      path: '/admin/feedback/:id',
+      element: <AdminProtectedRoute><FeedbackDetail /></AdminProtectedRoute>
+    },
   ])
 
   return (
