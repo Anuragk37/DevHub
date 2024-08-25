@@ -1,4 +1,4 @@
 
-const WS_URL = "ws://devhub.anuragk.online/ws"
+const WS_URL = "wss://devhub.anuragk.online/ws"
 
 export default WS_URL
