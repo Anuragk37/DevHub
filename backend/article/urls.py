@@ -20,4 +20,5 @@ urlpatterns = [
    path('recently-viewed/', views.RecentlyViewedArticleView.as_view()),
    path('trending-tags/', views.TrendingTagsView.as_view()),
    path('taged-articles/<int:id>/', views.TagedArticlesView.as_view()),
+   path('popular-articles/', views.PopularArticlesView.as_view()),
 ]

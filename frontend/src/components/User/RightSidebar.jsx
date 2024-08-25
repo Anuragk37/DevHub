@@ -13,35 +13,15 @@ const RightSidebar = () => {
 
   const isAuthenticated = useSelector((state) => state.auth.isUserAuthenticated);
 
-  const dummyFeaturedArticles = [
-    {
-      id: 1,
-      title: "The Future of AI in Healthcare",
-      author: { username: "ai_expert" },
-      brief_description: "Exploring how artificial intelligence is revolutionizing medical diagnoses and treatment plans."
-    },
-    {
-      id: 2,
-      title: "Sustainable Living: Small Changes, Big Impact",
-      author: { username: "eco_warrior" },
-      brief_description: "Practical tips for reducing your carbon footprint and living a more sustainable lifestyle."
-    },
-    {
-      id: 3,
-      title: "The Rise of Remote Work: Challenges and Opportunities",
-      author: { username: "future_of_work" },
-      brief_description: "Analyzing the shift towards remote work and its implications for businesses and employees."
-    }
-  ];
-
+  
   const fetchData = async () => {
     setLoading(true);
     try {
       const trendingTopicsResponse = await axiosInstance.get('/article/trending-tags');
       setTrendingTopics(trendingTopicsResponse.data);
       
-      // Use dummy featured articles instead of API call
-      setFeaturedArticles(dummyFeaturedArticles);
+      const popularArticlesResponse = await axiosInstance.get('/article/popular-articles');
+      setFeaturedArticles(popularArticlesResponse.data);
 
       if (isAuthenticated) {
         const [usersResponse, articlesResponse] = await Promise.all([
@@ -179,8 +159,8 @@ const RightSidebar = () => {
                   <Link to={`/user/view-article/${article.id}`}>
                     <h4 className="font-medium text-gray-800">{article.title}</h4>
                   </Link>
-                  <p className="text-sm text-gray-600">{article.author.username}</p>
-                  <p className="text-xs text-gray-500">{article.brief_description}</p>
+                  <p className="text-sm text-gray-600">{article.auther.username}</p>
+               
                 </div>
               ))}
             </div>

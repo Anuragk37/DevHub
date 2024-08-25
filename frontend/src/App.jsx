@@ -104,11 +104,11 @@ function App() {
     },
     {
       path:'/user/tag/:id',
-      element:<UserProtecredRoute><TagView /></UserProtecredRoute>
+      element:<TagView />
     },
     {
       path:'/user/search-results',
-      element:<UserProtecredRoute><SearchResult /></UserProtecredRoute>
+      element:<SearchResult />
     },
     {
       path:'/user/my-profile',

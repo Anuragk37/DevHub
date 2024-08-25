@@ -291,6 +291,13 @@ class RecentlyViewedArticleView(APIView):
         articles = ViewedArticle.objects.order_by('-viewed_at')[:3]
         serializer = ViewedArticleSerializer(articles, many=True,context={'request': request})
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class PopularArticlesView(APIView):
+    def get(self,request):
+        articles = Article.objects.annotate(like_count=Count('likes')).order_by('-like_count')[:3]
+        serializer = ArticleSerializer(articles, many=True,context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class TrendingTagsView(APIView):

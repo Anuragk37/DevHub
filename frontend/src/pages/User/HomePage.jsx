@@ -104,7 +104,7 @@ const HomePage = ({ fromRecommended }) => {
     <div className="min-h-screen bg-gray-100">
       <Header />
       <div className="flex pt-16 px-4 md:px-10 lg:px-16">
-        <div className=" mt-6 lg:mt-0 lg:block">
+        <div className=" mt-0 lg:mt-0 lg:block">
                 <div className="sticky top-20">
                 <SideBar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
                 </div>

@@ -1,10 +1,9 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { FaSearch, FaBell ,FaPlus } from 'react-icons/fa';
+import { FaSearch, FaBell, FaPlus } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
 import { userSignOut } from '../../features/authSlice';
 import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
 import defaultPic from '../../assets/default.jpg';
 import toast, { Toaster } from 'react-hot-toast';
 import axiosInstance from '../../utils/axiosInstance';
@@ -48,7 +47,7 @@ function Header() {
       setMessage(lastMessage.data);
       dispatch(incrementNotificationCount());
     }
-  }, [lastMessage]);
+  }, [lastMessage, dispatch]);
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -117,11 +116,17 @@ function Header() {
   };
 
   return (
-    <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-10'>
+    <div className='fixed top-0 left-0 right-0 z-50 bg-white shadow-md px-4 sm:px-6 md:px-10'>
       <div className='max-w-screen h-16 md:px-20 flex items-center justify-between relative'>
         <div>
-          <Link to={'/'}><h1 className='text-2xl md:text-3xl font-bold text-purple-900'>DevHub</h1></Link>
+          <Link to={'/'}>
+            <h1 className='text-2xl md:text-3xl font-bold text-purple-900'>
+              <span className='sm:hidden'>DH</span>
+              <span className='hidden sm:inline'>DevHub</span>
+            </h1>
+          </Link>
         </div>
+
         <div ref={searchRef} className='flex-grow mx-4 max-w-2xl relative'>
           <form onSubmit={handleSearch}>
             <div className='relative'>
@@ -146,10 +151,10 @@ function Header() {
                 <div className='p-2'>
                   <h3 className='font-semibold text-gray-700'>Articles</h3>
                   {searchResults.articles.slice(0, 3).map((article) => (
-                    <Link to={`/user/view-article/${article.id}`}>
-                    <div key={article.id} className='py-1 px-2 hover:bg-gray-100 cursor-pointer'>
-                      {article.title}
-                    </div>
+                    <Link key={article.id} to={`/user/view-article/${article.id}`}>
+                      <div className='py-1 px-2 hover:bg-gray-100 cursor-pointer'>
+                        {article.title}
+                      </div>
                     </Link>
                   ))}
                 </div>
@@ -158,8 +163,8 @@ function Header() {
                 <div className='p-2'>
                   <h3 className='font-semibold text-gray-700'>Users</h3>
                   {searchResults.users.slice(0, 3).map((user) => (
-                    <Link to={`/user/profile/${user.id}`}>
-                      <div key={user.id} className='py-1 px-2 hover:bg-gray-100 cursor-pointer'>
+                    <Link key={user.id} to={`/user/profile/${user.id}`}>
+                      <div className='py-1 px-2 hover:bg-gray-100 cursor-pointer'>
                         {user.username}
                       </div>
                     </Link>
@@ -188,20 +193,20 @@ function Header() {
           )}
         </div>
         {!isAuthenticated ? (
-          <div className='flex items-center space-x-4'>
+          <div className='flex items-center space-x-2 sm:space-x-4'>
             <Link to={'/signin'}>
-              <button className='hover:bg-purple-900 text-purple-900 hover:text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
+              <button className='hover:bg-purple-900 text-purple-900 hover:text-white font-bold py-1 px-2 sm:px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300 text-sm sm:text-base'>
                 Sign In
               </button>
             </Link>
             <Link to={'/signup'}>
-              <button className='bg-purple-800 hover:bg-purple-900 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
+              <button className='bg-purple-800 hover:bg-purple-900 text-white font-bold py-1 px-2 sm:px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300 text-sm sm:text-base'>
                 Sign Up
               </button>
             </Link>
           </div>
         ) : (
-          <div className='relative flex items-center space-x-4'>
+          <div className='relative flex items-center space-x-2 sm:space-x-4'>
             <Link className='hidden md:block' to={'/user/create-article/'}>
               <button className='bg-purple-900 hover:bg-purple-950 text-white font-bold py-1 px-4 rounded-3xl focus:outline-none focus:shadow-outline transition-colors duration-300'>
                 Create post
