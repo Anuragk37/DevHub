@@ -7,9 +7,7 @@ from .models import Article
 
 @shared_task(bind=True)
 def check_toxicity(self,article_id,is_new):
-
     article = Article.objects.get(id=article_id)
-
     url = f'https://commentanalyzer.googleapis.com/v1alpha1/comments:analyze?key={settings.PERSPECTIVE_API_KEY}'
     data = {
         'comment': {'text': article.content},

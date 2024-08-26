@@ -55,8 +55,7 @@ class ArticleView(generics.ListCreateAPIView):
       serializer = ArticleSerializer(data={'title':title,'content':content,'thumbnail':thumbnail,'auther_id':auther_id,'tags':tags}, context={'request': request})
       if serializer.is_valid():
          article = serializer.save()
-         
-         check_toxicity.delay(article.id,is_new=True)
+         check_toxicity.delay(article.id, is_new=True)
         
          return Response(serializer.data)
       return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
