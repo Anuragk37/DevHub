@@ -1,8 +1,7 @@
 import pandas as pd
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-from nltk.stem import WordNetLemmatizer
+import re
+import string
+from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from django.db.models import Prefetch
@@ -26,16 +25,29 @@ def get_dataframes():
    return articles_df, viewed_article_df, liked_article_df
 
 
+# def preprocess_text(text):
+#    stop_words = set(stopwords.words('english'))
+#    lemmatizer = WordNetLemmatizer()
+
+#    tokens = word_tokenize(text)
+#    filtered_tokens = [token for token in tokens if token.lower() not in stop_words]
+#    lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
+
+#    return ' '.join(lemmatized_tokens)
+
+
+
 def preprocess_text(text):
-   stop_words = set(stopwords.words('english'))
-   lemmatizer = WordNetLemmatizer()
-
-   tokens = word_tokenize(text)
-   filtered_tokens = [token for token in tokens if token.lower() not in stop_words]
-   lemmatized_tokens = [lemmatizer.lemmatize(token) for token in filtered_tokens]
-
-   return ' '.join(lemmatized_tokens)
-
+    text = text.lower()
+    
+    text = text.translate(str.maketrans("", "", string.punctuation))
+    text = re.sub(r'\d+', '', text)
+    tokens = text.split()
+    
+    stop_words = set(ENGLISH_STOP_WORDS)
+    filtered_tokens = [token for token in tokens if token not in stop_words]
+        
+    return ' '.join(filtered_tokens)
 
 def recommend_articles(user_id):
    articles_df, viewed_article_df, liked_article_df = get_dataframes()
