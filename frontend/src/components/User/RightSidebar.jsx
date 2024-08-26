@@ -93,9 +93,7 @@ const RightSidebar = () => {
                           <p className="text-xs text-gray-500">@{user.username}</p>
                         </div>
                       </Link>
-                      <button className="text-sm text-purple-600 hover:text-purple-800 font-medium">
-                        Follow
-                      </button>
+                      
                     </div>
                   ))}
                 </div>
