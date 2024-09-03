@@ -3,7 +3,7 @@ import {store} from '../app/store';
 
 
 const axiosInstance = axios.create({
-  baseURL: 'https://devhub.anuragk.online/api',
+  baseURL: 'https://dev-hub.centralindia.cloudapp.azure.com/api',
 });
 
 axiosInstance.interceptors.request.use(
